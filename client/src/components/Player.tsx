@@ -1,6 +1,6 @@
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { quat, RigidBody, type RapierRigidBody } from '@react-three/rapier'
+import { BallCollider, quat, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 import { useRef, useState } from 'react'
 import { Quaternion, Vector3, type ColorRepresentation } from 'three'
 import BlockCharacter from '../models/BlockCharacter'
@@ -33,7 +33,7 @@ export default function Player({ name, color = randomColor(), x = 0, y = 0 }: Pl
     if (right) impulse.x += 1
     if (left) impulse.x -= 1
 
-    const impulseStrength = 50 * safeDelta
+    const impulseStrength = 30 * safeDelta
     impulse.normalize().multiplyScalar(impulseStrength)
 
     if (!impulse.equals(new Vector3())) {
@@ -62,10 +62,11 @@ export default function Player({ name, color = randomColor(), x = 0, y = 0 }: Pl
     >
       <RigidBody
         ref={body}
-        colliders="hull"
+        colliders={false}
         position={[x, 3, y]}
         enabledRotations={[false, false, false]}
       >
+        <BallCollider args={[0.6]} />
         <BlockCharacter color={color} walk={walking} />
         <Html
           center

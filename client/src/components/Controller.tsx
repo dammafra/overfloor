@@ -1,9 +1,12 @@
 import { Html, KeyboardControls } from '@react-three/drei'
 import Joystick, { DirectionCount, GhostArea } from 'rc-joystick'
 import type { PropsWithChildren } from 'react'
+import { useIsTouch } from '../hooks/use-is-touch'
 import useController from '../stores/use-controller'
 
 export default function Controller({ children }: PropsWithChildren) {
+  const isTouch = useIsTouch()
+
   const setUp = useController(state => state.setUp)
   const setDown = useController(state => state.setDown)
   const setLeft = useController(state => state.setLeft)
@@ -24,20 +27,22 @@ export default function Controller({ children }: PropsWithChildren) {
         setRight(state.right)
       }}
     >
-      <Html center wrapperClass="fixed inset-0">
-        <GhostArea className="h-[100dvh] w-screen">
-          <Joystick
-            className="opacity-50"
-            directionCount={DirectionCount.Nine}
-            onChange={event => {
-              setUp(event.direction.toLowerCase().includes('top'))
-              setDown(event.direction.toLowerCase().includes('bottom'))
-              setLeft(event.direction.toLowerCase().includes('left'))
-              setRight(event.direction.toLowerCase().includes('right'))
-            }}
-          />
-        </GhostArea>
-      </Html>
+      {isTouch && (
+        <Html center wrapperClass="fixed inset-0">
+          <GhostArea className="h-[100dvh] w-screen">
+            <Joystick
+              className="opacity-50"
+              directionCount={DirectionCount.Nine}
+              onChange={event => {
+                setUp(event.direction.toLowerCase().includes('top'))
+                setDown(event.direction.toLowerCase().includes('bottom'))
+                setLeft(event.direction.toLowerCase().includes('left'))
+                setRight(event.direction.toLowerCase().includes('right'))
+              }}
+            />
+          </GhostArea>
+        </Html>
+      )}
 
       {children}
     </KeyboardControls>
