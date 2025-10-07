@@ -22,9 +22,11 @@
     "rc-joystick": "^1.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-toastify": "^11.0.5",
     "tailwindcss": "^4.1.12",
     "three": "^0.179.1",
     "use-sound": "^5.0.0",
+    "wouter": "^3.7.1",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
