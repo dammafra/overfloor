@@ -1,21 +1,26 @@
 import { Client, Room } from '@colyseus/core'
 import { GameState, Player } from './schema/GameState'
 
+interface GameRoomOptions {
+  id: string
+  username: string
+}
+
 export class GameRoom extends Room<GameState> {
   IDS_CHANNEL = '$IDS'
   USERNAMES_CHANNEL = '$USERNAMES'
 
   state = new GameState()
 
-  async onCreate(options: any) {
+  async onCreate(options: GameRoomOptions) {
     await this.#checkRoomId(options.id)
     this.roomId = options.id
     console.log(`✨ room ${this.roomId} created`)
   }
 
-  async onJoin(client: Client, options: any) {
+  async onJoin(client: Client, options: GameRoomOptions) {
     await this.#checkUsername(options.username)
-    this.state.players.set(client.sessionId, new Player(options.username, this.state.players.size))
+    this.state.players.set(client.sessionId, new Player(options.username))
     console.log(`✅ [${client.sessionId}] ${options.username} joined`)
   }
 

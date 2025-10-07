@@ -5,7 +5,7 @@ export class Player extends Schema {
   @type('number') x: number
   @type('number') z: number
 
-  constructor(username: string, count: number) {
+  constructor(username: string) {
     super()
 
     this.username = username
