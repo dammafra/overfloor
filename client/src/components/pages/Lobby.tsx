@@ -31,7 +31,7 @@ export function Lobby() {
   useEffect(() => {
     if (!error || !from) return
     toast.error(error.message)
-    navigate(`/${from}`)
+    navigate(`/${from}`, { replace: true })
   }, [error, from, navigate])
 
   function spiralPosition(index: number): [number, number, number] {

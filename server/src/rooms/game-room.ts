@@ -30,9 +30,8 @@ export class GameRoom extends Room<GameState> {
     if (player) {
       await this.presence.srem(this.USERNAMES_CHANNEL, player.username)
       this.state.players.delete(client.sessionId)
+      console.log(`❌ [${client.sessionId}] ${player.username} left`)
     }
-
-    console.log(`❌ [${client.sessionId}] ${player.username} left`)
   }
 
   onDispose() {
