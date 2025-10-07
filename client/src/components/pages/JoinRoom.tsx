@@ -1,8 +1,8 @@
+import { useLobby } from '@hooks'
 import { useState } from 'react'
 import { Link, useLocation } from 'wouter'
-import { useLobby } from '../../hooks/use-colyseus'
 
-export default function JoinOrCreateRoom() {
+export function JoinOrCreateRoom() {
   const [, navigate] = useLocation()
   const [username, setUsername] = useState<string>()
   const { rooms } = useLobby()
@@ -37,7 +37,7 @@ export default function JoinOrCreateRoom() {
                 <tr key={room.roomId}>
                   <td className="py-2 px-4">{room.roomId}</td>
                   <td className="py-2 px-4">{room.clients}</td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 py-4">
                     <button
                       type="submit"
                       className={`bg-slate-400 text-white font-bold px-4 py-2 rounded-2xl shadow hover:bg-slate-500 cursor-pointer flex items-center ${!username && 'opacity-20 pointer-events-none'}`}

@@ -1,7 +1,7 @@
 import { CuboidCollider } from '@react-three/rapier'
-import useGrid from '../stores/use-grid'
+import { useGrid } from '@stores'
 
-export default function Walls() {
+export function Walls() {
   const { unit, width, height, gap } = useGrid()
 
   const wallHeight = 3

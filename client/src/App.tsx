@@ -1,16 +1,11 @@
+import { Experience } from '@components'
+import { ErrorBoundary } from '@components/helpers'
+import { CreateRoom, JoinOrCreateRoom, Lobby, MainMenu } from '@components/pages'
+import { useDebug } from '@hooks'
 import { Leva } from 'leva'
 import { ToastContainer } from 'react-toastify'
 import { Redirect, Route, Switch } from 'wouter'
-import { ErrorBoundary } from './components/ErrorBoundary'
-import Experience from './components/Experience'
-import CreateRoom from './components/pages/CreateRoom'
-import JoinOrCreateRoom from './components/pages/JoinRoom'
-import Lobby from './components/pages/Lobby'
-import MainMenu from './components/pages/MainMenu'
-import { useDebug } from './hooks/use-debug'
 
-// TODO add paths
-// TODO add common schemas
 // TODO css/components refactor
 
 export default function App() {

@@ -12,7 +12,7 @@ type ControllerStore = {
   setRight: (right: boolean) => void
 }
 
-const useController = create<ControllerStore>()(set => ({
+export const useController = create<ControllerStore>()(set => ({
   up: false,
   down: false,
   left: false,
@@ -23,5 +23,3 @@ const useController = create<ControllerStore>()(set => ({
   setLeft: (left: boolean) => set(() => ({ left })),
   setRight: (right: boolean) => set(() => ({ right })),
 }))
-
-export default useController

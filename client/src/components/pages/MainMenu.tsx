@@ -1,6 +1,6 @@
 import { Link } from 'wouter'
 
-export default function MainMenu() {
+export function MainMenu() {
   return (
     <ul className="absolute inset-0 flex flex-col gap-4 items-center justify-center">
       <li className="flex">

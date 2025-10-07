@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'wouter'
 
-export default function CreateRoom() {
+export function CreateRoom() {
   const [, navigate] = useLocation()
 
   const [id, setId] = useState<string>()

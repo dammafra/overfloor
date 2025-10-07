@@ -1,10 +1,10 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
+import { useGrid } from '@stores'
 import { useEffect, useRef } from 'react'
 import { Box3, Vector3, type Object3D } from 'three'
-import useGrid from '../../stores/use-grid'
 
-export default function CameraRig() {
+export function CameraRig() {
   const { controls, size } = useThree()
   const { unit, width, height, gap } = useGrid()
   const target = useRef<Object3D>(null!)

@@ -34,7 +34,7 @@ type SoundBoardStore = {
   toggleMuted: () => void
 }
 
-const useSoundBoard = create<SoundBoardStore>()(set => ({
+export const useSoundBoard = create<SoundBoardStore>()(set => ({
   setContext: context => set(() => ({ context })),
   setSounds: sounds => set(() => ({ sounds })),
 
@@ -51,5 +51,3 @@ const useSoundBoard = create<SoundBoardStore>()(set => ({
     })
   },
 }))
-
-export default useSoundBoard

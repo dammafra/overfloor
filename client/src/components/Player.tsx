@@ -1,11 +1,11 @@
+import { BlockCharacter } from '@components/models'
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, type RapierRigidBody } from '@react-three/rapier'
+import { useController } from '@stores'
+import { randomColor } from '@utils'
 import { useRef, useState } from 'react'
 import { Quaternion, Vector3, type ColorRepresentation } from 'three'
-import useController from '../stores/use-controller'
-import { randomColor } from '../utils/random'
-import BlockCharacter from './models/BlockCharacter'
 
 interface PlayerProps {
   name: string
@@ -14,7 +14,7 @@ interface PlayerProps {
   y?: number
 }
 
-export default function Player({ name, color = randomColor(), x = 0, y = 0 }: PlayerProps) {
+export function Player({ name, color = randomColor(), x = 0, y = 0 }: PlayerProps) {
   const body = useRef<RapierRigidBody>(null)
   const { up, down, left, right } = useController()
   const [walking, setWalking] = useState(false)

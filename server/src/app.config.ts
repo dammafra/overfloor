@@ -1,9 +1,9 @@
 import { monitor } from '@colyseus/monitor'
 import { playground } from '@colyseus/playground'
 import config from '@colyseus/tools'
+import { GameRoom } from '@rooms/game-room'
 import { LobbyRoom } from 'colyseus'
 import basicAuth from 'express-basic-auth'
-import { GameRoom } from './rooms/GameRoom'
 
 export default config({
   initializeExpress: app => {

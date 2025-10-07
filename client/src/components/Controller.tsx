@@ -1,10 +1,10 @@
+import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
+import { useController } from '@stores'
 import Joystick, { DirectionCount, GhostArea } from 'rc-joystick'
 import type { PropsWithChildren } from 'react'
-import { useIsTouch } from '../hooks/use-is-touch'
-import useController from '../stores/use-controller'
 
-export default function Controller({ children }: PropsWithChildren) {
+export function Controller({ children }: PropsWithChildren) {
   const isTouch = useIsTouch()
 
   const setUp = useController(state => state.setUp)

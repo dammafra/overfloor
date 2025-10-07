@@ -1,7 +1,6 @@
+import { useGame, useSoundBoard } from '@stores'
 import { Howler } from 'howler'
 import { useEffect, useState } from 'react'
-import useGame from '../../stores/use-game'
-import useSoundBoard from '../../stores/use-sound-board'
 
 // const parse = ([play, data]: ReturnedValue) => ({ play, ...data })
 

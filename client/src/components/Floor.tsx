@@ -1,14 +1,14 @@
 import { RoundedBoxGeometry } from '@react-three/drei'
 import { InstancedRigidBodies, RapierRigidBody } from '@react-three/rapier'
+import { useGrid } from '@stores'
 import { useMemo, useRef } from 'react'
-import useGrid from '../stores/use-grid'
 
 interface FloorTileInstance {
   key: string
   position: [number, number, number]
 }
 
-export default function Floor() {
+export function Floor() {
   const { unit, width, height, gap } = useGrid()
   const instancedBodies = useRef<RapierRigidBody[]>(null)
 

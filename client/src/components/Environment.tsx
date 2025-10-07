@@ -2,7 +2,7 @@ import { Helper, SoftShadows } from '@react-three/drei'
 import { useControls } from 'leva'
 import { CameraHelper } from 'three'
 
-export default function Environment() {
+export function Environment() {
   const { helpers, ambientLightIntensity, directionalLightIntensity, directionalLightPosition } =
     useControls(
       'environment',

@@ -42,6 +42,7 @@ export function useColyseus<T extends Schema>({
         console.log(`🏟️❌[${roomName}] disposed`)
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return { state, error }
@@ -81,7 +82,8 @@ export function useLobby(serverUrl: string = import.meta.env.VITE_COLYSEUS_URL) 
         console.log('🏟️❌[lobby] disposed')
       })
     }
-  }, [serverUrl])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return { rooms }
 }

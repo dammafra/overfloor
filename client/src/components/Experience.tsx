@@ -1,15 +1,11 @@
+import { Environment, World } from '@components'
+import { CameraRig, Canvas, Helpers } from '@components/helpers'
+import { useDebug, useIsTouch } from '@hooks'
 import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
-import { useDebug } from '../hooks/use-debug'
-import { useIsTouch } from '../hooks/use-is-touch'
-import Environment from './Environment'
-import CameraRig from './helpers/CameraRig'
-import Canvas from './helpers/Canvas'
-import Helpers from './helpers/Helpers'
-import World from './World'
 
-export default function Experience() {
+export function Experience() {
   const isTouch = useIsTouch()
   const debug = useDebug()
 

@@ -11,7 +11,12 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+
+    "paths": {
+      "@rooms/*": ["./src/rooms/*"],
+      "@schema/*": ["./src/schema/*"]
+    }
   },
   "include": ["src"]
 }

@@ -15,7 +15,7 @@ type GameStore = {
   setMenu: (menu?: MenuSection) => void
 }
 
-const useGame = create<GameStore>()(set => ({
+export const useGame = create<GameStore>()(set => ({
   phase: 'ready',
 
   start: () => {
@@ -50,5 +50,3 @@ const useGame = create<GameStore>()(set => ({
   menu: 'main',
   setMenu: menu => set(() => ({ menu })),
 }))
-
-export default useGame

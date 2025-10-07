@@ -1,12 +1,9 @@
+import { Controller, Floor, Player, Walls } from '@components'
+import { randomColor } from '@utils'
 import { button, useControls } from 'leva'
 import { useState } from 'react'
-import { randomColor } from '../utils/random'
-import Controller from './Controller'
-import Floor from './Floor'
-import Player from './Player'
-import Walls from './Walls'
 
-export default function World() {
+export function World() {
   const [, setPlayerKey] = useState(Math.random())
 
   useControls('game', {

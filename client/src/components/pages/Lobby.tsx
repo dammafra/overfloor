@@ -1,19 +1,20 @@
+import { Environment } from '@components'
+import { Canvas } from '@components/helpers'
+import { BlockCharacter } from '@components/models'
+import { useColyseus } from '@hooks'
 import { Float } from '@react-three/drei'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { MathUtils } from 'three'
 import { useLocation, useParams } from 'wouter'
-import { useColyseus } from '../../hooks/use-colyseus'
-import Environment from '../Environment'
-import Canvas from '../helpers/Canvas'
-import BlockCharacter from '../models/BlockCharacter'
 
-export default function Lobby() {
+export function Lobby() {
   const { from, options } = useParams()
   const [, navigate] = useLocation()
   const { id, username } = JSON.parse(atob(options!))
 
-  const { state, error } = useColyseus({
+  // TODO add common schemas
+  const { state, error } = useColyseus<any>({
     roomId: id,
     roomName: 'game-room',
     method: from === 'new' ? 'create' : 'joinById',
