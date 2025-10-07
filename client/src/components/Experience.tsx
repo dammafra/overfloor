@@ -38,7 +38,7 @@ export default function Experience() {
         <Helpers />
       </Physics>
 
-      {/* <SoundBooard /> */}
+      {/* <SoundBoard /> */}
       <CameraRig />
     </Canvas>
   )

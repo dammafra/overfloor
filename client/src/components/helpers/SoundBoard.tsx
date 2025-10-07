@@ -1,9 +1,9 @@
 import { Howler } from 'howler'
 import { useEffect, useState } from 'react'
 import useGame from '../../stores/use-game'
-import useSoundBoard, { type ReturnedValue } from '../../stores/use-sound-board'
+import useSoundBoard from '../../stores/use-sound-board'
 
-const parse = ([play, data]: ReturnedValue) => ({ play, ...data })
+// const parse = ([play, data]: ReturnedValue) => ({ play, ...data })
 
 export default function SoundBoard() {
   const phase = useGame(state => state.phase)
@@ -12,8 +12,8 @@ export default function SoundBoard() {
   const setSounds = useSoundBoard(state => state.setSounds)
   const muted = useSoundBoard(state => state.muted)
 
-  const [loaded, setLoaded] = useState(0)
-  const onload = () => setLoaded(loaded => loaded + 1)
+  const [loaded /* setLoaded */] = useState(0)
+  // const onload = () => setLoaded(loaded => loaded + 1)
 
   const sounds = {}
 
@@ -25,8 +25,8 @@ export default function SoundBoard() {
     setContext(Howler.ctx)
     setSounds(sounds)
 
-    switch (phase) {
-    }
+    // switch (phase) {
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, toLoad, phase])
 

@@ -24,7 +24,7 @@ export default function CameraRig() {
 
     cameraControls.fitToBox(boundingBox, true)
     cameraControls.rotatePolarTo(Math.PI * 0.25, true)
-  }, [controls, target, size])
+  }, [gap, height, unit, width, controls, size, target])
 
   return <></>
 }
