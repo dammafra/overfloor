@@ -40,7 +40,7 @@ type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
 
 export default function BlockCharacter({ color = 'white', walk, ...props }: BlockCharacterProps) {
   const group = useRef<Group>(null)
-  const { scene, materials, animations } = useGLTF('./models/block-character.glb') as GLTFResult
+  const { scene, materials, animations } = useGLTF('/models/block-character.glb') as GLTFResult
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes } = useGraph(clone) as GLTFResult
   const { actions } = useAnimations(animations, group)
@@ -89,4 +89,4 @@ export default function BlockCharacter({ color = 'white', walk, ...props }: Bloc
   )
 }
 
-useGLTF.preload('./models/block-character.glb')
+useGLTF.preload('/models/block-character.glb')

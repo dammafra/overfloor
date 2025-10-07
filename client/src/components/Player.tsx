@@ -3,9 +3,9 @@ import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 import { useRef, useState } from 'react'
 import { Quaternion, Vector3, type ColorRepresentation } from 'three'
-import BlockCharacter from '../models/BlockCharacter'
 import useController from '../stores/use-controller'
 import { randomColor } from '../utils/random'
+import BlockCharacter from './models/BlockCharacter'
 
 interface PlayerProps {
   name: string
