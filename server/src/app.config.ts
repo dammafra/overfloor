@@ -1,7 +1,7 @@
 import { monitor } from '@colyseus/monitor'
 import { playground } from '@colyseus/playground'
 import config from '@colyseus/tools'
-import { GameRoom } from '@rooms/game-room'
+import { GameRoom } from '@rooms'
 import { LobbyRoom } from 'colyseus'
 import basicAuth from 'express-basic-auth'
 

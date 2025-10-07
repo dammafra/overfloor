@@ -1,5 +1,5 @@
 import { Client, Room } from '@colyseus/core'
-import { GameState, Player } from '@schema/game-state'
+import { GameState, Player } from '@schema'
 
 interface GameRoomOptions {
   id: string

@@ -1,3 +1,10 @@
+import moduleAlias from 'module-alias'
+
+moduleAlias.addAliases({
+  '@rooms': __dirname + '/rooms/index',
+  '@schema': __dirname + '/schema/index',
+})
+
 /**
  * IMPORTANT:
  * ---------

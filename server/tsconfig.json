@@ -14,8 +14,8 @@
     "useDefineForClassFields": false,
 
     "paths": {
-      "@rooms/*": ["./src/rooms/*"],
-      "@schema/*": ["./src/schema/*"]
+      "@rooms": ["./src/rooms/index.ts"],
+      "@schema": ["./src/schema/index.ts"]
     }
   },
   "include": ["src"]
