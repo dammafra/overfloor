@@ -3,6 +3,7 @@ import { Canvas } from '@components/helpers'
 import { BlockCharacter } from '@components/models'
 import { useColyseus } from '@hooks'
 import { Float } from '@react-three/drei'
+import { GameState, Player } from '@server/schema'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { MathUtils } from 'three'
@@ -13,15 +14,14 @@ export function Lobby() {
   const [, navigate] = useLocation()
   const { id, username } = JSON.parse(atob(options!))
 
-  // TODO add common schemas
-  const { state, error } = useColyseus<any>({
+  const { state, error } = useColyseus<GameState>({
     roomId: id,
     roomName: 'game-room',
     method: from === 'new' ? 'create' : 'joinById',
     options: { id, username },
   })
 
-  const [players, setPlayers] = useState<any[]>([])
+  const [players, setPlayers] = useState<Player[]>([])
 
   useEffect(() => {
     if (!state || !state.players) return

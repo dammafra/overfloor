@@ -6,7 +6,12 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [restart(), react(), tailwindcss(), tsconfigPaths()],
+  plugins: [
+    restart({ restart: ['../server/src/schema/**'] }),
+    react(),
+    tailwindcss(),
+    tsconfigPaths(),
+  ],
   server: {
     host: true,
     open: true,
