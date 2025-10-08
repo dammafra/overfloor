@@ -1,15 +1,16 @@
 import { Experience } from '@components'
 import { ErrorBoundary } from '@components/helpers'
-import { CreateRoom, JoinOrCreateRoom, Lobby, MainMenu } from '@components/pages'
+import { CreateRoom, JoinOrCreateRoom, MainMenu } from '@components/pages'
 import { useDebug } from '@hooks'
 import { Leva } from 'leva'
-import { ToastContainer } from 'react-toastify'
-import { Redirect, Route, Switch } from 'wouter'
+import { toast, ToastContainer } from 'react-toastify'
+import { Redirect, Route, Switch, useLocation } from 'wouter'
 
 // TODO css/components refactor
 
 export default function App() {
   const debug = useDebug()
+  const [, navigate] = useLocation()
 
   return (
     <>
@@ -19,14 +20,18 @@ export default function App() {
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
       <ToastContainer />
-      <ErrorBoundary>
+      <ErrorBoundary
+        onError={() => {
+          toast.error('Something went wrong')
+          navigate('/', { replace: true })
+        }}
+      >
+        <Experience />
         <Switch>
           <Route path="/" component={MainMenu} />
           <Route path="/new" component={CreateRoom} />
           <Route path="/join" component={JoinOrCreateRoom} />
-          <Route path="/:from/lobby/:options" component={Lobby} />
-          <Route path="/test" component={Experience} />
-
+          <Route path="/:from/lobby/:options" />
           <Route>
             <Redirect to="/" />
           </Route>

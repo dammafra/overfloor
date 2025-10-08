@@ -1,5 +1,3 @@
-import { Environment } from '@components'
-import { Canvas } from '@components/helpers'
 import { BlockCharacter } from '@components/models'
 import { useColyseus } from '@hooks'
 import { Float } from '@react-three/drei'
@@ -53,29 +51,16 @@ export function Lobby() {
     return `hsl(${h}, ${70}%, ${50}%)`
   }
 
-  return (
-    <Canvas
-      shadows
-      camera={{
-        fov: 45,
-        near: 0.1,
-        far: 100,
-      }}
+  return players.map((player, i) => (
+    <Float
+      speed={Math.random()}
+      floatIntensity={3}
+      rotationIntensity={3}
+      key={player.username}
+      scale={0.5}
+      position={spiralPosition(i)}
     >
-      {players.map((player, i) => (
-        <Float
-          speed={Math.random()}
-          floatIntensity={3}
-          rotationIntensity={3}
-          key={player.username}
-          scale={0.5}
-          position={spiralPosition(i)}
-        >
-          <BlockCharacter color={stringToHslColor(player.username)} />
-        </Float>
-      ))}
-
-      <Environment />
-    </Canvas>
-  )
+      <BlockCharacter color={stringToHslColor(player.username)} />
+    </Float>
+  ))
 }

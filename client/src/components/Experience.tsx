@@ -1,9 +1,10 @@
-import { Environment, World } from '@components'
-import { CameraRig, Canvas, Helpers } from '@components/helpers'
+import { Environment, Lobby } from '@components'
+import { Canvas, Helpers } from '@components/helpers'
 import { useDebug, useIsTouch } from '@hooks'
 import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
+import { Route, Switch } from 'wouter'
 
 export function Experience() {
   const isTouch = useIsTouch()
@@ -17,7 +18,6 @@ export function Experience() {
 
   return (
     <Canvas
-      className="fixed top-0 z-100"
       gl={{ debug: { checkShaderErrors: debug, onShaderError: console.error } }}
       shadows
       camera={{
@@ -30,12 +30,15 @@ export function Experience() {
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
       <Physics {...physicsControls} gravity={[0, -50, 0]}>
-        <World />
+        <Switch>
+          <Route path="/:from/lobby/:options" component={Lobby} />
+          {/* <World /> */}
+        </Switch>
         <Helpers />
       </Physics>
 
       {/* <SoundBoard /> */}
-      <CameraRig />
+      {/* <CameraRig /> */}
     </Canvas>
   )
 }
