@@ -6,8 +6,6 @@ import { Leva } from 'leva'
 import { toast, ToastContainer } from 'react-toastify'
 import { Redirect, Route, Switch, useLocation } from 'wouter'
 
-// TODO css/components refactor
-
 export default function App() {
   const debug = useDebug()
   const [, navigate] = useLocation()

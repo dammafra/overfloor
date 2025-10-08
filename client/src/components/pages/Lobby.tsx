@@ -51,16 +51,19 @@ export function Lobby() {
     return `hsl(${h}, ${70}%, ${50}%)`
   }
 
-  return players.map((player, i) => (
-    <Float
-      speed={Math.random()}
-      floatIntensity={3}
-      rotationIntensity={3}
-      key={player.username}
-      scale={0.5}
-      position={spiralPosition(i)}
-    >
-      <BlockCharacter color={stringToHslColor(player.username)} />
-    </Float>
-  ))
+  return (
+    <>
+      {players.map((player, i) => (
+        <Float
+          floatIntensity={2}
+          rotationIntensity={2}
+          key={player.username}
+          scale={0.5}
+          position={spiralPosition(i)}
+        >
+          <BlockCharacter color={stringToHslColor(player.username)} />
+        </Float>
+      ))}
+    </>
+  )
 }

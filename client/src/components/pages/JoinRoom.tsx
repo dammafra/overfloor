@@ -1,4 +1,5 @@
 import { useLobby } from '@hooks'
+import clsx from 'clsx'
 import { useState } from 'react'
 import { Link, useLocation } from 'wouter'
 
@@ -8,20 +9,20 @@ export function JoinOrCreateRoom() {
   const { rooms } = useLobby()
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <Link
-        href="/"
-        className="bg-slate-400 text-white font-bold rounded-2xl shadow hover:bg-slate-500 cursor-pointer flex items-center absolute top-4 left-4"
-      >
-        <span className="icon-[mdi--chevron-left] text-4xl" />
+    <div className="container">
+      <Link href="/" className="button icon absolute top-4 left-4">
+        <span className="icon-[mdi--chevron-left]" />
       </Link>
 
       <div className="flex flex-col gap-4">
-        <input
-          className="bg-white px-4 py-2 rounded-2xl relative"
-          placeholder="Enter username..."
-          onChange={e => setUsername(e.target.value)}
-        />
+        <div>
+          <input
+            className="input"
+            placeholder="Enter username..."
+            onChange={e => setUsername(e.target.value)}
+          />
+          <span className="icon-[mdi--user]" />
+        </div>
 
         {rooms.length ? (
           <table className="text-white max-h-48 w-full">
@@ -37,10 +38,10 @@ export function JoinOrCreateRoom() {
                 <tr key={room.roomId}>
                   <td className="py-2 px-4">{room.roomId}</td>
                   <td className="py-2 px-4">{room.clients}</td>
-                  <td className="py-2 py-4">
+                  <td className="py-2">
                     <button
                       type="submit"
-                      className={`bg-slate-400 text-white font-bold px-4 py-2 rounded-2xl shadow hover:bg-slate-500 cursor-pointer flex items-center ${!username && 'opacity-20 pointer-events-none'}`}
+                      className={clsx('button icon', { disabled: !username })}
                       onClick={() => {
                         const options = btoa(JSON.stringify({ id: room.roomId, username }))
                         navigate(`/join/lobby/${options}`)

@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'wouter'
 
@@ -16,35 +17,25 @@ export function CreateRoom() {
   }
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <Link
-        href="/"
-        className="bg-slate-400 text-white font-bold rounded-2xl shadow hover:bg-slate-500 cursor-pointer flex items-center absolute top-4 left-4"
-      >
-        <span className="icon-[mdi--chevron-left] text-4xl" />
+    <div className="container">
+      <Link href="/" className="button icon absolute top-4 left-4">
+        <span className="icon-[mdi--chevron-left]" />
       </Link>
 
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-        <div className="relative">
-          <input
-            className="bg-white px-4 py-2 pl-10 rounded-2xl relative"
-            placeholder="Room ID"
-            onChange={e => setId(e.target.value)}
-          />
-          <span className="icon-[mdi--gamepad-variant] absolute text-2xl text-slate-500 left-2 top-2" />
+        <div>
+          <input className="input" placeholder="Room ID" onChange={e => setId(e.target.value)} />
+          <span className="icon-[mdi--gamepad-variant]" />
         </div>
-        <div className="relative">
+        <div>
           <input
-            className="bg-white px-4 py-2 pl-10 rounded-2xl relative"
+            className="input"
             placeholder="Username"
             onChange={e => setUsername(e.target.value)}
           />
-          <span className="icon-[mdi--user] absolute text-2xl text-slate-500 left-2 top-2" />
+          <span className="icon-[mdi--user]" />
         </div>
-        <button
-          type="submit"
-          className={`bg-slate-400 text-white font-bold px-4 py-2 rounded-2xl shadow hover:bg-slate-500 cursor-pointer ${(!id || !username) && 'opacity-20 pointer-events-none'}`}
-        >
+        <button type="submit" className={clsx('button', { disabled: !id || !username })}>
           Create Room
         </button>
       </form>
