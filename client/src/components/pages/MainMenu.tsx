@@ -2,7 +2,7 @@ import { Link } from 'wouter'
 
 export function MainMenu() {
   return (
-    <div className="container">
+    <div className="page">
       <ul className="flex flex-col items-center gap-4">
         <li className="flex">
           <Link className="button" href="/new">

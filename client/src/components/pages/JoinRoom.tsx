@@ -9,7 +9,7 @@ export function JoinOrCreateRoom() {
   const { rooms } = useLobby()
 
   return (
-    <div className="container">
+    <div className="page">
       <Link href="/" className="button icon absolute top-4 left-4">
         <span className="icon-[mdi--chevron-left]" />
       </Link>
