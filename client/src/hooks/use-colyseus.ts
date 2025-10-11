@@ -1,5 +1,5 @@
 import { Schema } from '@colyseus/schema'
-import type { RoomAvailable } from 'colyseus.js'
+import type { Room, RoomAvailable } from 'colyseus.js'
 import { Client } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 
@@ -18,6 +18,7 @@ export function useColyseus<T extends Schema>({
   method = 'joinOrCreate',
   options,
 }: UseColyseusOptions) {
+  const [room, setRoom] = useState<Room<T>>()
   const [state, setState] = useState<T>()
   const [error, setError] = useState<Error>()
 
@@ -30,6 +31,7 @@ export function useColyseus<T extends Schema>({
     roomRequest
       .then(room => {
         console.log(`🏟️✅[${roomName}] connected`)
+        setRoom(room)
         room.onStateChange(state => setState({ ...state }))
         room.onError((code, message) => setError(new Error(`Colyseus error ${code}: ${message}`)))
       })
@@ -45,7 +47,7 @@ export function useColyseus<T extends Schema>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { state, error }
+  return { room, state, error }
 }
 
 export function useLobby(serverUrl: string = import.meta.env.VITE_COLYSEUS_URL) {

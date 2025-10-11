@@ -1,1 +1,1 @@
-export * from './game-room'
+export * from './game-lobby'

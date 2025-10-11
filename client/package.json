@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-spring/three": "^10.0.1",
-    "@react-spring/web": "^10.0.1",
+    "@react-spring/three": "^10.0.3",
+    "@react-spring/web": "^10.0.3",
     "@react-three/drei": "^10.7.2",
     "@react-three/fiber": "^9.3.0",
     "@react-three/rapier": "^2.1.0",

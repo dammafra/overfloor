@@ -1,23 +1,29 @@
 import { BlockCharacter } from '@components/models'
-import { Html, KeyboardControls } from '@react-three/drei'
+import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, type RapierRigidBody } from '@react-three/rapier'
 import { useController } from '@stores'
-import { randomColor } from '@utils'
 import { useRef, useState } from 'react'
-import { Quaternion, Vector3, type ColorRepresentation } from 'three'
+import { Quaternion, Vector3 } from 'three'
+
+function stringToHslColor(str: string) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  const h = hash % 360
+  return `hsl(${h}, ${70}%, ${50}%)`
+}
 
 interface PlayerProps {
   name: string
-  color?: ColorRepresentation
-  x?: number
-  y?: number
+  position?: [number, number, number]
+  enabled?: boolean
 }
 
-export function Player({ name, color = randomColor(), x = 0, y = 0 }: PlayerProps) {
+export function Player({ name, position, enabled = true }: PlayerProps) {
   const body = useRef<RapierRigidBody>(null)
   const { up, down, left, right } = useController()
   const [walking, setWalking] = useState(false)
+  const [color] = useState(() => stringToHslColor(name))
 
   useFrame((_, delta) => {
     const safeDelta = Math.min(delta, 0.1)
@@ -51,32 +57,26 @@ export function Player({ name, color = randomColor(), x = 0, y = 0 }: PlayerProp
     }
   })
 
-  return (
-    <KeyboardControls
-      map={[
-        { name: 'up', keys: ['ArrowUp', 'KeyW'] },
-        { name: 'down', keys: ['ArrowDown', 'KeyS'] },
-        { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
-        { name: 'right', keys: ['ArrowRight', 'KeyD'] },
-      ]}
+  return enabled ? (
+    <RigidBody
+      ref={body}
+      colliders={false}
+      position={position}
+      enabledRotations={[false, false, false]}
     >
-      <RigidBody
-        ref={body}
-        colliders={false}
-        position={[x, 3, y]}
-        enabledRotations={[false, false, false]}
+      <BallCollider args={[0.6]} />
+      <BlockCharacter color={color} walk={walking} />(
+      <Html
+        center
+        position-y={1}
+        className="text-white rounded-full px-2 text-center whitespace-nowrap opacity-50"
+        style={{ background: color?.toString() }}
       >
-        <BallCollider args={[0.6]} />
-        <BlockCharacter color={color} walk={walking} />
-        <Html
-          center
-          position-y={1}
-          className="text-white rounded-full px-2 text-center whitespace-nowrap opacity-50"
-          style={{ background: color?.toString() }}
-        >
-          {name}
-        </Html>
-      </RigidBody>
-    </KeyboardControls>
+        {name}
+      </Html>
+      )
+    </RigidBody>
+  ) : (
+    <BlockCharacter color={color} />
   )
 }
