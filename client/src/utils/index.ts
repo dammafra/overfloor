@@ -1,3 +1,1 @@
-export * from './position'
-export * from './random'
-export * from './rotation'
+export * from './dbg'

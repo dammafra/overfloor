@@ -13,7 +13,8 @@ interface JoinGameLobbyOptions {
 export class GameLobby extends Room<GameLobbyState> {
   IDS_CHANNEL = '$IDS'
   USERNAMES_CHANNEL: string
-  COUNTDOWN = 60
+  MIN_PLAYERS = 1
+  COUNTDOWN = 3
 
   state = new GameLobbyState()
   interval: Delayed
@@ -78,7 +79,7 @@ export class GameLobby extends Room<GameLobbyState> {
   }
 
   #checkMatchCanStart() {
-    this.state.canStart = this.state.players.size > 0
+    this.state.canStart = this.state.players.size >= this.MIN_PLAYERS
     if (!this.state.canStart) this.state.countdown = this.COUNTDOWN
   }
 

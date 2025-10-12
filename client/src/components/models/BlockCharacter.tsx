@@ -11,7 +11,6 @@ import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph, type ObjectMap } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import type {
-  AnimationAction,
   Bone,
   ColorRepresentation,
   Group,
@@ -36,14 +35,19 @@ type GLTFResult = GLTF &
   }
 
 type ActionName = 'Armature|Jump.001' | 'Armature|Walk'
-type GLTFActions = Record<ActionName, AnimationAction>
 
-type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
-  walk?: boolean
+export type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
   color?: ColorRepresentation
+  animate?: boolean
+  action?: ActionName
 }
 
-export function BlockCharacter({ color = 'white', walk, ...props }: BlockCharacterProps) {
+export function BlockCharacter({
+  color = 'white',
+  animate,
+  action = 'Armature|Walk',
+  ...props
+}: BlockCharacterProps) {
   const group = useRef<Group>(null)
   const { scene, materials, animations } = useGLTF('/models/block-character.glb') as GLTFResult
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
@@ -59,11 +63,9 @@ export function BlockCharacter({ color = 'white', walk, ...props }: BlockCharact
   }, [materials, color])
 
   useEffect(() => {
-    const action = (actions as GLTFActions)['Armature|Walk']
-
-    if (walk) action.reset().fadeIn(0.5).play()
-    else action.fadeOut(0.5)
-  }, [actions, walk])
+    if (animate) actions[action]?.reset().fadeIn(0.5).play()
+    else actions[action]?.fadeOut(0.5)
+  }, [actions, action, animate])
 
   return (
     <group ref={group} {...props} dispose={null}>

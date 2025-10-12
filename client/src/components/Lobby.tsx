@@ -1,4 +1,3 @@
-import { Player } from '@components/Player'
 import { useColyseus } from '@hooks'
 import { a, useTransition } from '@react-spring/three'
 import { CameraControls, Float, Html } from '@react-three/drei'
@@ -8,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { MathUtils } from 'three'
 import { useLocation, useParams } from 'wouter'
+import { Player } from './Player'
 
 function spiralPosition(index: number) {
   const r = 1.5
@@ -35,7 +35,7 @@ export function Lobby() {
 
   useEffect(() => {
     if (!room) return
-    room.onMessage('start', reservation => navigate(`/game/${btoa(JSON.stringify(reservation))}`))
+    room.onMessage('start', reservation => navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })) //prettier-ignore
   }, [room])
 
   useEffect(() => {
@@ -52,8 +52,6 @@ export function Lobby() {
   useEffect(() => {
     const cameraControls = controls as CameraControls
     if (!cameraControls) return
-
-    cameraControls.enabled = false
 
     const [, , z] = spiralPosition(players.length - 1)
     cameraControls.dollyTo(z + (viewport.aspect > 1 ? 5 : 10), true)
@@ -93,7 +91,7 @@ export function Lobby() {
           position={style.position.to((x, y, z) => [x, y, z])}
         >
           <Float floatIntensity={2} rotationIntensity={2} scale={0.5}>
-            <Player name={player} enabled={false} />
+            <Player name={player} />
           </Float>
         </a.group>
       ))}

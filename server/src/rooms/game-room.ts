@@ -17,11 +17,37 @@ export class GameRoom extends Room<GameState> {
     this.roomId = options.id
     this.maxClients = options.playersCount
 
+    this.onMessage('set-position', (client, data) => {
+      const player = this.state.players.get(client.sessionId)
+
+      player.position[0] = data[0]
+      player.position[1] = data[1]
+      player.position[2] = data[2]
+    })
+
+    this.onMessage('set-rotation', (client, data) => {
+      const player = this.state.players.get(client.sessionId)
+
+      player.rotation[0] = data[0]
+      player.rotation[1] = data[1]
+      player.rotation[2] = data[2]
+      player.rotation[3] = data[3]
+    })
+
+    this.onMessage('set-impulse', (client, data) => {
+      const player = this.state.players.get(client.sessionId)
+
+      player.impulse[0] = data[0]
+      player.impulse[1] = data[1]
+      player.impulse[2] = data[2]
+    })
+
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
 
   async onJoin(client: Client, options: JoinGameRoomOptions) {
-    this.state.players.set(client.sessionId, new PlayerState(options.username, client.sessionId))
+    const player = new PlayerState(options.username, client.sessionId, this.state.players.size)
+    this.state.players.set(client.sessionId, player)
     console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
   }
 
