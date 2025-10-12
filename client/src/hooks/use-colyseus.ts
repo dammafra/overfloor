@@ -1,30 +1,34 @@
 import { Schema } from '@colyseus/schema'
-import type { Room, RoomAvailable } from 'colyseus.js'
+import type { Room, RoomAvailable, SeatReservation } from 'colyseus.js'
 import { Client } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 
-interface UseColyseusOptions {
+interface UseColyseusParams {
   serverUrl?: string
   roomName: string
-  roomId: string
-  method?: 'create' | 'join' | 'joinById' | 'joinOrCreate' | 'reconnect'
+  roomId?: string
   options?: Record<string, unknown>
+  reservation?: SeatReservation
 }
 
 export function useColyseus<T extends Schema>({
   serverUrl = import.meta.env.VITE_COLYSEUS_URL,
   roomName,
   roomId,
-  method = 'joinOrCreate',
   options,
-}: UseColyseusOptions) {
+  reservation,
+}: UseColyseusParams) {
   const [room, setRoom] = useState<Room<T>>()
   const [state, setState] = useState<T>()
   const [error, setError] = useState<Error>()
 
   useEffect(() => {
     const client = new Client(serverUrl)
-    const roomRequest = client[method]<T>(method === 'joinById' ? roomId : roomName, options)
+    const roomRequest = roomId
+      ? client.joinById<T>(roomId, options)
+      : reservation
+        ? client.consumeSeatReservation<T>(reservation)
+        : client.create<T>(roomName, options)
 
     console.log(`🏟️⏳[${roomName}] connecting...`)
 
@@ -50,12 +54,20 @@ export function useColyseus<T extends Schema>({
   return { room, state, error }
 }
 
-export function useLobby(serverUrl: string = import.meta.env.VITE_COLYSEUS_URL) {
+interface UseLobbyParams {
+  serverUrl?: string
+  filter?: Record<string, unknown>
+}
+
+export function useLobby({
+  serverUrl = import.meta.env.VITE_COLYSEUS_URL,
+  filter,
+}: UseLobbyParams) {
   const [rooms, setRooms] = useState<RoomAvailable[]>([])
 
   useEffect(() => {
     const client = new Client(serverUrl)
-    const lobbyRequest = client.joinOrCreate('lobby')
+    const lobbyRequest = client.joinOrCreate('lobby', { filter })
 
     console.log('🏟️⏳[lobby] connecting...')
 

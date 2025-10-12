@@ -30,6 +30,7 @@ export default function App() {
           <Route path="/new" component={CreateRoom} />
           <Route path="/join" component={JoinOrCreateRoom} />
           <Route path="/:from/lobby/:options" />
+          <Route path="/game/:reservation" />
           <Route>
             <Redirect to="/" />
           </Route>

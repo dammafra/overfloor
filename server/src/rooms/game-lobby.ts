@@ -1,23 +1,31 @@
-import { Client, Room } from '@colyseus/core'
+import { Client, Delayed, matchMaker, Room } from '@colyseus/core'
 import { GameLobbyState } from '@schema'
 
-interface GameLobbyOptions {
-  id?: string
+interface CreateGameLobbyOptions {
+  id: string
+  username: string
+}
+
+interface JoinGameLobbyOptions {
   username: string
 }
 
 export class GameLobby extends Room<GameLobbyState> {
   IDS_CHANNEL = '$IDS'
   USERNAMES_CHANNEL: string
+  COUNTDOWN = 60
 
   state = new GameLobbyState()
+  interval: Delayed
 
-  async onCreate(options: GameLobbyOptions) {
+  async onCreate(options: CreateGameLobbyOptions) {
     await this.#checkRoomId(options.id)
     this.roomId = options.id
     this.USERNAMES_CHANNEL = options.id
 
-    this.clock.setInterval(() => {
+    this.#checkMatchCanStart()
+
+    this.interval = this.clock.setInterval(async () => {
       if (!this.state.canStart) return
 
       if (this.state.countdown > 0) {
@@ -25,17 +33,17 @@ export class GameLobby extends Room<GameLobbyState> {
         return
       }
 
-      // TODO start
+      this.#startMatch()
     }, 1000)
 
-    console.log(`✨ room ${this.roomId} created`)
+    console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
 
-  async onJoin(client: Client, options: GameLobbyOptions) {
+  async onJoin(client: Client, options: JoinGameLobbyOptions) {
     await this.#checkUsername(options.username)
     this.state.players.set(client.sessionId, options.username)
     this.#checkMatchCanStart()
-    console.log(`✅ [${client.sessionId}] ${options.username} joined`)
+    console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
   }
 
   async onLeave(client: Client) {
@@ -44,19 +52,34 @@ export class GameLobby extends Room<GameLobbyState> {
     if (player) {
       await this.presence.srem(this.USERNAMES_CHANNEL, player)
       this.state.players.delete(client.sessionId)
-      console.log(`❌ [${client.sessionId}] ${player} left`)
+      console.log(`[${this.roomName}] ❌ [${client.sessionId}] ${player} left`)
       this.#checkMatchCanStart()
     }
   }
 
   onDispose() {
     this.presence.srem(this.IDS_CHANNEL, this.roomId)
-    console.log(`🗑️ disposing room ${this.roomId}`)
+    console.log(`[${this.roomName}] 🗑️ disposing room ${this.roomId}`)
+  }
+
+  async #startMatch() {
+    this.interval.clear()
+
+    const room = await matchMaker.createRoom('game-room', {
+      id: `${this.roomId}-game`,
+      playersCount: this.state.players.size,
+    })
+
+    this.clients.forEach(async client => {
+      const username = this.state.players.get(client.sessionId)
+      const reservation = await matchMaker.reserveSeatFor(room, { username })
+      client.send('start', reservation)
+    })
   }
 
   #checkMatchCanStart() {
-    this.state.canStart = this.state.players.size > 1
-    if (!this.state.canStart) this.state.countdown = 60
+    this.state.canStart = this.state.players.size > 0
+    if (!this.state.canStart) this.state.countdown = this.COUNTDOWN
   }
 
   #checkRoomId(roomId: string) {

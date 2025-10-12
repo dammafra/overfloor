@@ -25,14 +25,18 @@ export function Lobby() {
   const [, navigate] = useLocation()
   const { id, username } = JSON.parse(atob(options!))
 
-  const { state, error } = useColyseus<GameLobbyState>({
-    roomId: id,
+  const { room, state, error } = useColyseus<GameLobbyState>({
+    roomId: from === 'new' ? undefined : id,
     roomName: 'game-lobby',
-    method: from === 'new' ? 'create' : 'joinById',
     options: { id, username },
   })
 
   const [players, setPlayers] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!room) return
+    room.onMessage('start', reservation => navigate(`/game/${btoa(JSON.stringify(reservation))}`))
+  }, [room])
 
   useEffect(() => {
     if (!state || !state.players) return

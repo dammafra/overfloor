@@ -6,7 +6,7 @@ import { Link, useLocation } from 'wouter'
 export function JoinOrCreateRoom() {
   const [, navigate] = useLocation()
   const [username, setUsername] = useState<string>()
-  const { rooms } = useLobby()
+  const { rooms } = useLobby({ filter: { name: 'game-lobby' } })
 
   return (
     <div className="page">

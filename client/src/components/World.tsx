@@ -1,23 +1,46 @@
-import { Controller, Floor, Player, Walls } from '@components'
-import { randomColor } from '@utils'
-import { button, useControls } from 'leva'
-import { useState } from 'react'
+import { Controller, Floor, Player } from '@components'
+import { useColyseus } from '@hooks'
+import type { GameState, PlayerState } from '@server/schema'
+import type { SeatReservation } from 'colyseus.js'
+import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import { useParams } from 'wouter'
 
 export function World() {
-  const [, setPlayerKey] = useState(Math.random())
+  const params = useParams()
+  const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
 
-  useControls('game', {
-    reset: button(() => setPlayerKey(Math.random())),
+  const { state, error } = useColyseus<GameState>({
+    roomName: 'game-room',
+    reservation,
   })
+
+  const [players, setPlayers] = useState<PlayerState[]>([])
+
+  useEffect(() => {
+    if (!state || !state.players) return
+    setPlayers(Array.from(state.players.values()))
+  }, [state])
+
+  useEffect(() => {
+    if (!error) return
+    toast.error(error.message)
+  }, [error])
 
   return (
     <>
       <Controller>
-        <Player name="dammafra" color={randomColor()} />
+        {players.map(player => (
+          <Player
+            key={player.username}
+            name={player.username}
+            enabled={player.sessionId === reservation.sessionId}
+            position={[0, 3, 0]}
+          />
+        ))}
       </Controller>
 
-      <Floor />
-      <Walls />
+      <Floor unit={2} width={9} height={7} gap={0.1} />
     </>
   )
 }

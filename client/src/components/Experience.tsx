@@ -32,7 +32,7 @@ export function Experience() {
       <Physics {...physicsControls} gravity={[0, -50, 0]}>
         <Switch>
           <Route path="/:from/lobby/:options" component={Lobby} />
-          <Route path="/game/:options" component={World} />
+          <Route path="/game/:reservation" component={World} />
         </Switch>
         <Helpers />
       </Physics>
