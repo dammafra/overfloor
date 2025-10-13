@@ -1,5 +1,6 @@
-export * from './use-colyseus'
 export * from './use-debug'
 export * from './use-hide-on-resize'
 export * from './use-is-touch'
+export * from './use-lobby'
+export * from './use-room'
 export * from './use-throttle'

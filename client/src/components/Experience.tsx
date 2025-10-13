@@ -1,6 +1,7 @@
-import { Environment, Lobby, World } from '@components'
+import { Environment, World } from '@components'
 import { Canvas, Helpers } from '@components/helpers'
 import { useDebug, useIsTouch } from '@hooks'
+import { Lobby } from '@modules/Lobby'
 import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'

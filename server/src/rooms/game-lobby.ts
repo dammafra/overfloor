@@ -13,8 +13,8 @@ interface JoinGameLobbyOptions {
 export class GameLobby extends Room<GameLobbyState> {
   IDS_CHANNEL = '$IDS'
   USERNAMES_CHANNEL: string
-  MIN_PLAYERS = 1
-  COUNTDOWN = 3
+  MIN_PLAYERS = 2
+  COUNTDOWN = 60
 
   state = new GameLobbyState()
   interval: Delayed

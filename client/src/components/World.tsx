@@ -13,7 +13,7 @@ export function World() {
 
   const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
 
-  const { room, state, error } = useColyseus<GameState>({
+  const { room, error } = useColyseus<GameState>({
     roomName: 'game-room',
     reservation,
   })
@@ -22,13 +22,13 @@ export function World() {
   const [remotePlayers, setRemotePlayers] = useState<PlayerState[]>([])
 
   useEffect(() => {
-    if (!state || !state.players) return
-    const players = Array.from(state.players.values())
+    if (!room || !room.state.players) return
+    const players = Array.from(room.state.players.values())
     const localPlayer = players.find(p => p.sessionId === reservation.sessionId)
     const remotePlayers = players.filter(p => p.sessionId !== reservation.sessionId)
     setLocalPlayer(localPlayer)
     setRemotePlayers(remotePlayers)
-  }, [state])
+  }, [room])
 
   useEffect(() => {
     if (!error) return
