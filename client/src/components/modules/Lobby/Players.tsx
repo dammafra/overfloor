@@ -1,14 +1,14 @@
-import { Player } from '@components/Player'
+import { Player } from '@components'
 import type { PropsWithRoom } from '@hooks'
 import { a, useTransition } from '@react-spring/three'
 import { Float } from '@react-three/drei'
 import type { GameLobbyState } from '@server/schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
-import { MathUtils } from 'three'
+import { MathUtils, type Vector3Tuple } from 'three'
 
 // TODO*: move to server or find a better way to implement `CameraRig`
-export function spiralPosition(index: number) {
+export function spiralPosition(index: number): Vector3Tuple {
   const r = 1.5
   const angle = MathUtils.degToRad(index * 30) // adjust spacing
   const x = r * Math.sin(angle)

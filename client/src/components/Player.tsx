@@ -20,7 +20,7 @@ export function Player({ name, animate, ...props }: PlayerProps) {
     <>
       <BlockCharacter color={color} animate={animate} {...props} />(
       <Html
-        transform
+        center
         position-y={1}
         className="text-white rounded-full px-2 text-center whitespace-nowrap opacity-50"
         style={{ background: color?.toString() }}

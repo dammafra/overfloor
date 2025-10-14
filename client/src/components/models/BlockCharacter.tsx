@@ -48,11 +48,11 @@ export function BlockCharacter({
   action = 'Armature|Walk',
   ...props
 }: BlockCharacterProps) {
-  const group = useRef<Group>(null)
+  const groupRef = useRef<Group>(null)
   const { scene, materials, animations } = useGLTF('/models/block-character.glb') as GLTFResult
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes } = useGraph(clone) as GLTFResult
-  const { actions } = useAnimations(animations, group)
+  const { actions } = useAnimations(animations, groupRef)
 
   const [bodyMaterial, setBodyMaterial] = useState<Material>()
 
@@ -68,7 +68,7 @@ export function BlockCharacter({
   }, [actions, action, animate])
 
   return (
-    <group ref={group} {...props} dispose={null}>
+    <group ref={groupRef} {...props} dispose={null}>
       <group name="Root_Scene">
         <group name="RootNode">
           <group name="Player" rotation={[-Math.PI / 2, 0, 0]} scale={55.481}>

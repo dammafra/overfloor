@@ -1,6 +1,7 @@
-import { Environment, World } from '@components'
+import { Environment } from '@components'
 import { Canvas, Helpers } from '@components/helpers'
 import { useDebug, useIsTouch } from '@hooks'
+import { Game } from '@modules/Game'
 import { Lobby } from '@modules/Lobby'
 import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
@@ -33,7 +34,7 @@ export function Experience() {
       <Physics {...physicsControls} gravity={[0, -50, 0]}>
         <Switch>
           <Route path="/:from/lobby/:options" component={Lobby} />
-          <Route path="/game/:reservation" component={World} />
+          <Route path="/game/:reservation" component={Game} />
         </Switch>
         <Helpers />
       </Physics>

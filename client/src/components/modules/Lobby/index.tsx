@@ -22,7 +22,7 @@ export function Lobby() {
     if (!room) return
 
     room.onMessage('start', reservation => {
-      navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })
+      navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: false })
     })
   }, [room])
 
