@@ -13,7 +13,7 @@ export default function App() {
   return (
     <>
       {/* See https://github.com/pmndrs/leva/issues/552 */}
-      <Leva hidden={!debug} theme={{ sizes: { rootWidth: '350px' } }} />
+      <Leva hidden={!debug} collapsed theme={{ sizes: { rootWidth: '350px' } }} />
 
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
