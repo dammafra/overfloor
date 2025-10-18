@@ -1,4 +1,5 @@
 import { Experience } from '@components'
+import { LoadTest } from '@components/LoadTest'
 import { ErrorBoundary } from '@components/helpers'
 import { CreateRoom, JoinOrCreateRoom, MainMenu } from '@components/pages'
 import { useDebug } from '@hooks'
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/join" component={JoinOrCreateRoom} />
           <Route path="/:from/lobby/:options" />
           <Route path="/game/:reservation" />
+          {debug && <Route path="/test" component={LoadTest} />}
           <Route>
             <Redirect to="/" />
           </Route>
