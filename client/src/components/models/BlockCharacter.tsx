@@ -71,7 +71,7 @@ export function BlockCharacter({
     <group ref={groupRef} {...props} dispose={null}>
       <group name="Root_Scene">
         <group name="RootNode">
-          <group name="Player" rotation={[-Math.PI / 2, 0, 0]} scale={55.481}>
+          <group name="Player" rotation={[-Math.PI * 0.5, 0, 0]} scale={55.481}>
             <skinnedMesh
               castShadow
               name="Player_1"
@@ -87,7 +87,7 @@ export function BlockCharacter({
               skeleton={nodes.Player_2.skeleton}
             />
           </group>
-          <group name="Armature" rotation={[-Math.PI / 2, 0, 0]} scale={100}>
+          <group name="Armature" rotation={[-Math.PI * 0.5, 0, 0]} scale={100}>
             <primitive object={nodes.Root} />
           </group>
         </group>

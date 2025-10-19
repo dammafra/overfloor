@@ -1,8 +1,18 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema'
 
+export enum GameLoopPhase {
+  TARGETING,
+  COUNTDOWN_3,
+  COUNTDOWN_2,
+  COUNTDOWN_1,
+  FALLING,
+  RESET,
+}
+
 export class PlayerState extends Schema {
   @type('string') username: string
   @type('int16') index: number
+  @type('boolean') active: boolean = true
 
   @type('boolean') walking: boolean
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
@@ -19,9 +29,10 @@ export class PlayerState extends Schema {
 export class TileState extends Schema {
   @type('int16') index: number
 
-  @type('boolean') target: boolean
-  @type('boolean') falling: boolean
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
+  @type('int8') phase: GameLoopPhase
+  @type('boolean') targeted: boolean
+  @type('boolean') falling: boolean
 
   constructor(x: number, z: number, index: number) {
     super()
@@ -31,11 +42,21 @@ export class TileState extends Schema {
 
     this.index = index
   }
+
+  target(indexes: Set<number>) {
+    this.targeted = indexes.has(this.index)
+  }
+
+  setPhase(phase: GameLoopPhase) {
+    if (!this.targeted) return
+    this.phase = phase
+    this.falling = this.phase === GameLoopPhase.FALLING
+  }
 }
 
 export class GridState extends Schema {
   @type('int16') width: number = 9
-  @type('int16') height: number = 7
+  @type('int16') height: number = 6
   @type('float32') unit: number = 2
   @type('float32') gap: number = 0.1
 }
@@ -48,15 +69,24 @@ export class GameState extends Schema {
   constructor() {
     super()
 
-    const halfWidth = Math.floor(this.grid.width / 2)
-    const halfHeight = Math.floor(this.grid.height / 2)
+    const { width, height, unit, gap } = this.grid
+    const offsetX = (width - 1) * (unit + gap) * 0.5
+    const offsetZ = (height - 1) * (unit + gap) * 0.5
 
-    for (let i = 0; i < this.grid.width; i++) {
-      for (let j = 0; j < this.grid.height; j++) {
-        const x = (i - halfWidth) * (this.grid.unit + this.grid.gap)
-        const z = (j - halfHeight) * (this.grid.unit + this.grid.gap)
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        const x = i * (unit + gap) - offsetX
+        const z = j * (unit + gap) - offsetZ
         this.tiles.push(new TileState(x, z, this.tiles.length))
       }
     }
+  }
+
+  targetTiles(indexes: Set<number>) {
+    this.tiles.forEach(tile => tile.target(indexes))
+  }
+
+  setPhase(phase: GameLoopPhase) {
+    this.tiles.forEach(tile => tile.setPhase(phase))
   }
 }

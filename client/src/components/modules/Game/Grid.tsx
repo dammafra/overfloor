@@ -8,6 +8,18 @@ import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 
 export function Grid({ room }: PropsWithRoom<GameState>) {
+  const defaultColor = 'white'
+
+  // prettier-ignore
+  const phaseColors = [
+    defaultColor,   // TARGETING
+    'green',        // COUNTDOWN_3
+    'orange',       // COUNTDOWN_2
+    'red',          // COUNTDOWN_1
+    defaultColor,   // FALLING
+    defaultColor,   // RESET
+  ]
+
   const [unit, setUnit] = useState<number>(0)
   const [tiles, setTiles] = useState<TileState[]>([])
 
@@ -23,11 +35,20 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
       setTiles(tiles => [tile, ...tiles.filter(t => t.index !== tile.index)])
 
       $(tile).listen('falling', falling => {
-        if (falling) {
-          setTiles(tiles => tiles.filter(t => t.index !== tile.index))
-        } else {
-          setTiles(tiles => [tile, ...tiles.filter(t => t.index !== tile.index)])
-        }
+        setTiles(tiles =>
+          falling
+            ? tiles.filter(t => t.index !== tile.index)
+            : [tile, ...tiles.filter(t => t.index !== tile.index)],
+        )
+      })
+
+      $(tile).listen('phase', phase => {
+        setTiles(tiles =>
+          tiles.map(t => {
+            if (t.index === tile.index) t.phase = phase
+            return t
+          }),
+        )
       })
     })
   }, [room])
@@ -50,7 +71,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
           scale={spring.scale}
         >
           <RoundedBoxGeometry args={[unit, 0.25, unit]} radius={0.1} />
-          <meshStandardMaterial color="dodgerblue" transparent opacity={0.5} />
+          <meshStandardMaterial color={phaseColors[tile.phase]} transparent opacity={0.5} />
         </a.mesh>
       ))}
 

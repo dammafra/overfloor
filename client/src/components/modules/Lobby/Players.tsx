@@ -22,7 +22,7 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
     from: { scale: 0, position: [0, 0, 0] },
     enter: (_, i) => ({ scale: 1, position: spiralPositionLobby(i), delay: i * 50 }),
     update: (_, i) => ({ position: spiralPositionLobby(i) }),
-    leave: () => ({ scale: 0, position: [0, 0, 0] }),
+    leave: { scale: 0, position: [0, 0, 0] },
     config: { mass: 1, tension: 200, friction: 20 },
   })
 

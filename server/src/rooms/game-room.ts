@@ -1,9 +1,10 @@
 import { Client, Room } from '@colyseus/core'
-import { GameState, PlayerState } from '@schema'
+import { GameLoopPhase, GameState, PlayerState } from '@schema'
 
 interface CreateGameRoomOptions {
   id: string
   playersCount: number
+  phaseDuration?: number // optional config
 }
 
 interface JoinGameRoomOptions {
@@ -17,17 +18,29 @@ function randomInt(min: number, max: number) {
 export class GameRoom extends Room<GameState> {
   state = new GameState()
 
+  #lastPhase: GameLoopPhase
+  #phaseDuration = 0.8
+  #totalPhases = Object.keys(GameLoopPhase).filter(k => isNaN(Number(k))).length
+
   async onCreate(options: CreateGameRoomOptions) {
     this.roomId = options.id
     this.maxClients = options.playersCount
 
     this.onMessage('set-walking', (client, data) => {
       const player = this.state.players.get(client.sessionId)
+      if (!player) return
+
       player.walking = data
     })
 
     this.onMessage('set-position', (client, data) => {
       const player = this.state.players.get(client.sessionId)
+      if (!player) return
+
+      if (data[1] < -50) {
+        this.state.players.delete(client.sessionId)
+        return
+      }
 
       player.position[0] = data[0]
       player.position[1] = data[1]
@@ -36,6 +49,7 @@ export class GameRoom extends Room<GameState> {
 
     this.onMessage('set-rotation', (client, data) => {
       const player = this.state.players.get(client.sessionId)
+      if (!player) return
 
       player.rotation[0] = data[0]
       player.rotation[1] = data[1]
@@ -43,16 +57,7 @@ export class GameRoom extends Room<GameState> {
       player.rotation[3] = data[3]
     })
 
-    this.clock.setInterval(() => {
-      const elapsedSeconds = Math.floor(this.clock.elapsedTime / 1000)
-      const randomCount = randomInt(5, 30)
-      const randomIndexes = new Set(
-        Array.from({ length: randomCount }, () => randomInt(0, this.state.tiles.length - 1)),
-      )
-      this.state.tiles.forEach((tile, index) => {
-        tile.falling = elapsedSeconds % 2 ? randomIndexes.has(index) : false
-      })
-    }, 1000)
+    this.clock.setInterval(this.#gameLoop.bind(this), 100)
 
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
@@ -66,10 +71,28 @@ export class GameRoom extends Room<GameState> {
   async onLeave(client: Client) {
     const player = this.state.players.get(client.sessionId)
     this.state.players.delete(client.sessionId)
-    console.log(`[${this.roomName}] ❌ [${client.sessionId}] ${player} left`)
+    console.log(`[${this.roomName}] ❌ [${client.sessionId}] ${player.username} left`)
   }
 
   onDispose() {
     console.log(`[${this.roomName}] 🗑️ disposing room ${this.roomId}`)
+  }
+
+  #gameLoop() {
+    const elapsedSeconds = this.clock.elapsedTime / 1000
+    const phase = Math.floor(elapsedSeconds / this.#phaseDuration) % this.#totalPhases
+
+    if (phase === this.#lastPhase) return
+    this.#lastPhase = phase
+
+    if (phase === GameLoopPhase.TARGETING) {
+      // TODO patterns
+      const randomCount = randomInt(5, 30)
+      const randomIndexes = new Set(Array.from({ length: randomCount }, () => randomInt(0, this.state.tiles.length - 1))) //prettier-ignore
+      this.state.targetTiles(randomIndexes)
+      return
+    }
+
+    this.state.setPhase(phase)
   }
 }

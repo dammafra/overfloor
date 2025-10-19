@@ -19,14 +19,14 @@ export function Boundaries({ room }: PropsWithRoom<GameState>) {
     const $ = getStateCallbacks(room)
 
     $(room.state).listen('grid', grid => {
-      setHorizontalWallWidth(grid.width * (grid.unit + grid.gap) * 0.5)
-      setVerticalWallWidth(grid.height * (grid.unit + grid.gap) * 0.5)
+      setHorizontalWallWidth(grid.width * (grid.unit + grid.gap))
+      setVerticalWallWidth(grid.height * (grid.unit + grid.gap))
     })
   }, [room])
 
   useEffect(() => {
-    setVerticalWallPosition(horizontalWallWidth + wallThickness)
-    setHorizontalWallPosition(verticalWallWidth + wallThickness)
+    setVerticalWallPosition(horizontalWallWidth * 0.5 + wallThickness)
+    setHorizontalWallPosition(verticalWallWidth * 0.5 + wallThickness)
   }, [horizontalWallWidth, verticalWallWidth])
 
   return (
@@ -35,13 +35,13 @@ export function Boundaries({ room }: PropsWithRoom<GameState>) {
       <CuboidCollider
         restitution={0}
         friction={0}
-        args={[wallThickness, wallHeight, verticalWallWidth]}
+        args={[wallThickness, wallHeight, verticalWallWidth * 0.5]}
         position={[verticalWallPosition, wallHeight, 0]}
       />
       <CuboidCollider
         restitution={0}
         friction={0}
-        args={[wallThickness, wallHeight, verticalWallWidth]}
+        args={[wallThickness, wallHeight, verticalWallWidth * 0.5]}
         position={[-verticalWallPosition, wallHeight, 0]}
       />
 
@@ -49,13 +49,13 @@ export function Boundaries({ room }: PropsWithRoom<GameState>) {
       <CuboidCollider
         restitution={0}
         friction={0}
-        args={[horizontalWallWidth, wallHeight, wallThickness]}
+        args={[horizontalWallWidth * 0.5, wallHeight, wallThickness]}
         position={[0, wallHeight, horizontalWallPosition]}
       />
       <CuboidCollider
         restitution={0}
         friction={0}
-        args={[horizontalWallWidth, wallHeight, wallThickness]}
+        args={[horizontalWallWidth * 0.5, wallHeight, wallThickness]}
         position={[0, wallHeight, -horizontalWallPosition]}
       />
     </>
