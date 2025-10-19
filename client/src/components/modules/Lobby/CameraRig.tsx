@@ -2,12 +2,12 @@ import type { PropsWithRoom } from '@hooks'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import type { GameLobbyState } from '@server/schema'
+import { spiralPositionLobby } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { MathUtils } from 'three'
-import { spiralPosition } from './Players'
 
-// TODO*: find a better way to implement CameraRig, I don't like importing `spiralPosition`
+// TODO*: find a better way to implement CameraRig, I don't like importing `spiralPositionLobby`
 export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
   const { controls, viewport } = useThree()
   const [playersCount, setPlayersCount] = useState(0)
@@ -24,7 +24,7 @@ export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
     const cameraControls = controls as CameraControls
     if (!cameraControls) return
 
-    const [, , z] = spiralPosition(playersCount)
+    const [, , z] = spiralPositionLobby(playersCount)
     cameraControls.dollyTo(z + (viewport.aspect > 1 ? 5 : 10), true)
     cameraControls.rotatePolarTo(MathUtils.degToRad(90), true)
   }, [playersCount, controls, viewport])

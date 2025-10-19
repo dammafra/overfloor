@@ -4,20 +4,11 @@ import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import type { GameState } from '@server/schema'
 import { useController } from '@stores'
+import { spiralPositionGame } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
-import { MathUtils, Quaternion, Vector3, type Vector3Tuple } from 'three'
+import { Quaternion, Vector3, type Vector3Tuple } from 'three'
 import { Controller } from './Controller'
-
-// TODO**: improve, don't export
-export function spiralPosition(index: number): Vector3Tuple {
-  const r = 1.5
-  const angle = MathUtils.degToRad(index * 60) // spacing
-  const x = r * Math.cos(angle)
-  const z = r * Math.sin(angle)
-  const y = 4 // constant height
-  return [x, y, z]
-}
 
 export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
   const { up, down, left, right } = useController()
@@ -43,11 +34,11 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
       if (room.sessionId !== sessionId) return
 
       setUsername(player.username)
-      setInitialPosition(spiralPosition(player.index))
+      setInitialPosition(spiralPositionGame(player.index))
     })
   }, [room])
 
-  useEffect(() => sendWalking(walking), [walking])
+  useEffect(() => sendWalking(walking), [walking, sendWalking])
 
   useFrame((_, delta) => {
     if (!bodyRef.current) return

@@ -239,6 +239,7 @@ export function LoadTest() {
         startPlayerMovement(player)
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [movementRate, maxRadius])
 
   // Cleanup on unmount
@@ -246,6 +247,7 @@ export function LoadTest() {
     return () => {
       fakePlayers.forEach(disconnectPlayer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

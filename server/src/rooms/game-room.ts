@@ -10,6 +10,10 @@ interface JoinGameRoomOptions {
   username: string
 }
 
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
 export class GameRoom extends Room<GameState> {
   state = new GameState()
 
@@ -38,6 +42,17 @@ export class GameRoom extends Room<GameState> {
       player.rotation[2] = data[2]
       player.rotation[3] = data[3]
     })
+
+    this.clock.setInterval(() => {
+      const elapsedSeconds = Math.floor(this.clock.elapsedTime / 1000)
+      const randomCount = randomInt(5, 30)
+      const randomIndexes = new Set(
+        Array.from({ length: randomCount }, () => randomInt(0, this.state.tiles.length - 1)),
+      )
+      this.state.tiles.forEach((tile, index) => {
+        tile.falling = elapsedSeconds % 2 ? randomIndexes.has(index) : false
+      })
+    }, 1000)
 
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
