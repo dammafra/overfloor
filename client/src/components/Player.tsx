@@ -11,22 +11,25 @@ function stringToHslColor(str: string) {
 
 interface PlayerProps extends BlockCharacterProps {
   name?: string
+  showName?: boolean
 }
 
-export function Player({ name, animate, ...props }: PlayerProps) {
+export function Player({ name, showName = true, animate, ...props }: PlayerProps) {
   const color = useMemo(() => name && stringToHslColor(name), [name])
 
   return (
     <>
       <BlockCharacter color={color} animate={animate} {...props} />(
-      <Html
-        center
-        position-y={1}
-        className="text-white rounded-full px-2 text-center whitespace-nowrap opacity-50"
-        style={{ background: color?.toString() }}
-      >
-        {name}
-      </Html>
+      {showName && (
+        <Html
+          center
+          position-y={1}
+          className="text-white rounded-full px-2 text-center whitespace-nowrap opacity-50"
+          style={{ background: color?.toString() }}
+        >
+          {name}
+        </Html>
+      )}
       )
     </>
   )
