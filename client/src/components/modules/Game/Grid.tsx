@@ -1,6 +1,6 @@
+import { Tile } from '@components/Tile'
 import { type PropsWithRoom } from '@hooks'
-import { a, useTransition } from '@react-spring/three'
-import { RoundedBoxGeometry } from '@react-three/drei'
+import { useTransition } from '@react-spring/three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import type { GameState, TileState } from '@server/schema'
 import { getStateCallbacks } from 'colyseus.js'
@@ -64,15 +64,14 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
     <>
       {/* meshes */}
       {transitions((spring, tile) => (
-        <a.mesh
+        <Tile
           key={`mesh-${tile.index}`}
           receiveShadow
           position={tile.position.toArray() as Vector3Tuple}
           scale={spring.scale}
-        >
-          <RoundedBoxGeometry args={[unit, 0.25, unit]} radius={0.1} />
-          <meshStandardMaterial color={phaseColors[tile.phase]} transparent opacity={0.5} />
-        </a.mesh>
+          unit={unit}
+          color={phaseColors[tile.phase]}
+        />
       ))}
 
       {/* bodies */}
