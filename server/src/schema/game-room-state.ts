@@ -54,16 +54,26 @@ export class TileState extends Schema {
 }
 
 export class GameState extends Schema {
-  @type('int16') width: number = 9
-  @type('int16') height: number = 6
+  @type('int16') width: number
+  @type('int16') height: number
   @type('float32') unit: number = 2
   @type('float32') gap: number = 0.1
 
   @type({ map: PlayerState }) players = new MapSchema<PlayerState>()
   @type({ array: TileState }) tiles = new ArraySchema<TileState>()
 
-  constructor() {
-    super()
+  init(playersCount: number) {
+    // TODO test and improve
+    if (playersCount <= 10) {
+      this.width = 7
+      this.height = 4
+    } else if (playersCount <= 30) {
+      this.width = 9
+      this.height = 6
+    } else if (playersCount <= 60) {
+      this.width = 11
+      this.height = 8
+    }
 
     const offsetX = (this.width - 1) * (this.unit + this.gap) * 0.5
     const offsetZ = (this.height - 1) * (this.unit + this.gap) * 0.5

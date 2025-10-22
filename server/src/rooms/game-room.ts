@@ -28,6 +28,9 @@ export class GameRoom extends Room<GameState> {
     this.roomId = options.id
     this.maxClients = options.playersCount
 
+    this.state.init(options.playersCount)
+    this.resetLoop()
+
     this.onMessage('set-walking', (client, data) => {
       const player = this.state.players.get(client.sessionId)
       if (!player) return
@@ -58,8 +61,6 @@ export class GameRoom extends Room<GameState> {
       player.rotation[2] = data[2]
       player.rotation[3] = data[3]
     })
-
-    this.resetLoop()
 
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
