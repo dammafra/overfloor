@@ -16,8 +16,7 @@ export default defineConfig({
     glsl(),
   ],
   server: {
-    host: true,
-    open: true,
+    // host: true,
   },
   build: {
     emptyOutDir: true, // Empty the folder first

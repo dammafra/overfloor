@@ -12,12 +12,11 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
 
   // prettier-ignore
   const phaseColors = [
-    defaultColor,   // TARGETING
+    defaultColor,   // IDLE
     'green',        // COUNTDOWN_3
     'orange',       // COUNTDOWN_2
     'red',          // COUNTDOWN_1
     defaultColor,   // FALLING
-    defaultColor,   // RESET
   ]
 
   const [unit, setUnit] = useState<number>(0)

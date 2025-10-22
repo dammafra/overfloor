@@ -1,4 +1,4 @@
-import { Client, Room } from '@colyseus/core'
+import { Client, Delayed, Room } from '@colyseus/core'
 import { GameLoopPhase, GameState, PlayerState } from '@schema'
 
 interface CreateGameRoomOptions {
@@ -18,8 +18,10 @@ function randomInt(min: number, max: number) {
 export class GameRoom extends Room<GameState> {
   state = new GameState()
 
-  #lastPhase: GameLoopPhase
-  #phaseDuration = 0.8
+  #loop: Delayed
+  #phase = GameLoopPhase.IDLE
+  #phaseDuration = 800 // min 300ms
+  #resetDuration = 700
   #totalPhases = Object.keys(GameLoopPhase).filter(k => isNaN(Number(k))).length
 
   async onCreate(options: CreateGameRoomOptions) {
@@ -57,7 +59,7 @@ export class GameRoom extends Room<GameState> {
       player.rotation[3] = data[3]
     })
 
-    this.clock.setInterval(this.#gameLoop.bind(this), 100)
+    this.resetLoop()
 
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
@@ -78,21 +80,44 @@ export class GameRoom extends Room<GameState> {
     console.log(`[${this.roomName}] 🗑️ disposing room ${this.roomId}`)
   }
 
+  #tick() {
+    this.#phase = (this.#phase + 1) % this.#totalPhases
+  }
+
+  #target() {
+    // TODO patterns
+    const randomCount = randomInt(20, 30)
+    const randomIndexes = new Set(Array.from({ length: randomCount }, () => randomInt(0, this.state.tiles.length - 1))) //prettier-ignore
+    this.state.targetTiles(randomIndexes)
+  }
+
   #gameLoop() {
-    const elapsedSeconds = this.clock.elapsedTime / 1000
-    const phase = Math.floor(elapsedSeconds / this.#phaseDuration) % this.#totalPhases
+    this.#target()
 
-    if (phase === this.#lastPhase) return
-    this.#lastPhase = phase
+    this.#loop?.clear()
+    this.#loop = this.clock.setInterval(() => {
+      if (this.#phase === GameLoopPhase.FALLING) {
+        this.resetLoop()
+        return
+      }
 
-    if (phase === GameLoopPhase.TARGETING) {
-      // TODO patterns
-      const randomCount = randomInt(5, 30)
-      const randomIndexes = new Set(Array.from({ length: randomCount }, () => randomInt(0, this.state.tiles.length - 1))) //prettier-ignore
-      this.state.targetTiles(randomIndexes)
-      return
-    }
+      this.#tick()
+      this.state.setPhase(this.#phase)
+    }, this.#phaseDuration)
+  }
 
-    this.state.setPhase(phase)
+  resetLoop() {
+    this.#phaseDuration = Math.max(300, this.#phaseDuration - 50)
+
+    this.#loop?.clear()
+    this.#loop = this.clock.setInterval(() => {
+      if (this.#phase === GameLoopPhase.IDLE) {
+        this.#gameLoop()
+        return
+      }
+
+      this.#tick()
+      this.state.setPhase(this.#phase)
+    }, this.#resetDuration)
   }
 }

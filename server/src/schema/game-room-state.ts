@@ -1,12 +1,11 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema'
 
 export enum GameLoopPhase {
-  TARGETING,
+  IDLE,
   COUNTDOWN_3,
   COUNTDOWN_2,
   COUNTDOWN_1,
   FALLING,
-  RESET,
 }
 
 export class PlayerState extends Schema {
