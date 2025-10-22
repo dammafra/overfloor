@@ -1,12 +1,18 @@
-import { useLobby } from '@hooks'
 import clsx from 'clsx'
-import { useState } from 'react'
-import { Link, useLocation } from 'wouter'
+import { useState, type FormEvent } from 'react'
+import { Link, useLocation, useParams } from 'wouter'
 
-export function JoinOrCreateRoom() {
+export function JoinRoom() {
+  const { id } = useParams()
   const [, navigate] = useLocation()
   const [username, setUsername] = useState<string>()
-  const { rooms } = useLobby({ filter: { name: 'game-lobby' } })
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault()
+
+    const options = btoa(JSON.stringify({ id, username }))
+    navigate(`/join/lobby/${options}`)
+  }
 
   return (
     <div className="page">
@@ -14,50 +20,19 @@ export function JoinOrCreateRoom() {
         <span className="icon-[mdi--chevron-left]" />
       </Link>
 
-      <div className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
             className="input"
-            placeholder="Enter username..."
+            placeholder="Username"
             onChange={e => setUsername(e.target.value)}
           />
           <span className="icon-[mdi--user]" />
         </div>
-
-        {rooms.length ? (
-          <table className="text-white max-h-48 w-full">
-            <thead className="bg-slate-500">
-              <tr>
-                <th className="rounded-l-2xl py-2 px-4">Room</th>
-                <th className="py-2 px-4">Players</th>
-                <th className="rounded-r-2xl py-2 px-4"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rooms.map(room => (
-                <tr key={room.roomId}>
-                  <td className="py-2 px-4">{room.roomId}</td>
-                  <td className="py-2 px-4">{room.clients}</td>
-                  <td className="py-2">
-                    <button
-                      type="submit"
-                      className={clsx('button icon', { disabled: !username })}
-                      onClick={() => {
-                        const options = btoa(JSON.stringify({ id: room.roomId, username }))
-                        navigate(`/join/lobby/${options}`)
-                      }}
-                    >
-                      <span className="icon-[mdi--arrow-right]" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-white text-center italic">No rooms available</p>
-        )}
-      </div>
+        <button type="submit" className={clsx('button', { disabled: !id || !username })}>
+          Join Room
+        </button>
+      </form>
     </div>
   )
 }

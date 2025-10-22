@@ -37,7 +37,7 @@ export function Helpers() {
         </GizmoHelper>
       )}
 
-      {perf && <Perf showGraph={false} position="top-left" />}
+      {perf && <Perf showGraph position="top-right" className="w-100" />}
     </>
   )
 }

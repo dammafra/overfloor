@@ -1,9 +1,9 @@
-import { Experience } from '@components'
-import { LoadTest } from '@components/LoadTest'
+import { Experience, LoadTest } from '@components'
 import { ErrorBoundary } from '@components/helpers'
-import { CreateRoom, JoinOrCreateRoom, MainMenu } from '@components/pages'
+import { ChooseRoom, CreateRoom, MainMenu } from '@components/pages'
+import { JoinRoom } from '@components/pages/JoinRoom'
 import { useDebug } from '@hooks'
-import { Leva } from 'leva'
+import { button, Leva, useControls } from 'leva'
 import { toast, ToastContainer } from 'react-toastify'
 import { Redirect, Route, Switch, useLocation } from 'wouter'
 
@@ -11,10 +11,30 @@ export default function App() {
   const debug = useDebug()
   const [, navigate] = useLocation()
 
+  useControls(
+    'test',
+    {
+      CREATE: button(() => {
+        const options = { id: 'test', username: Math.random().toString(36).slice(2) }
+        navigate(`/new/lobby/${btoa(JSON.stringify(options))}`)
+      }, {}),
+
+      JOIN: button(() => {
+        const options = { id: 'test', username: Math.random().toString(36).slice(2) }
+        navigate(`/join/lobby/${btoa(JSON.stringify(options))}`)
+      }),
+
+      'LOAD TEST': button(() => navigate(`/test`)),
+    },
+    { order: 2 },
+  )
+
   return (
     <>
-      {/* See https://github.com/pmndrs/leva/issues/552 */}
-      <Leva hidden={!debug} collapsed theme={{ sizes: { rootWidth: '350px' } }} />
+      <div className="absolute right-0 top-26 w-100 opacity-90 z-9999">
+        {/* See https://github.com/pmndrs/leva/issues/552 */}
+        <Leva fill flat titleBar={false} theme={{ colors: { elevation2: '#242424' } }} />
+      </div>
 
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
@@ -29,7 +49,8 @@ export default function App() {
         <Switch>
           <Route path="/" component={MainMenu} />
           <Route path="/new" component={CreateRoom} />
-          <Route path="/join" component={JoinOrCreateRoom} />
+          <Route path="/join" component={ChooseRoom} />
+          <Route path="/join/:id" component={JoinRoom} />
           <Route path="/:from/lobby/:options" />
           <Route path="/game/:reservation" />
           {debug && <Route path="/test" component={LoadTest} />}

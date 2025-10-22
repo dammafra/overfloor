@@ -1,4 +1,4 @@
-import { Tile } from '@components/Tile'
+import { Tile } from '@components'
 import { type PropsWithRoom } from '@hooks'
 import { useTransition } from '@react-spring/three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
