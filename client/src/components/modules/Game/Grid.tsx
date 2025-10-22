@@ -26,9 +26,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('grid', grid => {
-      setUnit(grid.unit)
-    })
+    $(room.state).listen('unit', setUnit)
 
     $(room.state).tiles.onAdd(tile => {
       setTiles(tiles => [tile, ...tiles.filter(t => t.index !== tile.index)])

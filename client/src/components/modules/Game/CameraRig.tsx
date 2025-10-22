@@ -18,12 +18,10 @@ export function CameraRig({ room }: PropsWithRoom<GameState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('grid', grid => {
-      setWidth(grid.width)
-      setHeight(grid.height)
-      setUnit(grid.unit)
-      setGap(grid.gap)
-    })
+    $(room.state).listen('width', setWidth)
+    $(room.state).listen('height', setHeight)
+    $(room.state).listen('unit', setUnit)
+    $(room.state).listen('gap', setGap)
   }, [room])
 
   useEffect(() => {

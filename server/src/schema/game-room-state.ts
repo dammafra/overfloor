@@ -53,29 +53,25 @@ export class TileState extends Schema {
   }
 }
 
-export class GridState extends Schema {
+export class GameState extends Schema {
   @type('int16') width: number = 9
   @type('int16') height: number = 6
   @type('float32') unit: number = 2
   @type('float32') gap: number = 0.1
-}
 
-export class GameState extends Schema {
-  @type(GridState) grid = new GridState()
   @type({ map: PlayerState }) players = new MapSchema<PlayerState>()
   @type({ array: TileState }) tiles = new ArraySchema<TileState>()
 
   constructor() {
     super()
 
-    const { width, height, unit, gap } = this.grid
-    const offsetX = (width - 1) * (unit + gap) * 0.5
-    const offsetZ = (height - 1) * (unit + gap) * 0.5
+    const offsetX = (this.width - 1) * (this.unit + this.gap) * 0.5
+    const offsetZ = (this.height - 1) * (this.unit + this.gap) * 0.5
 
-    for (let i = 0; i < width; i++) {
-      for (let j = 0; j < height; j++) {
-        const x = i * (unit + gap) - offsetX
-        const z = j * (unit + gap) - offsetZ
+    for (let i = 0; i < this.width; i++) {
+      for (let j = 0; j < this.height; j++) {
+        const x = i * (this.unit + this.gap) - offsetX
+        const z = j * (this.unit + this.gap) - offsetZ
         this.tiles.push(new TileState(x, z, this.tiles.length))
       }
     }

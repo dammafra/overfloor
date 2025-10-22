@@ -5,12 +5,15 @@ import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 
 export function Boundaries({ room }: PropsWithRoom<GameState>) {
+  const [width, setWidth] = useState<number>(0)
+  const [height, setHeight] = useState<number>(0)
+  const [unit, setUnit] = useState<number>(0)
+  const [gap, setGap] = useState<number>(0)
+
   const wallHeight = 3
   const wallThickness = 0.1
-
   const [verticalWallWidth, setVerticalWallWidth] = useState(0)
   const [verticalWallPosition, setVerticalWallPosition] = useState(0)
-
   const [horizontalWallWidth, setHorizontalWallWidth] = useState(0)
   const [horizontalWallPosition, setHorizontalWallPosition] = useState(0)
 
@@ -18,16 +21,22 @@ export function Boundaries({ room }: PropsWithRoom<GameState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('grid', grid => {
-      setHorizontalWallWidth(grid.width * (grid.unit + grid.gap))
-      setVerticalWallWidth(grid.height * (grid.unit + grid.gap))
-    })
+    $(room.state).listen('width', setWidth)
+    $(room.state).listen('height', setHeight)
+    $(room.state).listen('unit', setUnit)
+    $(room.state).listen('gap', setGap)
   }, [room])
 
   useEffect(() => {
+    const horizontalWallWidth = width * (unit + gap)
+    const verticalWallWidth = height * (unit + gap)
+
+    setHorizontalWallWidth(horizontalWallWidth)
+    setVerticalWallWidth(verticalWallWidth)
+
     setVerticalWallPosition(horizontalWallWidth * 0.5 + wallThickness)
     setHorizontalWallPosition(verticalWallWidth * 0.5 + wallThickness)
-  }, [horizontalWallWidth, verticalWallWidth])
+  }, [width, height, unit, gap])
 
   return (
     <>
