@@ -4,6 +4,8 @@ import { GameLobbyState } from '@schema'
 interface CreateGameLobbyOptions {
   id: string
   username: string
+  debug?: boolean
+  countdown?: number
 }
 
 interface JoinGameLobbyOptions {
@@ -20,6 +22,11 @@ export class GameLobby extends Room<GameLobbyState> {
   interval: Delayed
 
   async onCreate(options: CreateGameLobbyOptions) {
+    if (options.debug) {
+      this.MIN_PLAYERS = 1
+      this.COUNTDOWN = options.countdown || 0
+    }
+
     await this.#checkRoomId(options.id)
     this.roomId = options.id
     this.USERNAMES_CHANNEL = options.id

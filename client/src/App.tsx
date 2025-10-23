@@ -11,27 +11,23 @@ export default function App() {
   const debug = useDebug()
   const [, navigate] = useLocation()
 
+  //prettier-ignore
   useControls(
     'test',
     {
-      CREATE: button(() => {
-        const options = { id: 'test', username: Math.random().toString(36).slice(2) }
-        navigate(`/new/lobby/${btoa(JSON.stringify(options))}`)
-      }, {}),
-
-      JOIN: button(() => {
-        const options = { id: 'test', username: Math.random().toString(36).slice(2) }
-        navigate(`/join/lobby/${btoa(JSON.stringify(options))}`)
-      }),
-
+      DEBUG: button(() => navigate(`/new/lobby/${btoa(JSON.stringify({ id: 'test', username: Math.random().toString(36).slice(2), debug }))}`)),
       'LOAD TEST': button(() => navigate(`/test`)),
+      roomId: 'test',
+      countdown: { value: 5, min: 0, max: 60, step: 1 },
+      CREATE: button(get => navigate(`/new/lobby/${btoa(JSON.stringify({ id: get('test.roomId'), username: Math.random().toString(36).slice(2), debug, countdown: get('test.countdown') }))}`)),
+      JOIN: button(get => navigate(`/join/lobby/${btoa(JSON.stringify({ id: get('test.roomId'), username: Math.random().toString(36).slice(2) }))}`)),
     },
     { order: 2 },
   )
 
   return (
     <>
-      <div className="absolute right-0 top-26 w-100 opacity-90 z-9999">
+      <div className="absolute right-0 bottom-0 top-26 w-77.5 opacity-90 z-9999 overflow-scroll">
         {/* See https://github.com/pmndrs/leva/issues/552 */}
         <Leva fill flat titleBar={false} theme={{ colors: { elevation2: '#242424' } }} />
       </div>
