@@ -11,10 +11,6 @@ interface JoinGameRoomOptions {
   username: string
 }
 
-function randomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
 export class GameRoom extends Room<GameState> {
   state = new GameState()
 
@@ -85,15 +81,8 @@ export class GameRoom extends Room<GameState> {
     this.#phase = (this.#phase + 1) % this.#totalPhases
   }
 
-  #target() {
-    // TODO patterns
-    const randomCount = randomInt(20, 30)
-    const randomIndexes = new Set(Array.from({ length: randomCount }, () => randomInt(0, this.state.tiles.length - 1))) //prettier-ignore
-    this.state.targetTiles(randomIndexes)
-  }
-
   #gameLoop() {
-    this.#target()
+    this.state.targetTiles()
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
@@ -109,6 +98,9 @@ export class GameRoom extends Room<GameState> {
 
   resetLoop() {
     this.#phaseDuration = Math.max(300, this.#phaseDuration - 50)
+
+    // TODO condition
+    // this.state.disableTiles()
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {

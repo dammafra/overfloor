@@ -8,6 +8,14 @@ export enum GameLoopPhase {
   FALLING,
 }
 
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function getRandomElements<T>(count: number, array: T[]) {
+  return array.sort(() => Math.random() - 0.5).slice(0, count)
+}
+
 export class PlayerState extends Schema {
   @type('string') username: string
   @type('int16') index: number
@@ -32,6 +40,7 @@ export class TileState extends Schema {
   @type('int8') phase: GameLoopPhase
   @type('boolean') targeted: boolean
   @type('boolean') falling: boolean
+  @type('boolean') disabled: boolean
 
   constructor(x: number, z: number, index: number) {
     super()
@@ -40,16 +49,6 @@ export class TileState extends Schema {
     this.position[2] = z
 
     this.index = index
-  }
-
-  target(indexes: Set<number>) {
-    this.targeted = indexes.has(this.index)
-  }
-
-  setPhase(phase: GameLoopPhase) {
-    if (!this.targeted) return
-    this.phase = phase
-    this.falling = this.phase === GameLoopPhase.FALLING
   }
 }
 
@@ -87,11 +86,30 @@ export class GameState extends Schema {
     }
   }
 
-  targetTiles(indexes: Set<number>) {
-    this.tiles.forEach(tile => tile.target(indexes))
+  targetTiles() {
+    // TODO patterns
+    const availableTiles = this.tiles.filter(tile => !tile.disabled).map(tile => tile.index)
+    const count = randomInt(1, availableTiles.length)
+    const indexes = getRandomElements(count, availableTiles)
+
+    this.tiles.forEach(tile => {
+      if (tile.disabled) return
+      tile.targeted = indexes.includes(tile.index)
+    })
+  }
+
+  disableTiles() {
+    this.tiles.forEach(tile => {
+      if (tile.disabled) return
+      tile.disabled = tile.targeted
+    })
   }
 
   setPhase(phase: GameLoopPhase) {
-    this.tiles.forEach(tile => tile.setPhase(phase))
+    this.tiles.forEach(tile => {
+      if (tile.disabled || !tile.targeted) return
+      tile.phase = phase
+      tile.falling = tile.phase === GameLoopPhase.FALLING
+    })
   }
 }
