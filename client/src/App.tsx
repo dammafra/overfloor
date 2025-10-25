@@ -14,7 +14,6 @@ export default function App() {
   return (
     <>
       <GUI />
-      {debug && <Test />}
 
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
@@ -38,6 +37,8 @@ export default function App() {
             <Redirect to="/" />
           </Route>
         </Switch>
+
+        {debug && <Test />}
       </ErrorBoundary>
       {/* </StrictMode> */}
     </>

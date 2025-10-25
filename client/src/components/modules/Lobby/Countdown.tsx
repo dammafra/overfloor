@@ -4,8 +4,13 @@ import type { GameLobbyState } from '@server/schema'
 import clsx from 'clsx'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'react-toastify'
+import { useParams } from 'wouter'
 
 export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
+  const { options } = useParams()
+  const { id } = JSON.parse(atob(options!))
+
   const countdownRef = useRef<HTMLParagraphElement>(null)
   const [canStart, setCanStart] = useState(false)
 
@@ -21,14 +26,31 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
     $(room.state).listen('canStart', setCanStart)
   }, [room])
 
+  const share = async () => {
+    const url = `${location.protocol}//${location.host}/join/${id}`
+    const toShare = {
+      text: url,
+    }
+
+    navigator.clipboard.writeText(url)
+    toast.info('Join URL copied to clipboard')
+
+    if (navigator.canShare(toShare)) {
+      await navigator.share(toShare)
+    }
+  }
+
   return (
     <Html
       center
-      occlude="blending"
-      className="flex flex-col items-center justify-center size-44 aspect-square rounded-full text-center text-white font-bold bg-radial from-slate-400 to-70% to-transparent"
+      className="flex flex-col items-center justify-center size-44 aspect-square rounded-full text-center text-white font-bold bg-radial from-slate-400 to-70% to-transparent z-99"
     >
       <p>{canStart ? 'Match starts in...' : 'Waiting for opponents...'}</p>
       <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
+      <button className="button absolute bottom-0" onClick={share}>
+        <span className="icon-[mdi--share]" />
+        Share
+      </button>
     </Html>
   )
 }
