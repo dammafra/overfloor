@@ -228,5 +228,5 @@ export const shrinkPatterns: Record<GameState['dimension'], Pattern> = {
     [1, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
-  small: null,
+  small: [],
 }

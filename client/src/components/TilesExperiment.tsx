@@ -32,7 +32,7 @@ export function Temp() {
       floatIntensity={matchLobby ? 0 : 5}
       rotationIntensity={matchLobby ? 0 : 10}
     >
-      <Tile position={spring.position} rotation={spring.rotation} />
+      <Tile position={spring.position} />
     </Float>
   ))
 }
