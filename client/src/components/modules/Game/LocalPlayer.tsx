@@ -77,6 +77,8 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
         <RigidBody
           ref={bodyRef}
           colliders={false}
+          linearDamping={0}
+          angularDamping={0}
           enabledRotations={[false, false, false]}
           position={initialPosition}
         >
