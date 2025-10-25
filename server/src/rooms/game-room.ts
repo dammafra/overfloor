@@ -103,13 +103,26 @@ export class GameRoom extends Room<GameState> {
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
       if (this.#phase === GameLoopPhase.IDLE) {
-        const shrink = this.state.shrinkCheck()
-        this.#gameLoop(shrink)
+        if (this.state.players.size > 1) {
+          const shrink = this.state.shrinkCheck()
+          this.#gameLoop(shrink)
+        } else {
+          this.#end()
+        }
+
         return
       }
 
       this.#tick()
       this.state.setPhase(this.#phase)
     }, this.#resetDuration)
+  }
+
+  // TODO
+  #end() {
+    this.#loop.clear()
+    this.clients.forEach(async client => {
+      client.send('end')
+    })
   }
 }

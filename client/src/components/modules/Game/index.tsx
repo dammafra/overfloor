@@ -19,6 +19,16 @@ export function Game() {
   const { room, error } = useColyseus<GameState>({ roomName: 'game-room', reservation })
 
   useEffect(() => {
+    if (!room) return
+
+    // TODO
+    room.onMessage('end', () => {
+      alert('GAME OVER')
+      navigate('/')
+    })
+  }, [room, navigate])
+
+  useEffect(() => {
     if (!error) return
     toast.error(error.message)
     navigate('/')
