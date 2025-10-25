@@ -6,7 +6,7 @@ import { Lobby } from '@modules/Lobby'
 import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
-import { Route, Switch } from 'wouter'
+import { Route } from 'wouter'
 
 export function Experience() {
   const isTouch = useIsTouch()
@@ -32,10 +32,8 @@ export function Experience() {
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
       <Physics {...physicsControls} gravity={[0, -50, 0]}>
-        <Switch>
-          <Route path="/:from/lobby/:options" component={Lobby} />
-          <Route path="/game/:reservation" component={Game} />
-        </Switch>
+        <Route path="/:from/lobby/:options" component={Lobby} />
+        <Route path="/game/:reservation" component={Game} />
         <Helpers />
       </Physics>
 

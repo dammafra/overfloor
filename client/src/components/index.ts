@@ -1,5 +1,5 @@
 export * from './Environment'
 export * from './Experience'
-export * from './LoadTest'
+export * from './GUI'
 export * from './Player'
 export * from './Tile'
