@@ -25,7 +25,7 @@ export class GameRoom extends Room<GameState> {
     this.maxClients = options.playersCount
 
     this.state.init(options.playersCount)
-    this.resetLoop()
+    this.#resetLoop()
 
     this.onMessage('set-walking', (client, data) => {
       const player = this.state.players.get(client.sessionId)
@@ -81,13 +81,13 @@ export class GameRoom extends Room<GameState> {
     this.#phase = (this.#phase + 1) % this.#totalPhases
   }
 
-  #gameLoop() {
-    this.state.targetTiles()
+  #gameLoop(shrink?: boolean) {
+    this.state.targetTiles(shrink)
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
       if (this.#phase === GameLoopPhase.FALLING) {
-        this.resetLoop()
+        this.#resetLoop(shrink)
         return
       }
 
@@ -96,16 +96,15 @@ export class GameRoom extends Room<GameState> {
     }, this.#phaseDuration)
   }
 
-  resetLoop() {
+  #resetLoop(shrink?: boolean) {
     this.#phaseDuration = Math.max(300, this.#phaseDuration - 50)
-
-    // TODO condition
-    // this.state.disableTiles()
+    if (shrink) this.state.disableTiles()
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
       if (this.#phase === GameLoopPhase.IDLE) {
-        this.#gameLoop()
+        const shrink = this.state.shrinkCheck()
+        this.#gameLoop(shrink)
         return
       }
 

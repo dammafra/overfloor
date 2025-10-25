@@ -17,7 +17,7 @@ export function GUI() {
         hidden={!debug}
         fill
         flat
-        titleBar={false}
+        titleBar={{ drag: false }}
         theme={{ colors: { elevation2: '#242424' } }}
       />
     </div>

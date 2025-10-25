@@ -1,12 +1,13 @@
-import { GameState } from '../schema/game-room-state'
+import { GameState } from './game-room-state'
+
+type Pattern = number[][]
 
 interface PatterConfig {
   key: string
-  value: number[][]
+  value: Pattern
   flipX?: boolean
   flipY?: boolean
   negate?: boolean
-  transition?: boolean
 }
 
 const large: PatterConfig[] = [
@@ -50,22 +51,9 @@ const large: PatterConfig[] = [
     ],
     flipX: true,
   },
+
   {
     key: 'edges',
-    value: [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ],
-    transition: true,
-  },
-  {
-    key: 'edges2',
     value: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
@@ -128,20 +116,9 @@ const medium: PatterConfig[] = [
     ],
     flipX: true,
   },
+
   {
     key: 'edges',
-    value: [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ],
-    transition: true,
-  },
-  {
-    key: 'edges2',
     value: [
       [1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 1, 0, 0, 0, 0, 0, 1, 1],
@@ -230,5 +207,26 @@ const small: PatterConfig[] = [
   },
 ]
 
-const patterns: Record<GameState['dimension'], PatterConfig[]> = { small, medium, large }
-export default patterns
+export const patterns: Record<GameState['dimension'], PatterConfig[]> = { small, medium, large }
+
+export const shrinkPatterns: Record<GameState['dimension'], Pattern> = {
+  large: [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ],
+  medium: [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ],
+  small: null,
+}
