@@ -15,7 +15,8 @@
 
     "paths": {
       "@rooms": ["./src/rooms/index.ts"],
-      "@schema": ["./src/schema/index.ts"]
+      "@schema": ["./src/schema/index.ts"],
+      "@utils": ["./src/utils/index.ts"]
     }
   },
   "include": ["src"]
