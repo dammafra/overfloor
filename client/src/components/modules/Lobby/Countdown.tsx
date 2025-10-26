@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
-import { useParams } from 'wouter'
+import { Link, useParams } from 'wouter'
 
 export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
   const { options } = useParams()
@@ -52,8 +52,11 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
       <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
 
       <div className="absolute bottom-0 flex gap-2">
+        <Link href="/join" className="button danger icon" title="Back">
+          <span className="icon-[mdi--chevron-left]" />
+        </Link>
         {isOwner && canStart && (
-          <button className="button icon" title="Start" onClick={() => room?.send('start')}>
+          <button className="button success icon" title="Start" onClick={() => room?.send('start')}>
             <span className="icon-[mdi--play]" />
           </button>
         )}

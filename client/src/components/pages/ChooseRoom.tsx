@@ -6,10 +6,6 @@ export function ChooseRoom() {
 
   return (
     <div className="page">
-      <Link href="/" className="button icon absolute top-4 left-4">
-        <span className="icon-[mdi--chevron-left]" />
-      </Link>
-
       {rooms.length ? (
         <table className="text-white max-h-48">
           <thead className="bg-slate-500">
@@ -25,7 +21,7 @@ export function ChooseRoom() {
                 <td className="py-2 px-4">{room.roomId}</td>
                 <td className="py-2 px-4">{room.clients}</td>
                 <td className="py-2">
-                  <Link href={`/join/${room.roomId}`} className="button icon">
+                  <Link href={`/join/${room.roomId}`} className="button icon" title="Join">
                     <span className="icon-[mdi--arrow-right]" />
                   </Link>
                 </td>
@@ -36,6 +32,10 @@ export function ChooseRoom() {
       ) : (
         <p className="text-white text-center italic">No rooms available</p>
       )}
+
+      <Link href="/" className="button danger icon" title="Back">
+        <span className="icon-[mdi--chevron-left]" />
+      </Link>
     </div>
   )
 }

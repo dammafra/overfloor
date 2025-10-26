@@ -18,10 +18,6 @@ export function CreateRoom() {
 
   return (
     <div className="page">
-      <Link href="/" className="button icon absolute top-4 left-4">
-        <span className="icon-[mdi--chevron-left]" />
-      </Link>
-
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input className="input" placeholder="Room ID" onChange={e => setId(e.target.value)} />
@@ -35,9 +31,14 @@ export function CreateRoom() {
           />
           <span className="icon-[mdi--user]" />
         </div>
-        <button type="submit" className={clsx('button', { disabled: !id || !username })}>
-          Create Room
-        </button>
+        <div className="flex gap-2">
+          <Link href="/" className="button danger icon" title="Back">
+            <span className="icon-[mdi--chevron-left]" />
+          </Link>
+          <button type="submit" className={clsx('button flex-1', { disabled: !id || !username })}>
+            Create Room
+          </button>
+        </div>
       </form>
     </div>
   )
