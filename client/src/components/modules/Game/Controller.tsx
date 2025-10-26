@@ -1,7 +1,7 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useController } from '@stores'
-import Joystick, { DirectionCount } from 'rc-joystick'
+import Joystick, { DirectionCount, GhostArea } from 'rc-joystick'
 import type { PropsWithChildren } from 'react'
 
 export function Controller({ children }: PropsWithChildren) {
@@ -29,16 +29,19 @@ export function Controller({ children }: PropsWithChildren) {
     >
       {isTouch && (
         <Html center wrapperClass="fixed inset-0">
-          <Joystick
-            className="absolute top-50"
-            directionCount={DirectionCount.Nine}
-            onChange={event => {
-              setUp(event.direction.toLowerCase().includes('top'))
-              setDown(event.direction.toLowerCase().includes('bottom'))
-              setLeft(event.direction.toLowerCase().includes('left'))
-              setRight(event.direction.toLowerCase().includes('right'))
-            }}
-          />
+          <GhostArea className="h-[100dvh] w-screen">
+            <Joystick
+              throttle={200}
+              className="opacity-50"
+              directionCount={DirectionCount.Nine}
+              onDirectionChange={direction => {
+                setUp(direction.toLowerCase().includes('top'))
+                setDown(direction.toLowerCase().includes('bottom'))
+                setLeft(direction.toLowerCase().includes('left'))
+                setRight(direction.toLowerCase().includes('right'))
+              }}
+            />
+          </GhostArea>
         </Html>
       )}
 

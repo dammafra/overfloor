@@ -5,11 +5,13 @@ type ControllerStore = {
   down: boolean
   left: boolean
   right: boolean
+  strength: number
 
   setUp: (up: boolean) => void
   setDown: (down: boolean) => void
   setLeft: (left: boolean) => void
   setRight: (right: boolean) => void
+  setStrength: (strength: number) => void
 }
 
 export const useController = create<ControllerStore>()(set => ({
@@ -18,8 +20,11 @@ export const useController = create<ControllerStore>()(set => ({
   left: false,
   right: false,
 
-  setUp: (up: boolean) => set(() => ({ up })),
-  setDown: (down: boolean) => set(() => ({ down })),
-  setLeft: (left: boolean) => set(() => ({ left })),
-  setRight: (right: boolean) => set(() => ({ right })),
+  strength: 30,
+
+  setUp: up => set(() => ({ up })),
+  setDown: down => set(() => ({ down })),
+  setLeft: left => set(() => ({ left })),
+  setRight: right => set(() => ({ right })),
+  setStrength: strength => set(() => ({ strength: Math.min(30, strength) })),
 }))

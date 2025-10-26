@@ -12,7 +12,7 @@ import { v4 as uuid } from 'uuid'
 import { Controller } from './Controller'
 
 export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
-  const { up, down, left, right } = useController()
+  const { up, down, left, right, strength } = useController()
 
   const bodyRef = useRef<RapierRigidBody>(null)
 
@@ -56,7 +56,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
     if (left) impulse.x -= 1
 
     const safeDelta = Math.min(delta, 0.1)
-    const impulseStrength = 30 * safeDelta
+    const impulseStrength = strength * safeDelta
     impulse.normalize().multiplyScalar(impulseStrength)
 
     if (impulse.equals(new Vector3())) return
@@ -81,8 +81,9 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
           key={bodyKey}
           ref={bodyRef}
           colliders={false}
-          linearDamping={0}
-          angularDamping={0}
+          gravityScale={5}
+          friction={0.5}
+          linearDamping={0.5}
           enabledRotations={[false, false, false]}
           position={initialPosition}
         >

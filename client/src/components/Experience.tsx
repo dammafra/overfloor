@@ -31,7 +31,7 @@ export function Experience() {
       <Environment />
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
-      <Physics {...physicsControls} gravity={[0, -50, 0]}>
+      <Physics {...physicsControls}>
         <Route path="/:from/lobby/:options" component={Lobby} />
         <Route path="/game/:reservation" component={Game} />
         <Helpers />
