@@ -21,6 +21,7 @@
     "colyseus": "^0.16.4",
     "express": "^5.1.0",
     "express-basic-auth": "^1.2.1",
-    "module-alias": "^2.2.3"
+    "module-alias": "^2.2.3",
+    "uuid": "^13.0.0"
   }
 }

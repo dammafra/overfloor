@@ -39,8 +39,5 @@
     "r3f-perf": {
       "@react-three/drei": "^10.7.2"
     }
-  },
-  "dependencies": {
-    "uuid": "^13.0.0"
   }
 }
