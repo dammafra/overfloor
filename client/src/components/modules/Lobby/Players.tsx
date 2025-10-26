@@ -33,7 +33,7 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
       position={spring.position.to((x, y, z) => [x, y, z])}
     >
       <Float floatIntensity={2} rotationIntensity={2} scale={0.5}>
-        <Player name={player} showName={false} />
+        <Player username={player} />
       </Float>
     </a.group>
   ))

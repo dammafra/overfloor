@@ -43,7 +43,11 @@ export class GameRoom extends Room<GameState> {
       if (data[1] < -50) {
         this.state.players.delete(client.sessionId)
         if (this.#training) {
-          // TODO reset disabled tiles and dimension
+          // TODO reset dimension, improve code
+          this.#loop.clear()
+          this.#phaseDuration = 800
+          this.#gameLoop()
+          this.state.enableTiles()
           this.state.players.set(client.sessionId, new PlayerState(player.username, this.state.players.size)) //prettier-ignore
         }
         return

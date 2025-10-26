@@ -11,6 +11,14 @@ body,
   user-select: none;
 }
 
+@utility text-stroke-* {
+  text-shadow:
+    -1px -1px 0 --value(--color-*),
+    1px -1px 0 --value(--color-*),
+    -1px 1px 0 --value(--color-*),
+    1px 1px 0 --value(--color-*);
+}
+
 @layer base {
   html,
   body,

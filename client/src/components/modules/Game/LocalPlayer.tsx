@@ -87,7 +87,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
           position={initialPosition}
         >
           <BallCollider args={[0.6]} />
-          <Player name={username} animate={walking} />
+          <Player username={username} animate={walking} showIndicator />
         </RigidBody>
       </Controller>
     )

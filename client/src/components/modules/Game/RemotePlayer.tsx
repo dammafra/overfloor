@@ -61,7 +61,7 @@ export function RemotePlayer({ room, username, index }: RemotePlayerProps) {
       enabledRotations={[false, false, false]}
     >
       <BallCollider args={[0.6]} />
-      <Player name={username} animate={walking} />
+      <Player username={username} animate={walking} />
     </RigidBody>
   )
 }

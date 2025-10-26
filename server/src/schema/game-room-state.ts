@@ -33,7 +33,7 @@ export class TileState extends Schema {
   @type('string') id: string
 
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
-  @type('int8') phase: GameLoopPhase
+  @type('int8') phase = GameLoopPhase.IDLE
   @type('boolean') targeted: boolean
   @type('boolean') falling: boolean
   @type('boolean') disabled: boolean
@@ -52,8 +52,8 @@ export class GameState extends Schema {
   @type('int8') width: number
   @type('int8') height: number
 
-  @type('float32') unit: number = 2
-  @type('float32') gap: number = 0.1
+  @type('float32') unit: number = 2.5
+  @type('float32') gap: number = 0.2
 
   @type({ map: PlayerState }) players = new MapSchema<PlayerState>()
   @type({ array: TileState }) tiles = new ArraySchema<TileState>()
@@ -123,6 +123,12 @@ export class GameState extends Schema {
       .forEach((tile, index) => {
         tile.targeted = !!pattern.at(index)
       })
+  }
+
+  enableTiles() {
+    this.tiles.forEach(tile => {
+      tile.disabled = false
+    })
   }
 
   disableTiles() {
