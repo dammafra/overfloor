@@ -13,6 +13,8 @@ interface JoinGameLobbyOptions {
 }
 
 export class GameLobby extends Room<GameLobbyState> {
+  autoDispose = false
+
   IDS_CHANNEL = '$IDS'
   USERNAMES_CHANNEL: string
   MIN_PLAYERS = 2
@@ -43,6 +45,13 @@ export class GameLobby extends Room<GameLobbyState> {
 
       this.#startMatch()
     }, 1000)
+
+    this.clock.setTimeout(
+      () => {
+        if (!this.clients.length) this.disconnect()
+      },
+      1000 * 60 * 15, //15 minutes
+    )
 
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }

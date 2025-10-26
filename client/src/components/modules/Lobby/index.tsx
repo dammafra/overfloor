@@ -21,6 +21,11 @@ export function Lobby() {
   useEffect(() => {
     if (!room) return
 
+    if (from === 'new') {
+      navigate(`/join/lobby/${options}`)
+      return
+    }
+
     room.onMessage('start', reservation => {
       navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })
     })
