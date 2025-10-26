@@ -13,8 +13,8 @@ import { RemotePlayers } from './RemotePlayers'
 export function Game() {
   const debug = useDebug()
   const params = useParams()
-  const [, navigate] = useLocation()
   const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
+  const [, navigate] = useLocation()
 
   const { room, error } = useColyseus<GameState>({ roomName: 'game-room', reservation })
 

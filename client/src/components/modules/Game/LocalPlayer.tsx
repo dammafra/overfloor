@@ -11,6 +11,10 @@ import { Quaternion, Vector3, type Vector3Tuple } from 'three'
 import { v4 as uuid } from 'uuid'
 import { Controller } from './Controller'
 
+const GROUP = 0x0001 // category bit 1
+const MASK = 0xffff ^ GROUP // collide with everything except itself
+export const PLAYERS_COLLISION_GROUP = (GROUP << 16) | MASK
+
 export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
   const { up, down, left, right, strength } = useController()
 
@@ -86,6 +90,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
           linearDamping={0.5}
           enabledRotations={[false, false, false]}
           position={initialPosition}
+          collisionGroups={PLAYERS_COLLISION_GROUP}
         >
           <BallCollider args={[0.6]} />
           <Player username={username} animate={walking} showIndicator />

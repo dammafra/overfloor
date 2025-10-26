@@ -6,11 +6,12 @@ import { useLocation, useParams } from 'wouter'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Players } from './Players'
+import { Title } from './Title'
 
 export function Lobby() {
   const { from, options } = useParams()
-  const [, navigate] = useLocation()
   const { id, username, training, countdown } = JSON.parse(atob(options!))
+  const [, navigate] = useLocation()
 
   const { room, error } = useColyseus<GameLobbyState>({
     roomId: from === 'new' ? undefined : id,
@@ -38,6 +39,7 @@ export function Lobby() {
 
   return (
     <>
+      <Title />
       <Countdown room={room} />
       <Players room={room} />
       <CameraRig room={room} />

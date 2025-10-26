@@ -7,6 +7,7 @@ import { spiralPositionGame } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type QuaternionTuple, type Vector3Tuple } from 'three'
+import { PLAYERS_COLLISION_GROUP } from './LocalPlayer'
 
 interface RemotePlayerProps extends PropsWithRoom<GameState> {
   username: string
@@ -59,6 +60,7 @@ export function RemotePlayer({ room, username, index }: RemotePlayerProps) {
       type="kinematicPosition"
       colliders={false}
       enabledRotations={[false, false, false]}
+      collisionGroups={PLAYERS_COLLISION_GROUP}
     >
       <BallCollider args={[0.6]} />
       <Player username={username} animate={walking} />

@@ -6,8 +6,12 @@ import type { GameLobbyState } from '@server/schema'
 import { spiralPositionLobby } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
+import { useParams } from 'wouter'
 
 export function Players({ room }: PropsWithRoom<GameLobbyState>) {
+  const { options } = useParams()
+  const { training } = JSON.parse(atob(options!))
+
   const [players, setPlayers] = useState<string[]>([])
 
   useEffect(() => {
@@ -33,7 +37,7 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
       position={spring.position.to((x, y, z) => [x, y, z])}
     >
       <Float floatIntensity={2} rotationIntensity={2} scale={0.5}>
-        <Player username={player} />
+        <Player username={player} showUsername={!training} />
       </Float>
     </a.group>
   ))

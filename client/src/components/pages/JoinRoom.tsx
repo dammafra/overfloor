@@ -5,7 +5,7 @@ import { Link, useLocation, useParams } from 'wouter'
 export function JoinRoom() {
   const { id } = useParams()
   const [, navigate] = useLocation()
-  const [username, setUsername] = useState<string>()
+  const [username, setUsername] = useState<string>('')
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -21,7 +21,8 @@ export function JoinRoom() {
           <input
             className="input"
             placeholder="Username"
-            onChange={e => setUsername(e.target.value)}
+            value={username}
+            onChange={e => setUsername(e.target.value.trim())}
           />
           <span className="icon-[mdi--user]" />
         </div>

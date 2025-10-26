@@ -12,26 +12,26 @@ function stringToHslColor(str: string) {
 interface PlayerProps extends BlockCharacterProps {
   username?: string
   showIndicator?: boolean
+  showUsername?: boolean
 }
 
-export function Player({ username, showIndicator, animate, ...props }: PlayerProps) {
+export function Player({ username, showIndicator, showUsername, animate, ...props }: PlayerProps) {
   const color = useMemo(() => username && stringToHslColor(username), [username])
 
   return (
     <>
-      <BlockCharacter color={color} animate={animate} {...props} />(
-      {showIndicator && (
-        <Billboard position-y={2.5} scale={1.5}>
+      <BlockCharacter color={color} animate={animate} {...props} />
+      {(showIndicator || showUsername) && (
+        <Billboard position-y={showIndicator ? 2.5 : 1.25} scale={showIndicator ? 1.5 : 0.5}>
           <Html
             transform
-            className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6 h-8"
+            className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6 h-8 max-w-40 overflow-hidden overflow-ellipsis"
             style={{ borderColor: color }}
           >
-            YOU
+            {showIndicator ? 'YOU' : username}
           </Html>
         </Billboard>
       )}
-      )
     </>
   )
 }

@@ -5,8 +5,8 @@ import { Link, useLocation } from 'wouter'
 export function CreateRoom() {
   const [, navigate] = useLocation()
 
-  const [id, setId] = useState<string>()
-  const [username, setUsername] = useState<string>()
+  const [id, setId] = useState<string>('')
+  const [username, setUsername] = useState<string>('')
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -20,14 +20,20 @@ export function CreateRoom() {
     <div className="page">
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
-          <input className="input" placeholder="Room ID" onChange={e => setId(e.target.value)} />
+          <input
+            className="input"
+            placeholder="Room ID"
+            value={id}
+            onChange={e => setId(e.target.value.trim())}
+          />
           <span className="icon-[mdi--gamepad-variant]" />
         </div>
         <div>
           <input
             className="input"
             placeholder="Username"
-            onChange={e => setUsername(e.target.value)}
+            value={username}
+            onChange={e => setUsername(e.target.value.trim())}
           />
           <span className="icon-[mdi--user]" />
         </div>

@@ -25,7 +25,7 @@ export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
     if (!cameraControls) return
 
     const [, , z] = spiralPositionLobby(playersCount)
-    cameraControls.dollyTo(z + (viewport.aspect > 1 ? 5 : 10), true)
+    cameraControls.dollyTo(z + (viewport.aspect > 1 ? 7 : 10), true)
     cameraControls.rotatePolarTo(MathUtils.degToRad(90), true)
   }, [playersCount, controls, viewport])
 
