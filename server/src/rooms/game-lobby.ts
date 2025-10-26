@@ -32,6 +32,7 @@ export class GameLobby extends Room<GameLobbyState> {
 
     if (options.training) {
       this.#training = true
+      this.autoDispose = true
       this.MIN_PLAYERS = 1
       this.COUNTDOWN = 3
     }

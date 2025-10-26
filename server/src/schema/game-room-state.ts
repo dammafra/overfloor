@@ -72,12 +72,8 @@ export class GameState extends Schema {
     this.height = this.dimension === 'large' ? 8 : this.dimension === 'medium' ? 6 : 4
   }
 
-  dimensionByPlayers = (playersCount: number) =>
-    playersCount <= 10 ? 'small' : playersCount <= 30 ? 'medium' : 'large'
-
-  init(playersCount: number) {
-    // TODO test and improve
-    this.dimension = this.dimensionByPlayers(playersCount)
+  init(dimension: typeof this._dimension) {
+    this.dimension = dimension
 
     const offsetX = (this.width - 1) * (this.unit + this.gap) * 0.5
     const offsetZ = (this.height - 1) * (this.unit + this.gap) * 0.5
@@ -89,11 +85,6 @@ export class GameState extends Schema {
         this.tiles.push(new TileState(x, z))
       }
     }
-  }
-
-  shrinkCheck() {
-    const nextDimension = this.dimensionByPlayers(this.players.size)
-    return this.dimension !== nextDimension
   }
 
   randomPattern() {
@@ -116,7 +107,7 @@ export class GameState extends Schema {
 
   targetTiles(shrink?: boolean) {
     const pattern = shrink ? shrinkPatterns[this.dimension].flat() : this.randomPattern()
-    if (shrink) this.dimension = this.dimensionByPlayers(this.players.size)
+    if (shrink) this.dimension = this.dimension === 'large' ? 'medium' : 'small'
 
     this.tiles
       .filter(tile => !tile.disabled)
@@ -125,9 +116,10 @@ export class GameState extends Schema {
       })
   }
 
-  enableTiles() {
+  resetTiles() {
     this.tiles.forEach(tile => {
       tile.disabled = false
+      tile.falling = false
     })
   }
 

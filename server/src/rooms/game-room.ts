@@ -15,6 +15,7 @@ export class GameRoom extends Room<GameState> {
   state = new GameState()
 
   #loop: Delayed
+  #loopsCount = 0
   #phase = GameLoopPhase.IDLE
   #phaseDuration = 800 // min 300ms
   #resetDuration = 700
@@ -26,7 +27,7 @@ export class GameRoom extends Room<GameState> {
     this.maxClients = options.playersCount
     this.#training = options.training
 
-    this.state.init(options.playersCount)
+    this.state.init(options.playersCount <= 20 ? 'medium' : 'large')
     this.#resetLoop()
 
     this.onMessage('set-walking', (client, data) => {
@@ -43,11 +44,11 @@ export class GameRoom extends Room<GameState> {
       if (data[1] < -50) {
         this.state.players.delete(client.sessionId)
         if (this.#training) {
-          // TODO reset dimension, improve code
-          this.#loop.clear()
+          // TODO improve
+          this.state.dimension = 'medium'
+          this.#loopsCount = 0
           this.#phaseDuration = 800
-          this.#gameLoop()
-          this.state.enableTiles()
+          this.state.resetTiles()
           this.state.players.set(client.sessionId, new PlayerState(player.username, this.state.players.size)) //prettier-ignore
         }
         return
@@ -93,6 +94,7 @@ export class GameRoom extends Room<GameState> {
 
   #gameLoop(shrink?: boolean) {
     this.state.targetTiles(shrink)
+    this.#loopsCount++
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
@@ -107,14 +109,14 @@ export class GameRoom extends Room<GameState> {
   }
 
   #resetLoop(shrink?: boolean) {
-    this.#phaseDuration = Math.max(300, this.#phaseDuration - 50)
+    this.#decreasePhaseDuration()
     if (shrink) this.state.disableTiles()
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
       if (this.#phase === GameLoopPhase.IDLE) {
         if (this.#training || this.state.players.size > 1) {
-          const shrink = this.state.shrinkCheck()
+          const shrink = this.#shrinkCheck()
           this.#gameLoop(shrink)
         } else {
           this.#end()
@@ -128,7 +130,34 @@ export class GameRoom extends Room<GameState> {
     }, this.#resetDuration)
   }
 
-  // TODO
+  #decreasePhaseDuration() {
+    switch (this.state.dimension) {
+      case 'large':
+        this.#phaseDuration -= 10
+        break
+      case 'medium':
+        this.#phaseDuration -= 30
+        break
+      case 'small':
+        this.#phaseDuration -= 50
+        break
+    }
+
+    this.#phaseDuration = Math.max(300, this.#phaseDuration)
+  }
+
+  #shrinkCheck() {
+    switch (this.state.dimension) {
+      case 'large':
+        return this.state.players.size <= 20
+      case 'medium':
+        return this.state.players.size <= 10 && this.#loopsCount > 4
+      case 'small':
+        return false
+    }
+  }
+
+  // TODO chart
   #end() {
     this.#loop.clear()
     this.clients.forEach(async client => {
