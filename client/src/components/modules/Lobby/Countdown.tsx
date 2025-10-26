@@ -9,7 +9,7 @@ import { useParams } from 'wouter'
 
 export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
   const { options } = useParams()
-  const { id, username } = JSON.parse(atob(options!))
+  const { id, username, training } = JSON.parse(atob(options!))
 
   const countdownRef = useRef<HTMLParagraphElement>(null)
   const [isOwner, setIsOwner] = useState(false)
@@ -57,9 +57,11 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
             <span className="icon-[mdi--play]" />
           </button>
         )}
-        <button className="button icon" title="Share" onClick={share}>
-          <span className="icon-[mdi--share]" />
-        </button>
+        {!training && (
+          <button className="button icon" title="Share" onClick={share}>
+            <span className="icon-[mdi--share]" />
+          </button>
+        )}
       </div>
     </Html>
   )

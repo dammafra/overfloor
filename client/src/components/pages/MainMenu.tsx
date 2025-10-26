@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid'
 import { Link } from 'wouter'
 
 export function MainMenu() {
@@ -12,6 +13,14 @@ export function MainMenu() {
         <li className="flex">
           <Link className="button" href="/join">
             Join Room
+          </Link>
+        </li>
+        <li className="flex">
+          <Link
+            className="button warning"
+            href={`/new/lobby/${btoa(JSON.stringify({ id: uuid(), username: uuid(), training: true, countdown: 3 }))}`}
+          >
+            Training
           </Link>
         </li>
       </ul>

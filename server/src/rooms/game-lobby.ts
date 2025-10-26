@@ -4,8 +4,8 @@ import { GameLobbyState } from '@schema'
 interface CreateGameLobbyOptions {
   id: string
   username: string
-  debug?: boolean
   countdown?: number
+  training?: boolean
 }
 
 interface JoinGameLobbyOptions {
@@ -21,21 +21,24 @@ export class GameLobby extends Room<GameLobbyState> {
   COUNTDOWN = 60
 
   state = new GameLobbyState()
-  interval: Delayed
+  #interval: Delayed
+  #training: boolean
 
   async onCreate(options: CreateGameLobbyOptions) {
-    if (options.debug) {
-      this.MIN_PLAYERS = 1
-      this.COUNTDOWN = options.countdown || 0
-    }
-
     await this.#checkRoomId(options.id)
     this.roomId = options.id
     this.USERNAMES_CHANNEL = options.id
+    this.COUNTDOWN = options.countdown || this.COUNTDOWN
+
+    if (options.training) {
+      this.#training = true
+      this.MIN_PLAYERS = 1
+      this.COUNTDOWN = 3
+    }
 
     this.#checkMatchCanStart()
 
-    this.interval = this.clock.setInterval(async () => {
+    this.#interval = this.clock.setInterval(async () => {
       if (!this.state.canStart) return
 
       if (this.state.countdown > 0) {
@@ -83,12 +86,13 @@ export class GameLobby extends Room<GameLobbyState> {
   }
 
   async #startMatch() {
-    this.interval.clear()
+    this.#interval.clear()
     this.autoDispose = true
 
     const room = await matchMaker.createRoom('game-room', {
       id: `${this.roomId}-game`,
       playersCount: this.state.players.size,
+      training: this.#training,
     })
 
     this.clients.forEach(async client => {

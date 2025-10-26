@@ -8,6 +8,7 @@ import { spiralPositionGame } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type Vector3Tuple } from 'three'
+import { v4 as uuid } from 'uuid'
 import { Controller } from './Controller'
 
 export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
@@ -17,6 +18,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
 
   const [walking, setWalking] = useState(false)
   const [username, setUsername] = useState<string>()
+  const [bodyKey, setBodyKey] = useState<string>()
   const [initialPosition, setInitialPosition] = useState<Vector3Tuple>([0, 0, 0])
 
   const sendWalking = useThrottle((walking: boolean) => room?.send('set-walking', walking))
@@ -34,6 +36,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
       if (room.sessionId !== sessionId) return
 
       setUsername(player.username)
+      setBodyKey(uuid())
       setInitialPosition(spiralPositionGame(player.index))
     })
   }, [room])
@@ -42,8 +45,8 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
 
   useFrame((_, delta) => {
     if (!bodyRef.current) return
-    sendMovement()
 
+    sendMovement()
     setWalking(up || down || left || right)
 
     const impulse = new Vector3()
@@ -75,6 +78,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
     username && (
       <Controller>
         <RigidBody
+          key={bodyKey}
           ref={bodyRef}
           colliders={false}
           linearDamping={0}

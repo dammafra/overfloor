@@ -4,7 +4,7 @@ import { GameLoopPhase, GameState, PlayerState } from '@schema'
 interface CreateGameRoomOptions {
   id: string
   playersCount: number
-  phaseDuration?: number // optional config
+  training: boolean
 }
 
 interface JoinGameRoomOptions {
@@ -19,10 +19,12 @@ export class GameRoom extends Room<GameState> {
   #phaseDuration = 800 // min 300ms
   #resetDuration = 700
   #totalPhases = Object.keys(GameLoopPhase).filter(k => isNaN(Number(k))).length
+  #training: boolean
 
   async onCreate(options: CreateGameRoomOptions) {
     this.roomId = options.id
     this.maxClients = options.playersCount
+    this.#training = options.training
 
     this.state.init(options.playersCount)
     this.#resetLoop()
@@ -40,6 +42,10 @@ export class GameRoom extends Room<GameState> {
 
       if (data[1] < -50) {
         this.state.players.delete(client.sessionId)
+        if (this.#training) {
+          // TODO reset disabled tiles and dimension
+          this.state.players.set(client.sessionId, new PlayerState(player.username, this.state.players.size)) //prettier-ignore
+        }
         return
       }
 
@@ -103,7 +109,7 @@ export class GameRoom extends Room<GameState> {
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
       if (this.#phase === GameLoopPhase.IDLE) {
-        if (this.state.players.size > 1) {
+        if (this.#training || this.state.players.size > 1) {
           const shrink = this.state.shrinkCheck()
           this.#gameLoop(shrink)
         } else {
