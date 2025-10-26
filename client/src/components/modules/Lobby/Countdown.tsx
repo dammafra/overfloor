@@ -27,7 +27,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
     })
 
     $(room.state).listen('canStart', setCanStart)
-  }, [room])
+  }, [room, username])
 
   const share = async () => {
     const url = `${location.protocol}//${location.host}/join/${id}`

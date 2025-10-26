@@ -28,7 +28,7 @@ export function Lobby() {
     room.onMessage('start', reservation => {
       navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })
     })
-  }, [room, navigate])
+  }, [room, from, options, navigate])
 
   useEffect(() => {
     if (!error || !from) return
