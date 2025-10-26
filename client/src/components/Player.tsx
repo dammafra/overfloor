@@ -1,5 +1,5 @@
 import { BlockCharacter, type BlockCharacterProps } from '@components/models'
-import { Html } from '@react-three/drei'
+import { Billboard, Html } from '@react-three/drei'
 import { useMemo } from 'react'
 
 function stringToHslColor(str: string) {
@@ -21,14 +21,15 @@ export function Player({ username, showIndicator, animate, ...props }: PlayerPro
     <>
       <BlockCharacter color={color} animate={animate} {...props} />(
       {showIndicator && (
-        <Html
-          center
-          position-y={2.5}
-          className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6"
-          style={{ borderColor: color }}
-        >
-          YOU
-        </Html>
+        <Billboard position-y={2.5} scale={1.5}>
+          <Html
+            transform
+            className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6 h-8"
+            style={{ borderColor: color }}
+          >
+            YOU
+          </Html>
+        </Billboard>
       )}
       )
     </>
