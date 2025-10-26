@@ -11,7 +11,6 @@ export function Controller({ children }: PropsWithChildren) {
   const setDown = useController(state => state.setDown)
   const setLeft = useController(state => state.setLeft)
   const setRight = useController(state => state.setRight)
-  const setStrength = useController(state => state.setStrength)
 
   return (
     <KeyboardControls
@@ -42,7 +41,6 @@ export function Controller({ children }: PropsWithChildren) {
                 setLeft(direction.toLowerCase().includes('left'))
                 setRight(direction.toLowerCase().includes('right'))
               }}
-              onDistanceChange={distance => setStrength(distance)}
             />
           </div>
         </Html>
