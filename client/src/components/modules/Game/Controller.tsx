@@ -1,7 +1,7 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useController } from '@stores'
-import Joystick, { DirectionCount, GhostArea } from 'rc-joystick'
+import Joystick, { DirectionCount } from 'rc-joystick'
 import type { PropsWithChildren } from 'react'
 
 export function Controller({ children }: PropsWithChildren) {
@@ -11,6 +11,7 @@ export function Controller({ children }: PropsWithChildren) {
   const setDown = useController(state => state.setDown)
   const setLeft = useController(state => state.setLeft)
   const setRight = useController(state => state.setRight)
+  const setStrength = useController(state => state.setStrength)
 
   return (
     <KeyboardControls
@@ -28,11 +29,12 @@ export function Controller({ children }: PropsWithChildren) {
       }}
     >
       {isTouch && (
-        <Html center wrapperClass="fixed inset-0">
-          <GhostArea className="h-[100dvh] w-screen">
+        <Html center wrapperClass="fixed inset-0 pointer-events-none">
+          <div className="h-[100dvh] w-screen">
             <Joystick
               throttle={200}
-              className="opacity-50"
+              className="absolute! bottom-20 left-1/2 -translate-x-1/2 pointer-events-auto bg-stone-900!"
+              controllerClassName="bg-radial! from-red-500 to-red-800 shadow!"
               directionCount={DirectionCount.Nine}
               onDirectionChange={direction => {
                 setUp(direction.toLowerCase().includes('top'))
@@ -40,8 +42,9 @@ export function Controller({ children }: PropsWithChildren) {
                 setLeft(direction.toLowerCase().includes('left'))
                 setRight(direction.toLowerCase().includes('right'))
               }}
+              onDistanceChange={distance => setStrength(distance)}
             />
-          </GhostArea>
+          </div>
         </Html>
       )}
 
