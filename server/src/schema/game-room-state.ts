@@ -1,4 +1,5 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema'
+import { v4 as uuid } from 'uuid'
 import { patterns, shrinkPatterns } from './patterns'
 
 const oneOf = <T>(array: T[]) => array[Math.floor(Math.random() * array.length)]
@@ -14,7 +15,7 @@ export enum GameLoopPhase {
 
 export class PlayerState extends Schema {
   @type('string') username: string
-  @type('int16') index: number
+  @type('int16') index: number // TODO can I remove index as in TileState?
 
   @type('boolean') walking: boolean
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
@@ -29,7 +30,7 @@ export class PlayerState extends Schema {
 }
 
 export class TileState extends Schema {
-  @type('int16') index: number
+  @type('string') id: string
 
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
   @type('int8') phase: GameLoopPhase
@@ -37,13 +38,13 @@ export class TileState extends Schema {
   @type('boolean') falling: boolean
   @type('boolean') disabled: boolean
 
-  constructor(x: number, z: number, index: number) {
+  constructor(x: number, z: number) {
     super()
+
+    this.id = uuid()
 
     this.position[0] = x
     this.position[2] = z
-
-    this.index = index
   }
 }
 
@@ -85,7 +86,7 @@ export class GameState extends Schema {
       for (let i = 0; i < this.width; i++) {
         const x = i * (this.unit + this.gap) - offsetX
         const z = j * (this.unit + this.gap) - offsetZ
-        this.tiles.push(new TileState(x, z, this.tiles.length))
+        this.tiles.push(new TileState(x, z))
       }
     }
   }

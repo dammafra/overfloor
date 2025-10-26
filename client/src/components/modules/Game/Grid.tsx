@@ -29,20 +29,20 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
     $(room.state).listen('unit', setUnit)
 
     $(room.state).tiles.onAdd(tile => {
-      setTiles(tiles => [tile, ...tiles.filter(t => t.index !== tile.index)])
+      setTiles(tiles => [tile, ...tiles.filter(t => t.id !== tile.id)])
 
       $(tile).listen('falling', falling => {
         setTiles(tiles =>
           falling
-            ? tiles.filter(t => t.index !== tile.index)
-            : [tile, ...tiles.filter(t => t.index !== tile.index)],
+            ? tiles.filter(t => t.id !== tile.id)
+            : [tile, ...tiles.filter(t => t.id !== tile.id)],
         )
       })
 
       $(tile).listen('phase', phase => {
         setTiles(tiles =>
           tiles.map(t => {
-            if (t.index === tile.index) t.phase = phase
+            if (t.id === tile.id) t.phase = phase
             return t
           }),
         )
@@ -62,7 +62,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
       {/* meshes */}
       {transitions((spring, tile) => (
         <Tile
-          key={`mesh-${tile.index}`}
+          key={`mesh-${tile.id}`}
           unit={unit}
           color={phaseColors[tile.phase]}
           position={tile.position.toArray() as Vector3Tuple}
@@ -74,7 +74,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
       {/* bodies */}
       {tiles.map(tile => (
         <RigidBody
-          key={`body-${tile.index}`}
+          key={`body-${tile.id}`}
           position={tile.position.toArray() as Vector3Tuple}
           type="fixed"
           colliders={false}
