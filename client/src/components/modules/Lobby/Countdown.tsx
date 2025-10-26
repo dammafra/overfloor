@@ -9,14 +9,17 @@ import { useParams } from 'wouter'
 
 export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
   const { options } = useParams()
-  const { id } = JSON.parse(atob(options!))
+  const { id, username } = JSON.parse(atob(options!))
 
   const countdownRef = useRef<HTMLParagraphElement>(null)
+  const [isOwner, setIsOwner] = useState(false)
   const [canStart, setCanStart] = useState(false)
 
   useEffect(() => {
     if (!room) return
     const $ = getStateCallbacks(room)
+
+    $(room.state).listen('owner', owner => setIsOwner(owner === username))
 
     $(room.state).listen('countdown', countdown => {
       if (!countdownRef.current) return
@@ -47,10 +50,17 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
     >
       <p>{canStart ? 'Match starts in...' : 'Waiting for opponents...'}</p>
       <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
-      <button className="button absolute bottom-0" onClick={share}>
-        <span className="icon-[mdi--share]" />
-        Share
-      </button>
+
+      <div className="absolute bottom-0 flex gap-2">
+        {isOwner && canStart && (
+          <button className="button icon" title="Start" onClick={() => room?.send('start')}>
+            <span className="icon-[mdi--play]" />
+          </button>
+        )}
+        <button className="button icon" title="Share" onClick={share}>
+          <span className="icon-[mdi--share]" />
+        </button>
+      </div>
     </Html>
   )
 }

@@ -17,7 +17,7 @@ export default function App() {
 
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
       <ErrorBoundary
         onError={() => {
           toast.error('Something went wrong')

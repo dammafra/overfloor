@@ -53,12 +53,15 @@ export class GameLobby extends Room<GameLobbyState> {
       1000 * 60 * 15, //15 minutes
     )
 
+    this.onMessage('start', this.#startMatch.bind(this))
+
     console.log(`[${this.roomName}] ✨ room ${this.roomId} created`)
   }
 
   async onJoin(client: Client, options: JoinGameLobbyOptions) {
     await this.#checkUsername(options.username)
     this.state.players.set(client.sessionId, options.username)
+    if (this.state.players.size === 1) this.state.owner = options.username
     this.#checkMatchCanStart()
     console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
   }
@@ -81,6 +84,7 @@ export class GameLobby extends Room<GameLobbyState> {
 
   async #startMatch() {
     this.interval.clear()
+    this.autoDispose = true
 
     const room = await matchMaker.createRoom('game-room', {
       id: `${this.roomId}-game`,

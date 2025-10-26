@@ -23,7 +23,6 @@ export function Lobby() {
 
     if (from === 'new') {
       navigate(`/join/lobby/${options}`)
-      return
     }
 
     room.onMessage('start', reservation => {
