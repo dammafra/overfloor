@@ -52,7 +52,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
       <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
 
       <div className="absolute bottom-0 flex gap-2">
-        <Link href="/join" className="button danger icon" title="Back">
+        <Link href="/" className="button danger icon" title="Back">
           <span className="icon-[mdi--chevron-left]" />
         </Link>
         {isOwner && canStart && (
