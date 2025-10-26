@@ -33,7 +33,7 @@ export function ChooseRoom() {
         <p className="text-white text-center italic">No rooms available</p>
       )}
 
-      <Link href="/" className="button danger icon" title="Back">
+      <Link href="/" className="button danger icon mt-4" title="Back">
         <span className="icon-[mdi--chevron-left]" />
       </Link>
     </div>

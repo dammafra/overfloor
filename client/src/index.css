@@ -23,7 +23,7 @@ body,
   html,
   body,
   #root {
-    @apply fixed inset-0 overflow-hidden bg-radial to-slate-700 from-cyan-600;
+    @apply fixed inset-0 overflow-hidden bg-slate-700 bg-radial to-slate-700 from-cyan-600;
   }
 }
 
