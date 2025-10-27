@@ -23,7 +23,7 @@ export function Game() {
 
     // TODO
     room.onMessage('end', () => {
-      alert('GAME OVER')
+      toast.info('GAME OVER')
       navigate('/')
     })
   }, [room, navigate])

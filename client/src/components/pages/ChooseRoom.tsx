@@ -11,6 +11,7 @@ export function ChooseRoom() {
           <thead className="bg-slate-500">
             <tr>
               <th className="rounded-l-2xl py-2 px-4">Room</th>
+              <th className="py-2 px-4">Owner</th>
               <th className="py-2 px-4">Players</th>
               <th className="rounded-r-2xl py-2 px-4"></th>
             </tr>
@@ -19,6 +20,7 @@ export function ChooseRoom() {
             {rooms.map(room => (
               <tr key={room.roomId}>
                 <td className="py-2 px-4">{room.roomId}</td>
+                <td className="py-2 px-4">{room.metadata?.owner || '-'}</td>
                 <td className="py-2 px-4">{room.clients}</td>
                 <td className="py-2">
                   <Link href={`/join/${room.roomId}`} className="button icon" title="Join">

@@ -65,8 +65,9 @@ export class GameLobby extends Room<GameLobbyState> {
   async onJoin(client: Client, options: JoinGameLobbyOptions) {
     await this.#checkUsername(options.username)
     this.state.players.set(client.sessionId, options.username)
-    if (this.state.players.size === 1) this.state.owner = options.username
+    this.#updateOwner()
     this.#checkMatchCanStart()
+
     console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
   }
 
@@ -76,14 +77,22 @@ export class GameLobby extends Room<GameLobbyState> {
     if (player) {
       await this.presence.srem(this.USERNAMES_CHANNEL, player)
       this.state.players.delete(client.sessionId)
-      console.log(`[${this.roomName}] ❌ [${client.sessionId}] ${player} left`)
+      this.#updateOwner()
       this.#checkMatchCanStart()
+
+      console.log(`[${this.roomName}] ❌ [${client.sessionId}] ${player} left`)
     }
   }
 
   onDispose() {
     this.presence.srem(this.IDS_CHANNEL, this.roomId)
     console.log(`[${this.roomName}] 🗑️ disposing room ${this.roomId}`)
+  }
+
+  #updateOwner() {
+    if (this.state.players.size === 0) this.state.owner = undefined
+    if (this.state.players.size === 1) this.state.owner = this.state.players.values().toArray().at(0) //prettier-ignore
+    this.setMetadata({ owner: this.state.owner })
   }
 
   async #startMatch() {
