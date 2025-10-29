@@ -53,7 +53,7 @@ export class GameState extends Schema {
   @type('int8') height: number
 
   @type('float32') unit: number = 2.5
-  @type('float32') gap: number = 0.2
+  @type('float32') gap: number = 0.15
 
   @type({ map: PlayerState }) players = new MapSchema<PlayerState>()
   @type({ array: TileState }) tiles = new ArraySchema<TileState>()

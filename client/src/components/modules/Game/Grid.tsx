@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 
 export function Grid({ room }: PropsWithRoom<GameState>) {
-  const defaultColor = 'white'
+  const defaultColor = 'dodgerblue'
 
   // prettier-ignore
   const phaseColors = [
@@ -51,9 +51,10 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
   }, [room])
 
   const transitions = useTransition(tiles, {
-    from: { scale: 0.1 },
-    enter: () => ({ scale: 1 }),
+    from: { scale: 0.1, color: defaultColor },
+    enter: () => ({ scale: unit }),
     leave: () => ({ scale: 0 }),
+    update: tile => ({ color: phaseColors[tile.phase] }),
     config: { mass: 1, tension: 200, friction: 20 },
   })
 
@@ -63,8 +64,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
       {transitions((spring, tile) => (
         <Tile
           key={`mesh-${tile.id}`}
-          unit={unit}
-          color={phaseColors[tile.phase]}
+          color={spring.color}
           position={tile.position.toArray() as Vector3Tuple}
           scale={spring.scale}
           receiveShadow
