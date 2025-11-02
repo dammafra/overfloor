@@ -1,3 +1,4 @@
+import { a, useSpring } from '@react-spring/web'
 import { clsx } from 'clsx'
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'wouter'
@@ -16,13 +17,19 @@ export function CreateRoom() {
     navigate(`/new/lobby/${options}`)
   }
 
+  const { opacity } = useSpring({
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+    delay: 500,
+  })
+
   return (
-    <div className="page">
+    <a.div className="page" style={{ opacity }}>
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
             className="input"
-            placeholder="Room ID"
+            placeholder="room ID"
             value={id}
             onChange={e => setId(e.target.value.trim())}
           />
@@ -31,21 +38,21 @@ export function CreateRoom() {
         <div>
           <input
             className="input"
-            placeholder="Username"
+            placeholder="username"
             value={username}
             onChange={e => setUsername(e.target.value.trim())}
           />
           <span className="icon-[mdi--user]" />
         </div>
-        <div className="flex gap-2">
-          <Link href="/" className="button danger icon" title="Back">
-            <span className="icon-[mdi--chevron-left]" />
+        <div className="flex gap-2 items-center">
+          <Link href="/" className="button danger" title="Back">
+            back
           </Link>
           <button type="submit" className={clsx('button flex-1', { disabled: !id || !username })}>
-            Create Room
+            create room
           </button>
         </div>
       </form>
-    </div>
+    </a.div>
   )
 }

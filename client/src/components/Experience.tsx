@@ -1,9 +1,11 @@
 import { Environment } from '@components'
-import { Canvas, Helpers } from '@components/helpers'
+import { Helpers } from '@components/helpers'
 import { useDebug, useIsTouch } from '@hooks'
 import { Game } from '@modules/Game'
 import { Lobby } from '@modules/Lobby'
+import { UI } from '@modules/UI'
 import { CameraControls } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { Route } from 'wouter'
@@ -30,6 +32,8 @@ export function Experience() {
     >
       <Environment />
       <CameraControls enabled={debug && !isTouch} makeDefault />
+
+      <UI />
 
       <Physics {...physicsControls}>
         <Route path="/:from/lobby/:options" component={Lobby} />

@@ -23,7 +23,7 @@ export function Environment() {
           label: 'directional intensity',
         },
         directionalLightPosition: {
-          value: [0, 4, 3],
+          value: [2, 4, 4],
           min: 0,
           max: 20,
           step: 0.01,
@@ -43,12 +43,12 @@ export function Environment() {
       >
         <orthographicCamera
           attach="shadow-camera"
-          near={-5}
-          far={10}
-          top={10}
-          right={10}
-          bottom={-10}
-          left={-10}
+          near={-10}
+          far={20}
+          top={20}
+          right={20}
+          bottom={-20}
+          left={-20}
         >
           {helpers && <Helper type={CameraHelper} />}
         </orthographicCamera>
@@ -56,7 +56,7 @@ export function Environment() {
 
       <ambientLight intensity={ambientLightIntensity} />
 
-      <SoftShadows size={15} />
+      <SoftShadows size={10} />
     </>
   )
 }

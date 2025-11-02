@@ -48,7 +48,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
       center
       className="flex flex-col items-center justify-center size-44 aspect-square rounded-full text-center text-white font-bold bg-radial from-slate-400 to-70% to-transparent z-99"
     >
-      <p>{canStart ? 'Match starts in...' : 'Waiting for opponents...'}</p>
+      <p>{canStart ? 'Match starts in' : 'Waiting for opponents'}</p>
       <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
 
       <div className="absolute bottom-0 flex gap-2">

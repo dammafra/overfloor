@@ -1,43 +1,54 @@
 import { useLobby } from '@hooks'
+import { a, useSpring } from '@react-spring/web'
 import { Link } from 'wouter'
 
 export function ChooseRoom() {
   const { rooms } = useLobby({ filter: { name: 'game-lobby' } })
 
+  const { opacity } = useSpring({
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+    delay: 500,
+  })
+
   return (
-    <div className="page">
+    <a.div className="page" style={{ opacity }}>
       {rooms.length ? (
-        <table className="text-white max-h-48">
-          <thead className="bg-slate-500">
-            <tr>
-              <th className="rounded-l-2xl py-2 px-4">Room</th>
-              <th className="py-2 px-4">Owner</th>
-              <th className="py-2 px-4">Players</th>
-              <th className="rounded-r-2xl py-2 px-4"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rooms.map(room => (
-              <tr key={room.roomId}>
-                <td className="py-2 px-4">{room.roomId}</td>
-                <td className="py-2 px-4">{room.metadata?.owner || '-'}</td>
-                <td className="py-2 px-4">{room.clients}</td>
-                <td className="py-2">
-                  <Link href={`/join/${room.roomId}`} className="button icon" title="Join">
-                    <span className="icon-[mdi--arrow-right]" />
-                  </Link>
-                </td>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>room</th>
+                <th>owner</th>
+                <th># players</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rooms.map(room => (
+                <tr key={room.roomId}>
+                  <td>{room.roomId}</td>
+                  <td>{room.metadata?.owner || '-'}</td>
+                  <td>{room.clients}</td>
+                  <td>
+                    <Link href={`/join/${room.roomId}`} className="button icon" title="Join">
+                      <span className="icon-[mdi--chevron-right]" />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
-        <p className="text-white text-center italic">No rooms available</p>
+        <p className="text-white text-stroke-black text-center italic text-2xl mb-4">
+          no rooms available
+        </p>
       )}
 
-      <Link href="/" className="button danger icon mt-4" title="Back">
-        <span className="icon-[mdi--chevron-left]" />
+      <Link href="/" className="button danger" title="Back">
+        back
       </Link>
-    </div>
+    </a.div>
   )
 }

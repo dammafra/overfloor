@@ -3,16 +3,26 @@ import { Float, RoundedBoxGeometry } from '@react-three/drei'
 import type { JSX } from 'react'
 import type { ColorRepresentation } from 'three'
 
-type TileProps = JSX.IntrinsicElements['mesh'] & {
+export type TileProps = JSX.IntrinsicElements['object3D'] & {
   color?: ColorRepresentation
+  opacity?: number
+  float?: boolean
+  index?: number // TODO improve, it's not needed here but in menu
 }
 
-function _Tile({ color, ...props }: TileProps) {
+function _Tile({
+  color = 'dodgerblue',
+  opacity = 0.9,
+  float = true,
+  children,
+  ...props
+}: TileProps) {
   return (
-    <Float floatIntensity={0.5} speed={5} rotationIntensity={0}>
-      <a.mesh {...props}>
+    <Float floatIntensity={0.5} speed={float ? 5 : 0} rotationIntensity={0}>
+      <a.mesh {...props} receiveShadow>
         <RoundedBoxGeometry args={[1, 0.25, 1]} radius={0.1} />
-        <a.meshStandardMaterial color={color} transparent opacity={0.5} roughness={0} />
+        <a.meshStandardMaterial color={color} transparent opacity={opacity} roughness={0} />
+        {children}
       </a.mesh>
     </Float>
   )

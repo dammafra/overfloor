@@ -1,2 +1,2 @@
 export * from './dbg'
-export * from './spiral-position'
+export * from './positions'

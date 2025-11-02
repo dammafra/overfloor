@@ -9,7 +9,7 @@ void main() {
   vec2 particleUv = vUv * 20.0;
 
   // Create continuous downward movement (tunnel effect)
-  float offsetUvY = vUv.y - uTime * 0.5;
+  float offsetUvY = vUv.y + uTime * 0.5;
   float yPos = fract(offsetUvY * 20.0);
 
   // Create many thick vertical stripes
@@ -36,7 +36,7 @@ void main() {
   vec3 color = uColor;
 
   // Create tunnel falling gradient
-  float gradientY = fract(vUv.y * 10.0 - uTime);
+  float gradientY = fract(vUv.y * 10.0 + uTime);
   float intensity = 1.0 - smoothstep(0.0, 0.3, gradientY);
 
   // Bright glow for stripes

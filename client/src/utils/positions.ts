@@ -17,3 +17,11 @@ export function spiralPositionGame(index: number, radius: number = 1.5): Vector3
   const y = 4 // constant height
   return [x, y, z]
 }
+
+// TODO improve, don't like the mess in this file
+export function squareGridPosition(index: number, size: number): Vector3Tuple {
+  const spacing = 1.1
+  const x = (index % size) - (size - 1) / 2
+  const z = Math.floor(index / size) - (size - 1) / 2
+  return [x * spacing, 0, z * spacing]
+}

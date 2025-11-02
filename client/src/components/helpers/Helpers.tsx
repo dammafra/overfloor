@@ -7,13 +7,12 @@ import { Perf } from 'r3f-perf'
 export function Helpers() {
   const debug = useDebug()
 
-  const { grid, axes, gizmo, perf } = useControls(
+  const { grid, axes, gizmo } = useControls(
     'helpers',
     {
       grid: false,
       axes: false,
       gizmo: false,
-      perf: debug,
     },
     { collapsed: true },
   )
@@ -37,7 +36,7 @@ export function Helpers() {
         </GizmoHelper>
       )}
 
-      {perf && <Perf showGraph position="top-right" />}
+      {debug && <Perf showGraph={false} position="top-right" />}
     </>
   )
 }

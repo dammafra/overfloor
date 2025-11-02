@@ -1,6 +1,6 @@
 import { Experience, GUI } from '@components'
 import { ErrorBoundary } from '@components/helpers'
-import { ChooseRoom, CreateRoom, MainMenu } from '@components/pages'
+import { ChooseRoom, CreateRoom, Credits } from '@components/pages'
 import { JoinRoom } from '@components/pages/JoinRoom'
 import { Test } from '@components/test'
 import { useDebug } from '@hooks'
@@ -26,10 +26,10 @@ export default function App() {
       >
         <Experience />
         <Switch>
-          <Route path="/" component={MainMenu} />
           <Route path="/new" component={CreateRoom} />
           <Route path="/join" component={ChooseRoom} />
           <Route path="/join/:id" component={JoinRoom} />
+          <Route path="/credits" component={Credits} />
           <Route path="/:from/lobby/:options" /> {/* delegate to Experience */}
           <Route path="/game/:reservation" /> {/* delegate to Experience */}
           {debug && <Route path="/test" />} {/* delegate to Test */}

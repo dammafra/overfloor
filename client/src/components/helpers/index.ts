@@ -1,4 +1,6 @@
 export * from './Canvas'
+export * from './Dynamic'
 export * from './ErrorBoundary'
 export * from './Helpers'
+export * from './PointerControls'
 export * from './SoundBoard'

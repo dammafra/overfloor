@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 
 export function Grid({ room }: PropsWithRoom<GameState>) {
+  // TODO improve
   const defaultColor = 'dodgerblue'
 
   // prettier-ignore
@@ -15,7 +16,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
     defaultColor,   // IDLE
     'green',        // COUNTDOWN_3
     'orange',       // COUNTDOWN_2
-    'red',          // COUNTDOWN_1
+    'brown',        // COUNTDOWN_1
     defaultColor,   // FALLING
   ]
 
@@ -67,7 +68,6 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
           color={spring.color}
           position={tile.position.toArray() as Vector3Tuple}
           scale={spring.scale}
-          receiveShadow
         />
       ))}
 
