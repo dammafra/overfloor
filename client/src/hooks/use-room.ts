@@ -1,6 +1,5 @@
 import { Schema } from '@colyseus/schema'
-import type { Room, SeatReservation } from 'colyseus.js'
-import { Client } from 'colyseus.js'
+import { Client, type Room, type SeatReservation } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 
 export interface PropsWithRoom<T> {
@@ -15,43 +14,43 @@ interface UseColyseusParams {
   reservation?: SeatReservation
 }
 
-export function useColyseus<T extends Schema>({
-  serverUrl = import.meta.env.VITE_COLYSEUS_URL,
-  roomName,
-  roomId,
-  options,
-  reservation,
-}: UseColyseusParams) {
+export function useColyseus(): Client
+export function useColyseus(serverUrl: string): Client
+export function useColyseus<T extends Schema>(params: UseColyseusParams): { room: Room<T> | undefined, error: Error | undefined } //prettier-ignore
+
+export function useColyseus<T extends Schema>(input?: string | UseColyseusParams) {
+  const [client, setClient] = useState<Client>()
   const [room, setRoom] = useState<Room<T>>()
   const [error, setError] = useState<Error>()
 
   useEffect(() => {
+    const serverUrl = (typeof input === 'object' ? input.serverUrl : input) ?? import.meta.env.VITE_COLYSEUS_URL //prettier-ignore
     const client = new Client(serverUrl)
+    setClient(client)
+
+    if (typeof input !== 'object') return
+
+    const { roomName, roomId, reservation, options } = input
+
     const roomRequest = roomId
       ? client.joinById<T>(roomId, options)
       : reservation
         ? client.consumeSeatReservation<T>(reservation)
         : client.create<T>(roomName, options)
 
-    console.log(`🏟️⏳[${roomName}] connecting...`)
-
     roomRequest
       .then(room => {
-        console.log(`🏟️✅[${roomName}] connected`)
         setRoom(room)
         room.onError((code, message) => setError(new Error(`Colyseus error ${code}: ${message}`)))
       })
       .catch(setError)
 
     return () => {
-      console.log(`🏟️⏳[${roomName}] disposing...`)
-      roomRequest.then(room => {
-        room.leave()
-        console.log(`🏟️❌[${roomName}] disposed`)
-      })
+      roomRequest.then(room => room.leave())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { room, error }
+  if (typeof input === 'object') return { room, error }
+  return client
 }

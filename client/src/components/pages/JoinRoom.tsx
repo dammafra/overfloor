@@ -1,18 +1,26 @@
+import { useColyseus } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
 import { useState, type FormEvent } from 'react'
+import { toast } from 'react-toastify'
 import { Link, useLocation, useParams } from 'wouter'
 
 export function JoinRoom() {
   const { id } = useParams()
   const [, navigate] = useLocation()
+
   const [username, setUsername] = useState<string>('')
+  const client = useColyseus()
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
 
-    const options = btoa(JSON.stringify({ id, username }))
-    navigate(`/join/lobby/${options}`)
+    const options = { id, username }
+    client
+      .joinById(id!, options)
+      .then(room => room.leave())
+      .then(() => navigate(`/lobby/${btoa(JSON.stringify(options))}`))
+      .catch(e => toast.error(e.message))
   }
 
   const { opacity } = useSpring({

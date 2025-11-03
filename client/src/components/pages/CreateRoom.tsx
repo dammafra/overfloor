@@ -1,6 +1,8 @@
+import { useColyseus } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { clsx } from 'clsx'
 import { useState, type FormEvent } from 'react'
+import { toast } from 'react-toastify'
 import { Link, useLocation } from 'wouter'
 
 export function CreateRoom() {
@@ -8,13 +10,18 @@ export function CreateRoom() {
 
   const [id, setId] = useState<string>('')
   const [username, setUsername] = useState<string>('')
+  const client = useColyseus()
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (!id) return
 
-    const options = btoa(JSON.stringify({ id, username }))
-    navigate(`/new/lobby/${options}`)
+    const options = { id, username }
+    client
+      .create('game-lobby', options)
+      .then(room => room.leave())
+      .then(() => navigate(`/lobby/${btoa(JSON.stringify(options))}`))
+      .catch(e => toast.error(e.message))
   }
 
   const { opacity } = useSpring({

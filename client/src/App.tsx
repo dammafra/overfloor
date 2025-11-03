@@ -30,7 +30,7 @@ export default function App() {
           <Route path="/join" component={ChooseRoom} />
           <Route path="/join/:id" component={JoinRoom} />
           <Route path="/credits" component={Credits} />
-          <Route path="/:from/lobby/:options" /> {/* delegate to Experience */}
+          <Route path="/lobby/:options" /> {/* delegate to Experience */}
           <Route path="/game/:reservation" /> {/* delegate to Experience */}
           {debug && <Route path="/test" />} {/* delegate to Test */}
           <Route>
