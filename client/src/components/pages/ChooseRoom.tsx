@@ -1,15 +1,24 @@
 import { useLobby } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
-import { Link } from 'wouter'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
+import { Link, useLocation } from 'wouter'
 
 export function ChooseRoom() {
-  const { rooms } = useLobby({ filter: { name: 'game-lobby' } })
+  const [, navigate] = useLocation()
+  const { rooms, error, loading } = useLobby({ filter: { name: 'game-lobby' } })
 
   const { opacity } = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },
     delay: 500,
   })
+
+  useEffect(() => {
+    if (!error) return
+    toast.error(error.message)
+    navigate('/')
+  }, [error, navigate])
 
   return (
     <a.div className="page" style={{ opacity }}>
@@ -42,7 +51,7 @@ export function ChooseRoom() {
         </div>
       ) : (
         <p className="text-white text-stroke-black text-center italic text-2xl mb-4">
-          no rooms available
+          {loading ? 'loading...' : 'no rooms available'}
         </p>
       )}
 

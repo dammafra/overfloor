@@ -12,40 +12,39 @@ export function useLobby({
   filter,
 }: UseLobbyParams) {
   const [rooms, setRooms] = useState<RoomAvailable[]>([])
+  const [error, setError] = useState<Error>()
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const client = new Client(serverUrl)
     const lobbyRequest = client.joinOrCreate('lobby', { filter })
 
-    console.log('🏟️⏳[lobby] connecting...')
+    lobbyRequest
+      .then(lobby => {
+        lobby.onMessage('rooms', setRooms)
 
-    lobbyRequest.then(lobby => {
-      console.log('🏟️✅[lobby] connected')
+        lobby.onMessage('+', ([roomId, room]) =>
+          setRooms(rooms =>
+            rooms.some(r => r.roomId === roomId)
+              ? rooms.map(r => (r.roomId === roomId ? room : r))
+              : [...rooms, room],
+          ),
+        )
 
-      lobby.onMessage('rooms', setRooms)
+        lobby.onMessage('-', roomId =>
+          setRooms(rooms => rooms.filter(room => room.roomId !== roomId)),
+        )
 
-      lobby.onMessage('+', ([roomId, room]) =>
-        setRooms(rooms =>
-          rooms.some(r => r.roomId === roomId)
-            ? rooms.map(r => (r.roomId === roomId ? room : r))
-            : [...rooms, room],
-        ),
-      )
-
-      lobby.onMessage('-', roomId =>
-        setRooms(rooms => rooms.filter(room => room.roomId !== roomId)),
-      )
-    })
+        lobby.onError((code, message) => setError(new Error(`Colyseus error ${code}: ${message}`)))
+      })
+      .catch(setError)
+      .finally(() => setLoading(false))
 
     return () => {
-      console.log('🏟️⏳[lobby] disposing...')
-      lobbyRequest.then(lobby => {
-        lobby.leave()
-        console.log('🏟️❌[lobby] disposed')
-      })
+      lobbyRequest.then(lobby => lobby.leave())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { rooms }
+  return { rooms, error, loading }
 }
