@@ -10,6 +10,14 @@
   font-family: 'Audiowide';
 }
 
+@utility cursor-auto {
+  cursor: url('/cursors/auto.png'), auto;
+}
+
+@utility cursor-pointer {
+  cursor: url('/cursors/pointer.png'), pointer;
+}
+
 /* Prevent iOS text selection */
 body,
 * {
@@ -18,6 +26,21 @@ body,
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  @apply cursor-auto;
+}
+
+*[style*='cursor: pointer'],
+*[style*='cursor: pointer'] * {
+  @apply cursor-pointer!;
+}
+
+a,
+button,
+a *,
+button *,
+input,
+input * {
+  @apply cursor-pointer;
 }
 
 @utility text-stroke-* {
