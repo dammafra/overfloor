@@ -1,13 +1,13 @@
 import { Tile } from '@components/Tile'
-import type { MenuTileProps } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
 import { Text, useCursor, type TextProps } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
+import { aspects } from '@utils'
 import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { MathUtils, type Vector3Tuple } from 'three'
 import { v4 as uuid } from 'uuid'
 import { useLocation, useRoute } from 'wouter'
-import { getCameraDistance } from './CameraRig'
+import type { MenuTileProps } from './MenuTile'
 
 type ButtonTileProps = Omit<MenuTileProps, 'type'>
 
@@ -27,7 +27,7 @@ function CreateRoomButton(props: ButtonTileProps) {
 
   const spring = useSpring({
     position: (match
-      ? [0, getCameraDistance(viewport.aspect) - 2, 0]
+      ? aspects.ui.tile.button.position(viewport.aspect)
       : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(match ? 360 : 0),
     color: match ? 'dodgerblue' : 'orange',
@@ -54,7 +54,7 @@ function JoinRoomButton(props: ButtonTileProps) {
 
   const spring = useSpring({
     position: (match
-      ? [0, getCameraDistance(viewport.aspect) - 2, 0]
+      ? aspects.ui.tile.button.position(viewport.aspect)
       : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(match ? 360 : 0),
     color: match ? 'dodgerblue' : 'orange',
@@ -98,7 +98,7 @@ function CreditsButton(props: ButtonTileProps) {
 
   const spring = useSpring({
     position: (match
-      ? [0, getCameraDistance(viewport.aspect) - 2, 0]
+      ? aspects.ui.tile.button.position(viewport.aspect)
       : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(match ? 360 : 0),
     float: !match,

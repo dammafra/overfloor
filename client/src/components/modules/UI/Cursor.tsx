@@ -7,7 +7,7 @@ export function Cursor() {
   return (
     !touch && (
       <PointerControls lockPositionYAt={0.25}>
-        <pointLight intensity={0.1} />
+        <pointLight />
       </PointerControls>
     )
   )

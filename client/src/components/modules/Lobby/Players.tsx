@@ -3,7 +3,7 @@ import type { PropsWithRoom } from '@hooks'
 import { a, useTransition } from '@react-spring/three'
 import { Float } from '@react-three/drei'
 import type { GameLobbyState } from '@server/schema'
-import { spiralPositionLobby } from '@utils'
+import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { useParams } from 'wouter'
@@ -24,8 +24,8 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
 
   const transitions = useTransition(players, {
     from: { scale: 0, position: [0, 0, 0] },
-    enter: (_, i) => ({ scale: 1, position: spiralPositionLobby(i), delay: i * 50 }),
-    update: (_, i) => ({ position: spiralPositionLobby(i) }),
+    enter: (_, i) => ({ scale: 1, position: positions.lobby.player(i), delay: i * 50 }),
+    update: (_, i) => ({ position: positions.lobby.player(i) }),
     leave: { scale: 0, position: [0, 0, 0] },
     config: { mass: 1, tension: 200, friction: 20 },
   })

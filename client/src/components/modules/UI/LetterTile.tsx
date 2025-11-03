@@ -1,8 +1,8 @@
-import type { MenuTileProps } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
 import { Center, Float, Text3D, useCursor } from '@react-three/drei'
 import { useState } from 'react'
 import { MathUtils } from 'three'
+import type { MenuTileProps } from './MenuTile'
 
 type LetterTileProps = Omit<MenuTileProps, 'type'>
 

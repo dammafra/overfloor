@@ -9,14 +9,14 @@ export function Environment() {
       {
         helpers: false,
         ambientLightIntensity: {
-          value: 1.5,
+          value: 0.5,
           min: 0,
           max: 20,
           step: 0.01,
           label: 'ambient intensity',
         },
         directionalLightIntensity: {
-          value: 3.5,
+          value: 3,
           min: 0,
           max: 20,
           step: 0.01,

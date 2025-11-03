@@ -3,7 +3,7 @@ import type { PropsWithRoom } from '@hooks'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import type { GameState } from '@server/schema'
-import { spiralPositionGame } from '@utils'
+import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type QuaternionTuple, type Vector3Tuple } from 'three'
@@ -17,7 +17,7 @@ interface RemotePlayerProps extends PropsWithRoom<GameState> {
 export function RemotePlayer({ room, username, index }: RemotePlayerProps) {
   const bodyRef = useRef<RapierRigidBody>(null)
   const walkingRef = useRef<boolean>(false)
-  const positionRef = useRef<Vector3Tuple>(spiralPositionGame(index)) // TODO**: improve
+  const positionRef = useRef<Vector3Tuple>(positions.game.player(index))
   const rotationRef = useRef<QuaternionTuple>([0, 0, 0, 0])
 
   const [walking, setWalking] = useState(false)

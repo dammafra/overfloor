@@ -7,7 +7,6 @@ export type TileProps = JSX.IntrinsicElements['object3D'] & {
   color?: ColorRepresentation
   opacity?: number
   float?: boolean
-  index?: number // TODO improve, it's not needed here but in menu
 }
 
 function _Tile({

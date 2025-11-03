@@ -2,7 +2,7 @@ import type { PropsWithRoom } from '@hooks'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import type { GameLobbyState } from '@server/schema'
-import { spiralPositionLobby } from '@utils'
+import { aspects, positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { MathUtils } from 'three'
@@ -24,10 +24,10 @@ export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
     const cameraControls = controls as CameraControls
     if (!cameraControls) return
 
-    const [, , z] = spiralPositionLobby(playersCount)
+    const [, , z] = positions.lobby.player(playersCount)
     cameraControls.rotateAzimuthTo(0, true)
     cameraControls.rotatePolarTo(MathUtils.degToRad(90), true)
-    cameraControls.dollyTo(z + (viewport.aspect > 1 ? 7 : 10), true)
+    cameraControls.dollyTo(z + aspects.lobby.camera.distance(viewport.aspect), true)
   }, [playersCount, controls, viewport])
 
   return <></>

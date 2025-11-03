@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import type { GameState } from '@server/schema'
 import { useController } from '@stores'
-import { spiralPositionGame } from '@utils'
+import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type Vector3Tuple } from 'three'
@@ -41,7 +41,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
 
       setUsername(player.username)
       setBodyKey(uuid())
-      setInitialPosition(spiralPositionGame(player.index))
+      setInitialPosition(positions.game.player(player.index))
     })
   }, [room])
 
