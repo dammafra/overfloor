@@ -15,7 +15,7 @@ export function Lobby() {
 
   const { room, error } = useColyseus<GameLobbyState>({
     roomName: 'game-lobby',
-    roomId: id,
+    roomId: training ? undefined : id,
     options: { id, username, training, countdown },
   })
 

@@ -17,7 +17,7 @@ export function Credits() {
           @dammafra
         </a>
       </p>
-      <p className="text-white text-stroke-black text-2xl mb-4">
+      <p className="text-white text-stroke-black text-xl mb-4">
         Block Character by J-Toastie
         <br /> via{' '}
         <a className="underline" href="https://poly.pizza/m/ozSIyRIcIj" target="_blank">
