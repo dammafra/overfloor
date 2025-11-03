@@ -25,7 +25,7 @@ export function Player({ username, showIndicator, showUsername, animate, ...prop
         <Billboard position-y={showIndicator ? 2.5 : 1.25} scale={showIndicator ? 1.5 : 0.5}>
           <Html
             transform
-            className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6 h-8 max-w-40 overflow-hidden overflow-ellipsis"
+            className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6 h-8 max-w-40 overflow-hidden overflow-ellipsis absolute"
             style={{ borderColor: color }}
           >
             {showIndicator ? 'YOU' : username}

@@ -51,17 +51,20 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
       <p>{canStart ? 'Match starts in' : 'Waiting for opponents'}</p>
       <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
 
-      <div className="absolute bottom-0 flex gap-2">
-        <Link href="/" className="button danger icon" title="Back">
+      <div className="absolute bottom-8 flex gap-2 bg-red-500">
+        <Link href="/" className="button danger icon absolute -left-12">
           <span className="icon-[mdi--chevron-left]" />
         </Link>
         {isOwner && canStart && (
-          <button className="button success icon" title="Start" onClick={() => room?.send('start')}>
+          <button
+            className="button success icon large absolute -left-1/2 -translate-x-1/2 -bottom-20"
+            onClick={() => room?.send('start')}
+          >
             <span className="icon-[mdi--play]" />
           </button>
         )}
         {!training && (
-          <button className="button icon" title="Share" onClick={share}>
+          <button className="button icon absolute -right-12" onClick={share}>
             <span className="icon-[mdi--share]" />
           </button>
         )}

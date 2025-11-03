@@ -92,6 +92,7 @@ export function UI() {
     }),
     leave: () => ({
       scale: 0,
+      config: { tension: 0 },
     }),
     onRest: () => {
       firstRenderRef.current = false

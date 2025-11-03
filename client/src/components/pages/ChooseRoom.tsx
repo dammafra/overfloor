@@ -40,7 +40,7 @@ export function ChooseRoom() {
                   <td>{room.metadata?.owner || '-'}</td>
                   <td>{room.clients}</td>
                   <td>
-                    <Link href={`/join/${room.roomId}`} className="button icon" title="Join">
+                    <Link href={`/join/${room.roomId}`} className="button icon">
                       <span className="icon-[mdi--chevron-right]" />
                     </Link>
                   </td>
@@ -55,7 +55,7 @@ export function ChooseRoom() {
         </p>
       )}
 
-      <Link href="/" className="button danger" title="Back">
+      <Link href="/" className="button danger">
         back
       </Link>
     </a.div>

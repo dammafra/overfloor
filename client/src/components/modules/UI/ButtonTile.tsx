@@ -107,11 +107,9 @@ function CreditsButton(props: ButtonTileProps) {
   return (
     <BaseButtonTile
       {...props}
-      color="royalblue"
       labelProps={{
-        fontSize: 0.14,
+        fontSize: 0.13,
         lineHeight: 1.2,
-        anchorY: -0.35,
         textAlign: 'left',
         visible: !match,
       }}
@@ -120,7 +118,7 @@ function CreditsButton(props: ButtonTileProps) {
       rotation-x={spring.rotationX}
       float={spring.float}
     >
-      made by dammafra
+      made with ♥︎ by dammafra
     </BaseButtonTile>
   )
 }
@@ -173,7 +171,7 @@ const BaseButtonTile = a(({ children, labelProps, ...props }: BaseButtonTileProp
           font="/fonts/audiowide.ttf"
           textAlign="center"
           anchorY={icon ? 'top' : 'middle'}
-          maxWidth={0.8}
+          maxWidth={0.1}
           lineHeight={0.9}
           fontSize={0.2}
           position-y={[0.13]}

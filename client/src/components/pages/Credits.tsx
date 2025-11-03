@@ -32,7 +32,7 @@ export function Credits() {
           CC-BY
         </a>
       </p>
-      <Link href="/" className="button danger mt-4" title="Back">
+      <Link href="/" className="button danger mt-4">
         back
       </Link>
     </a.div>

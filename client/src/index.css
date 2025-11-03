@@ -55,29 +55,32 @@ input * {
   html,
   body,
   #root {
-    @apply fixed inset-0 overflow-hidden bg-slate-700 bg-radial to-slate-700 from-cyan-600 font-audiowide;
+    @apply fixed inset-0 overflow-hidden bg-slate-700 bg-radial to-slate-700 from-cyan-600 font-audiowide touch-none;
   }
 }
 
 @layer components {
   .page {
-    @apply absolute inset-0 flex flex-col items-center justify-center;
+    @apply fixed inset-0 overflow-hidden flex flex-col items-center justify-center;
   }
 
   .button {
-    @apply relative flex items-center justify-center gap-1 bg-amber-400 text-white text-stroke-black font-bold px-4 py-2 rounded-xl shadow hover:bg-amber-300 cursor-pointer;
+    @apply relative flex items-center justify-center gap-1 bg-amber-400 text-white text-stroke-black font-bold px-4 py-2 rounded-xl shadow hover:bg-amber-300 active:bg-amber-300 cursor-pointer;
   }
   .button.success {
-    @apply bg-green-500 hover:bg-green-400;
+    @apply bg-green-500 hover:bg-green-400 active:bg-green-400;
   }
   .button.danger {
-    @apply bg-rose-700 hover:bg-rose-500;
+    @apply bg-rose-700 hover:bg-rose-500 active:bg-rose-500;
   }
   .button.disabled {
     @apply opacity-50 pointer-events-none;
   }
   .button.icon {
     @apply p-0 size-9 text-3xl rotate-45;
+  }
+  .button.icon.large {
+    @apply p-0 size-12 text-5xl rotate-45;
   }
   .button.icon span[class^='icon-'] {
     @apply -rotate-45;
@@ -89,8 +92,12 @@ input * {
     @apply text-lg left-3 absolute;
   }
 
+  a:not(.button) {
+    @apply hover:text-slate-300 active:text-slate-300;
+  }
+
   .input {
-    @apply bg-white px-4 py-2 rounded-xl relative;
+    @apply bg-white text-slate-500 px-4 py-2 rounded-xl relative outline-slate-500 ring-red-500;
   }
   div:has(> .input + span[class^='icon-']) {
     @apply relative;
@@ -99,7 +106,7 @@ input * {
     @apply pl-10;
   }
   .input + span[class^='icon-'] {
-    @apply absolute text-2xl text-slate-500 left-2 top-2;
+    @apply absolute text-slate-500 text-2xl left-2 top-2;
   }
 
   div:has(> table) {
@@ -114,9 +121,9 @@ input * {
     @apply sticky top-0 z-10;
   }
   table thead th {
-    @apply bg-blue-600 py-2 px-4 first:rounded-l-xl last:rounded-r-xl;
+    @apply bg-white/40 py-2 px-4 first:rounded-l-xl last:rounded-r-xl;
   }
   table tbody td {
-    @apply bg-blue-600/30 py-2 px-4 first:rounded-l-xl last:rounded-r-xl;
+    @apply bg-white/10 py-2 px-4 first:rounded-l-xl last:rounded-r-xl;
   }
 }
