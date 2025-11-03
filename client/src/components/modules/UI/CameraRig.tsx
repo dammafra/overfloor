@@ -4,6 +4,10 @@ import { useEffect } from 'react'
 import { MathUtils } from 'three'
 import { useRoute } from 'wouter'
 
+// TODO lint
+export const getCameraDistance = (aspect: number) =>
+  aspect > 1.5 ? 6.5 : aspect > 1 ? 9 : aspect > 0.5 ? 10 : 12
+
 export function CameraRig() {
   const { controls, viewport } = useThree()
 
@@ -12,9 +16,6 @@ export function CameraRig() {
   const [matchCredits] = useRoute('/credits')
   const match = matchNew || matchJoin || matchCredits
 
-  const getCameraDistance = (aspect: number) =>
-    aspect > 1.5 ? 6.5 : aspect > 1 ? 9 : aspect > 0.5 ? 10 : 12
-
   useEffect(() => {
     const cameraControls = controls as CameraControls
     if (!cameraControls) return
@@ -22,7 +23,7 @@ export function CameraRig() {
     cameraControls.rotateAzimuthTo(MathUtils.degToRad(-135), true)
     cameraControls.rotatePolarTo(MathUtils.degToRad(match ? 0 : 10), true)
     cameraControls.dollyTo(getCameraDistance(viewport.aspect), true)
-  })
+  }, [controls, viewport.aspect, match])
 
   return <></>
 }

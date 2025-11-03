@@ -3,10 +3,11 @@ import type { MenuTileProps } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
 import { Text, useCursor, type TextProps } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { Children, useEffect, useState, type ReactNode } from 'react'
-import { MathUtils, Vector3, type Vector3Tuple } from 'three'
+import { Children, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { MathUtils, type Vector3Tuple } from 'three'
 import { v4 as uuid } from 'uuid'
 import { useLocation, useRoute } from 'wouter'
+import { getCameraDistance } from './CameraRig'
 
 type ButtonTileProps = Omit<MenuTileProps, 'type'>
 
@@ -25,7 +26,9 @@ function CreateRoomButton(props: ButtonTileProps) {
   const [, navigate] = useLocation()
 
   const spring = useSpring({
-    position: (match ? [0, viewport.distance - 2, 0] : props.position) as Vector3Tuple,
+    position: (match
+      ? [0, getCameraDistance(viewport.aspect) - 2, 0]
+      : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(match ? 360 : 0),
     color: match ? 'dodgerblue' : 'orange',
   })
@@ -50,7 +53,9 @@ function JoinRoomButton(props: ButtonTileProps) {
   const [, navigate] = useLocation()
 
   const spring = useSpring({
-    position: (match ? [0, viewport.distance - 2, 0] : props.position) as Vector3Tuple,
+    position: (match
+      ? [0, getCameraDistance(viewport.aspect) - 2, 0]
+      : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(match ? 360 : 0),
     color: match ? 'dodgerblue' : 'orange',
   })
@@ -92,7 +97,9 @@ function CreditsButton(props: ButtonTileProps) {
   const [, navigate] = useLocation()
 
   const spring = useSpring({
-    position: (match ? [0, viewport.distance - 2, 0] : props.position) as Vector3Tuple,
+    position: (match
+      ? [0, getCameraDistance(viewport.aspect) - 2, 0]
+      : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(match ? 360 : 0),
     float: !match,
   })
@@ -123,33 +130,20 @@ type BaseButtonTileProps = ButtonTileProps & {
 }
 
 const BaseButtonTile = a(({ children, labelProps, ...props }: BaseButtonTileProps) => {
-  const { viewport } = useThree()
-
   const [label, setLabel] = useState<string>()
   const [icon, setIcon] = useState<ReactNode>()
-  const [iconPosition, setIconPosition] = useState<Vector3>()
-
-  const [hovered, setHovered] = useState(false)
-  useCursor(hovered)
+  const iconPosition = useMemo<Vector3Tuple>(() => [label ? 0.25 : 0, 0.25, 0], [label])
 
   useEffect(() => {
-    setLabel(undefined)
-    setIcon(undefined)
-
     Children.forEach(children, child => {
       if (typeof child === 'string') setLabel(child)
       else setIcon(child)
     })
-  }, [children])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  useEffect(() => {
-    const position = new Vector3()
-    position.x = label ? 0.25 : 0
-    position.y = 0.25
-    position.z = viewport.aspect > 1 ? (props.position as Vector3Tuple)[2] * -0.05 : 0
-
-    setIconPosition(position)
-  }, [label, icon, viewport, props.position])
+  const [hovered, setHovered] = useState(false)
+  useCursor(hovered)
 
   const spring = useSpring({
     scale: hovered ? 1.1 : (props.scale as number),

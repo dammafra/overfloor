@@ -11,34 +11,33 @@ import { CameraRig } from './CameraRig'
 import { Cursor } from './Cursor'
 import { LetterTile } from './LetterTile'
 
+interface UISpringProps {
+  position: Vector3Tuple
+  scale: number
+}
+
 export function UI() {
   const [match] = useRoute(/game|lobby/)
   const tiles = useMenuTiles()
   const firstRenderRef = useRef(true)
 
-  const transitions = useTransition<MenuTileProps, { position: Vector3Tuple; scale: number }>(
-    tiles,
-    {
-      from: tile => ({
-        position: tile.position,
-        scale: 0,
-      }),
-      enter: (_, i) => ({
-        scale: 1,
-        delay: firstRenderRef.current ? i * 10 : 0,
-      }),
-      update: tile => ({
-        position: tile.position,
-      }),
-      leave: () => ({
-        scale: 0,
-      }),
-      onRest: () => {
-        firstRenderRef.current = false
-      },
-      config: { mass: 1, tension: 120, friction: 14 },
+  const transitions = useTransition<MenuTileProps, UISpringProps>(tiles, {
+    from: tile => ({
+      position: tile.position,
+      scale: 0,
+    }),
+    enter: (_, i) => ({
+      scale: 1,
+      delay: firstRenderRef.current ? i * 10 : 0,
+    }),
+    leave: () => ({
+      scale: 0,
+    }),
+    onRest: () => {
+      firstRenderRef.current = false
     },
-  )
+    config: { mass: 1, tension: 120, friction: 14 },
+  })
 
   return (
     <>

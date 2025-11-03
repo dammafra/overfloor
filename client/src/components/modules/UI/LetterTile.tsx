@@ -18,7 +18,7 @@ export const LetterTile = a(({ index, ...props }: LetterTileProps) => {
 
   const { rotationX } = useSpring({
     rotationX: MathUtils.degToRad(clicked ? -90 + 180 : -90),
-    onResolve: () => setClicked(false),
+    onRest: () => setClicked(false),
     config: { mass: 1, tension: 120, friction: 14 },
   })
 
