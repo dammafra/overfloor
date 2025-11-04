@@ -15,7 +15,9 @@ interface UISpringProps {
 }
 
 export function UI() {
-  const [match] = useRoute(/game|lobby/)
+  const [matchGame] = useRoute(/game/)
+  const [matchLobby] = useRoute(/lobby/)
+  const match = matchGame || matchLobby
   const { viewport } = useThree()
 
   const [size] = useState(11)
@@ -32,8 +34,9 @@ export function UI() {
     [size, viewport.aspect],
   )
 
-  const getType = useCallback(
+  const getTileProps = useCallback(
     (index: number): MenuTileProps => {
+      if (matchLobby) return { type: 'base', rotate: true }
       if (buttonIndices.includes(index))
         return { type: 'button', index: buttonIndices.indexOf(index) }
       if (lettersIndices.includes(index))
@@ -41,49 +44,41 @@ export function UI() {
 
       return { type: 'base' }
     },
-    [buttonIndices, lettersIndices],
+    [buttonIndices, lettersIndices, matchLobby],
+  )
+
+  const getTilePosition = useCallback(
+    (index: number) => (matchLobby ? positions.lobby.tile(index) : positions.ui.tile(index, size)),
+    [size, matchLobby],
   )
 
   const initTiles = useCallback(
-    () =>
-      Array(size * size)
-        .fill(true)
-        .map((_, index) => ({ position: positions.ui.tile(index, size), ...getType(index) })),
-    [size, getType],
+    () => Array.from({ length: size * size }, (_, index) => getTileProps(index)),
+    [size, getTileProps],
   )
 
   const updateTiles = useCallback(
     (tiles: MenuTileProps[]) =>
-      tiles.map((t, index) => {
-        const updatedTile = getType(index)
-        t.type = updatedTile.type
-        t.index = updatedTile.index
+      tiles.map((t, i) => {
+        const { type, index, rotate } = getTileProps(i)
+        t.type = type
+        t.index = index
+        t.rotate = rotate
         return t
       }),
-    [getType],
-  )
-
-  const swapTiles = useCallback(
-    (tiles: MenuTileProps[]) =>
-      tiles.map((t, index) => {
-        const updatedTile = getType(index)
-        return updatedTile.type === t.type && updatedTile.index === t.index
-          ? t
-          : { position: t.position, ...updatedTile }
-      }),
-    [getType],
+    [getTileProps],
   )
 
   useEffect(() => {
     setTiles(tiles => {
-      if (match) return []
-      return tiles.length ? swapTiles(tiles) : initTiles()
+      if (matchGame) return []
+      return tiles.length ? updateTiles(tiles) : initTiles()
     })
-  }, [match, initTiles, swapTiles, updateTiles])
+  }, [matchGame, updateTiles, initTiles])
 
   const transitions = useTransition<MenuTileProps, UISpringProps>(tiles, {
-    from: tile => ({
-      position: tile.position,
+    from: (_, i) => ({
+      position: getTilePosition(i),
       scale: 0,
     }),
     enter: (_, i) => ({
@@ -94,10 +89,14 @@ export function UI() {
       scale: 0,
       config: { tension: 0 },
     }),
+    update: (_, i) => ({
+      position: getTilePosition(i),
+      config: { friction: matchLobby ? 150 : 50 },
+    }),
     onRest: () => {
       firstRenderRef.current = false
     },
-    config: { mass: 1, tension: 120, friction: 14 },
+    config: { mass: 1, tension: 120, friction: 15 },
   })
 
   return (
@@ -105,9 +104,9 @@ export function UI() {
       {transitions((spring, props, _, i) => (
         <MenuTile
           key={`menu-tile-${i}`}
+          {...props}
           position={spring.position}
           scale={spring.scale}
-          {...props}
         />
       ))}
 

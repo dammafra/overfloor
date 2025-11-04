@@ -1,5 +1,5 @@
 import { BlockCharacter, type BlockCharacterProps } from '@components/models'
-import { Billboard, Html } from '@react-three/drei'
+import { Billboard, Text } from '@react-three/drei'
 import { useMemo } from 'react'
 
 function stringToHslColor(str: string) {
@@ -22,14 +22,14 @@ export function Player({ username, showIndicator, showUsername, animate, ...prop
     <>
       <BlockCharacter color={color} animate={animate} {...props} />
       {(showIndicator || showUsername) && (
-        <Billboard position-y={showIndicator ? 2.5 : 1.25} scale={showIndicator ? 1.5 : 0.5}>
-          <Html
-            transform
-            className="text-white text-stroke-black text-lg px-1 text-center font-extrabold whitespace-nowrap border-b-6 h-8 max-w-40 overflow-hidden overflow-ellipsis absolute"
-            style={{ borderColor: color }}
-          >
-            {showIndicator ? 'YOU' : username}
-          </Html>
+        <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>
+          <Text font="/fonts/audiowide.ttf" overflowWrap="normal" fontSize={1.5} outlineWidth={0.1}>
+            {showUsername ? username : 'YOU'}
+          </Text>
+          <mesh scale={[showUsername ? username!.length : 4, 0.5, 1]} position-y={-1.3}>
+            <planeGeometry />
+            <meshBasicMaterial color={color} />
+          </mesh>
         </Billboard>
       )}
     </>

@@ -93,7 +93,7 @@ input * {
   }
 
   a:not(.button) {
-    @apply hover:text-slate-300 active:text-slate-300;
+    @apply underline hover:text-slate-300 active:text-slate-300;
   }
 
   .input {

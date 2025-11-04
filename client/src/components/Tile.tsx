@@ -7,18 +7,24 @@ export type TileProps = JSX.IntrinsicElements['object3D'] & {
   color?: ColorRepresentation
   opacity?: number
   float?: boolean
+  rotate?: boolean
 }
 
 function _Tile({
   color = 'dodgerblue',
   opacity = 0.9,
   float = true,
+  rotate = false,
   children,
   ...props
 }: TileProps) {
   return (
-    <Float floatIntensity={0.5} speed={float ? 5 : 0} rotationIntensity={0}>
-      <a.mesh {...props} receiveShadow>
+    <Float
+      floatIntensity={0.5}
+      speed={rotate ? 0.1 : float ? 5 : 0}
+      rotationIntensity={rotate ? 5 : 0}
+    >
+      <a.mesh {...props}>
         <RoundedBoxGeometry args={[1, 0.25, 1]} radius={0.1} />
         <a.meshStandardMaterial color={color} transparent opacity={opacity} roughness={0} />
         {children}

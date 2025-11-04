@@ -17,6 +17,20 @@ export const positions = {
       const z = index * 0.5 // step outward
       return [x, y, z]
     },
+    tile: (() => {
+      const cached = new Map<number, Vector3Tuple>()
+      return (index: number, min = 10, max = 20): Vector3Tuple => {
+        if (cached.has(index)) return cached.get(index)!
+        const r = min + Math.random() * (max - min)
+        const position: Vector3Tuple = [
+          (Math.random() - 0.5) * 2 * r,
+          (Math.random() - 0.5) * 2 * r,
+          (Math.random() - 0.5) * 2 * r,
+        ]
+        cached.set(index, position)
+        return position
+      }
+    })(),
   },
   game: {
     player: (index: number, radius: number = 1.5): Vector3Tuple => {

@@ -68,6 +68,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
           color={spring.color}
           position={tile.position.toArray() as Vector3Tuple}
           scale={spring.scale}
+          receiveShadow
         />
       ))}
 
