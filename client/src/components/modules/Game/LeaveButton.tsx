@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useLocation } from 'wouter'
 
 export function LeaveButton() {
-  const [_, navigate] = useLocation()
+  const [, navigate] = useLocation()
   const [confirm, setConfirm] = useState(false)
 
   const transitions = useTransition(confirm, {

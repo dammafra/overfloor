@@ -24,7 +24,7 @@ export function UI() {
   const match = matchGame || matchLobby
   const { viewport } = useThree()
 
-  const size = useMemo(() => (matchGame ? 0 : 11), [matchGame, matchLobby])
+  const size = useMemo(() => (matchGame ? 0 : 11), [matchGame])
   const tiles = useMemo(() => [...Array(size * size).keys()], [size])
   const firstRenderRef = useRef(true)
 
