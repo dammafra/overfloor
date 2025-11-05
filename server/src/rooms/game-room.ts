@@ -42,7 +42,8 @@ export class GameRoom extends Room<GameState> {
       if (!player) return
 
       if (data[1] < -50) {
-        this.state.players.delete(client.sessionId) // TODO if I do delete here, onLeave when game ends throws error
+        this.state.players.delete(client.sessionId)
+
         if (this.#training) {
           // TODO improve
           this.state.dimension = 'medium'
@@ -79,9 +80,8 @@ export class GameRoom extends Room<GameState> {
   }
 
   async onLeave(client: Client) {
-    const player = this.state.players.get(client.sessionId)
     this.state.players.delete(client.sessionId)
-    console.log(`[${this.roomName}] ❌ [${client.sessionId}] ${player.username} left`)
+    console.log(`[${this.roomName}] ❌ [${client.sessionId}] left`)
   }
 
   onDispose() {
