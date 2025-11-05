@@ -13,13 +13,11 @@ export const LetterTile = a(({ index, ...props }: LetterTileProps) => {
 
   const { scale } = useSpring({
     scale: hovered ? 1.1 : (props.scale as number),
-    config: { mass: 1, tension: 120, friction: 14 },
   })
 
   const { rotationX } = useSpring({
     rotationX: MathUtils.degToRad(clicked ? -90 + 180 : -90),
     onRest: () => setClicked(false),
-    config: { mass: 1, tension: 120, friction: 14 },
   })
 
   if (typeof index === 'undefined') return <></>

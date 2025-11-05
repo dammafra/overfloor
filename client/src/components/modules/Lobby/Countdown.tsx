@@ -1,74 +1,72 @@
-import type { PropsWithRoom } from '@hooks'
-import { Html } from '@react-three/drei'
+import { ButtonTile } from '@components/ButtonTile'
+import { Environment } from '@components/Environment'
+import { useIsTouch, type PropsWithRoom } from '@hooks'
+import { useSpring } from '@react-spring/three'
+import { Hud, PerspectiveCamera, Text, type TextProps } from '@react-three/drei'
 import type { GameLobbyState } from '@server/schema'
-import clsx from 'clsx'
 import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useRef, useState } from 'react'
-import { toast } from 'react-toastify'
-import { Link, useParams } from 'wouter'
+import { useEffect, useMemo, useState } from 'react'
+import { MathUtils } from 'three'
+import { useParams } from 'wouter'
 
 export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
   const { options } = useParams()
-  const { id, username, training } = JSON.parse(atob(options!))
+  const { username } = JSON.parse(atob(options!))
+  const isTouch = useIsTouch()
 
-  const countdownRef = useRef<HTMLParagraphElement>(null)
-  const [isOwner, setIsOwner] = useState(false)
   const [canStart, setCanStart] = useState(false)
+  const [countdown, setCountdown] = useState('')
+
+  const commonTextProps = useMemo<Partial<TextProps>>(
+    () => ({
+      font: '/fonts/audiowide.ttf',
+      position: [0, 0.13, 0],
+      outlineWidth: 0.01,
+      textAlign: 'center',
+      rotation: [MathUtils.degToRad(-90), 0, MathUtils.degToRad(-45)],
+    }),
+    [],
+  )
 
   useEffect(() => {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('owner', owner => setIsOwner(owner === username))
-
-    $(room.state).listen('countdown', countdown => {
-      if (!countdownRef.current) return
-      countdownRef.current.textContent = countdown.toString()
-    })
-
     $(room.state).listen('canStart', setCanStart)
+    $(room.state).listen('countdown', countdown => setCountdown(countdown.toString()))
   }, [room, username])
 
-  const share = async () => {
-    const url = `${location.protocol}//${location.host}/join/${id}`
-    const toShare = {
-      text: url,
-    }
-
-    navigator.clipboard.writeText(url)
-    toast.info('Join URL copied to clipboard')
-
-    if (navigator.canShare(toShare)) {
-      await navigator.share(toShare)
-    }
-  }
+  const { scale, color } = useSpring({
+    from: { scale: 0, color: canStart ? 'green' : 'dodgerblue' },
+    to: { scale: 1.5, color: canStart ? 'green' : 'dodgerblue' },
+  })
 
   return (
-    <Html
-      center
-      className="flex flex-col items-center justify-center size-44 aspect-square rounded-full text-center text-white font-bold bg-radial from-slate-400 to-70% to-transparent z-99"
-    >
-      <p>{canStart ? 'Match starts in' : 'Waiting for opponents'}</p>
-      <p ref={countdownRef} className={clsx('text-7xl', !canStart && 'hidden')} />
-
-      <div className="absolute bottom-8 flex gap-2 bg-red-500">
-        <Link href="/" className="button danger icon absolute -left-12">
-          <span className="icon-[mdi--chevron-left]" />
-        </Link>
-        {isOwner && canStart && (
-          <button
-            className="button success icon large absolute -left-1/2 -translate-x-1/2 -bottom-20"
-            onClick={() => room?.send('start')}
-          >
-            <span className="icon-[mdi--play]" />
-          </button>
+    <Hud renderPriority={2}>
+      <Environment />
+      <PerspectiveCamera makeDefault position={[0, 0, 7]} />
+      <ButtonTile
+        scale={scale}
+        color={color}
+        disabled={!canStart}
+        rotation={[MathUtils.degToRad(90), MathUtils.degToRad(45), 0]}
+        onClick={() => room?.send('start')}
+      >
+        {canStart ? (
+          <>
+            <Text fontSize={0.4} {...commonTextProps}>
+              {countdown}
+            </Text>
+            <Text fontSize={0.1} maxWidth={0.5} anchorY={0.2} {...commonTextProps}>
+              {isTouch ? 'Tap' : 'Click'} to start
+            </Text>
+          </>
+        ) : (
+          <Text fontSize={0.13} maxWidth={1} {...commonTextProps}>
+            Waiting for opponents
+          </Text>
         )}
-        {!training && (
-          <button className="button icon absolute -right-12" onClick={share}>
-            <span className="icon-[mdi--share]" />
-          </button>
-        )}
-      </div>
-    </Html>
+      </ButtonTile>
+    </Hud>
   )
 }

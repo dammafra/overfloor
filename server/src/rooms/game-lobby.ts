@@ -14,6 +14,7 @@ interface JoinGameLobbyOptions {
 
 export class GameLobby extends Room<GameLobbyState> {
   autoDispose = false
+  maxClients = 50
 
   IDS_CHANNEL = '$IDS'
   USERNAMES_CHANNEL: string

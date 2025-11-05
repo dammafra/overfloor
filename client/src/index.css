@@ -55,7 +55,7 @@ input * {
   html,
   body,
   #root {
-    @apply fixed inset-0 overflow-hidden bg-slate-700 bg-radial to-slate-700 from-cyan-600 font-audiowide touch-none;
+    @apply font-audiowide touch-none fixed inset-0 overflow-hidden bg-slate-900 bg-radial to-slate-900 from-cyan-500;
   }
 }
 

@@ -64,7 +64,6 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
       {/* meshes */}
       {transitions((spring, tile) => (
         <Tile
-          key={`mesh-${tile.id}`}
           color={spring.color}
           position={tile.position.toArray() as Vector3Tuple}
           scale={spring.scale}

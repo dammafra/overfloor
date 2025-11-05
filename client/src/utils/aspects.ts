@@ -1,11 +1,11 @@
 export const aspects = {
   ui: {
     camera: {
-      distance: (aspect: number) => Math.max(3.5, (aspect > 1 ? 10 : 12) - Math.pow(aspect, 2)), // (aspect > 1.5 ? 6.5 : aspect > 1 ? 9 : aspect > 0.5 ? 10 : 12),
+      distance: (aspect: number) => Math.max(5.5, (aspect > 1 ? 10 : 12) - Math.pow(aspect, 2)),
     },
     tile: {
       button: {
-        position: (aspect: number) => [0, Math.max(2.5, aspects.ui.camera.distance(aspect) - 2), 0],
+        position: (aspect: number) => [0, Math.max(aspect > 2 ? 4.5 : 3.5, aspects.ui.camera.distance(aspect) - 2), 0], //prettier-ignore
         indices: (size: number, aspect: number) => {
           const center = Math.floor((size * size) / 2)
 

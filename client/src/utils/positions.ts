@@ -10,10 +10,10 @@ export const positions = {
     },
   },
   lobby: {
-    player: (index: number, radius: number = 1.5): Vector3Tuple => {
-      const angle = MathUtils.degToRad(index * 30) // adjust spacing
-      const x = radius * Math.sin(angle)
-      const y = radius * Math.cos(angle)
+    player: (index: number, radius: number = 1.8): Vector3Tuple => {
+      const angle = MathUtils.degToRad(index * 25) // adjust spacing
+      const x = (radius + index * 0.01) * Math.sin(angle)
+      const y = (radius + index * 0.01) * Math.cos(angle)
       const z = index * 0.5 // step outward
       return [x, y, z]
     },

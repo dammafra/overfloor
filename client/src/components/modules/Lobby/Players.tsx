@@ -1,7 +1,7 @@
-import { Player } from '@components'
+import { Environment, Player } from '@components'
 import type { PropsWithRoom } from '@hooks'
 import { a, useTransition } from '@react-spring/three'
-import { Float } from '@react-three/drei'
+import { Float, Hud } from '@react-three/drei'
 import type { GameLobbyState } from '@server/schema'
 import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
@@ -30,15 +30,16 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
     config: { mass: 1, tension: 200, friction: 20 },
   })
 
-  return transitions((spring, player) => (
-    <a.group
-      key={player}
-      scale={spring.scale}
-      position={spring.position.to((x, y, z) => [x, y, z])}
-    >
-      <Float floatIntensity={2} rotationIntensity={2} scale={0.5}>
-        <Player username={player} showUsername={!training} />
-      </Float>
-    </a.group>
-  ))
+  return (
+    <Hud renderPriority={1}>
+      <Environment />
+      {transitions((spring, player) => (
+        <a.group scale={spring.scale} position={spring.position.to((x, y, z) => [x, y, z])}>
+          <Float floatIntensity={2} rotationIntensity={2} scale={0.5}>
+            <Player username={player} showUsername={!training} />
+          </Float>
+        </a.group>
+      ))}
+    </Hud>
+  )
 }

@@ -9,7 +9,7 @@ export function CreateRoom() {
   const [, navigate] = useLocation()
 
   const [id, setId] = useState<string>('')
-  const [username, setUsername] = useState<string>('')
+  const [username, setUsername] = useState<string>(localStorage.getItem('overfloor-username') ?? '')
   const client = useColyseus()
 
   const onSubmit = (e: FormEvent) => {
@@ -47,7 +47,10 @@ export function CreateRoom() {
             className="input"
             placeholder="username"
             value={username}
-            onChange={e => setUsername(e.target.value.trim())}
+            onChange={e => {
+              setUsername(e.target.value.trim())
+              localStorage.setItem('overfloor-username', e.target.value.trim())
+            }}
           />
           <span className="icon-[mdi--user]" />
         </div>

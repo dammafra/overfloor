@@ -30,7 +30,7 @@ export function Experience() {
         far: 100,
       }}
     >
-      <Environment />
+      <Environment shadows />
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
       <UI />
