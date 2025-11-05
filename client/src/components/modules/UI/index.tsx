@@ -73,9 +73,6 @@ export function UI() {
     from: (_, i) => ({
       position: getTilePosition(i),
       scale: 0,
-      rotate: false,
-      type: getTileType(i),
-      index: getTileIndex(i),
     }),
     enter: (_, i) => ({
       scale: 1,
@@ -86,9 +83,6 @@ export function UI() {
     }),
     update: (_, i) => ({
       position: getTilePosition(i),
-      rotate: matchLobby,
-      type: getTileType(i),
-      index: getTileIndex(i),
       config: { friction: matchLobby ? 150 : 50 },
     }),
     onRest: () => {
@@ -99,8 +93,13 @@ export function UI() {
 
   return (
     <>
-      {transitions(spring => (
-        <MenuTile {...spring} />
+      {transitions((spring, index) => (
+        <MenuTile
+          {...spring}
+          type={getTileType(index)}
+          index={getTileIndex(index)}
+          rotate={matchLobby}
+        />
       ))}
 
       {!match && <Backdrop />}
