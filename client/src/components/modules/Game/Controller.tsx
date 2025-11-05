@@ -28,7 +28,7 @@ export function Controller({ children }: PropsWithChildren) {
       }}
     >
       {isTouch && (
-        <Html center wrapperClass="fixed inset-0">
+        <Html center wrapperClass="fixed inset-0 ml-40">
           <GhostArea className="h-[100dvh] w-screen">
             <Joystick
               throttle={200}
