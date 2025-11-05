@@ -36,9 +36,9 @@ export function ChooseRoom() {
             <tbody>
               {rooms.map(room => (
                 <tr key={room.roomId}>
-                  <td>{room.roomId}</td>
-                  <td>{room.metadata?.owner || '-'}</td>
-                  <td>{room.clients}</td>
+                  <td className="max-w-29 break-all">{room.roomId}</td>
+                  <td className="max-w-29 break-all">{room.metadata?.owner || '-'}</td>
+                  <td className="text-center">{room.clients}</td>
                   <td>
                     <Link href={`/join/${room.roomId}`} className="button icon">
                       <span className="icon-[mdi--chevron-right]" />

@@ -10,7 +10,7 @@ export function Credits() {
   })
 
   return (
-    <a.div className="page text-center text-white text-stroke-black" style={{ opacity }}>
+    <a.div className="page text-center text-white text-stroke-black px-4" style={{ opacity }}>
       {/* prettier-ignore */}
       <p className="text-2xl mb-4">Made with ♥︎ by <a className="underline" href="https://github.com/dammafra" target="_blank">@dammafra</a></p>
       {/* prettier-ignore */}

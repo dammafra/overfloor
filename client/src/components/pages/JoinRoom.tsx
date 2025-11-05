@@ -1,7 +1,7 @@
 import { useColyseus } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'react-toastify'
 import { Link, useLocation, useParams } from 'wouter'
 
@@ -12,6 +12,14 @@ export function JoinRoom() {
   const [username, setUsername] = useState<string>(localStorage.getItem('overfloor-username') ?? '')
   const [loading, setLoading] = useState(false)
   const client = useColyseus()
+
+  useEffect(() => {
+    {
+      const safeUsername = username.replace(/\s+/g, '')
+      setUsername(safeUsername)
+      localStorage.setItem('overfloor-username', safeUsername)
+    }
+  }, [username])
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -44,10 +52,7 @@ export function JoinRoom() {
             className="input"
             placeholder="username"
             value={username}
-            onChange={e => {
-              setUsername(e.target.value.trim())
-              localStorage.setItem('overfloor-username', e.target.value.trim())
-            }}
+            onChange={e => setUsername(e.target.value)}
           />
           <span className="icon-[mdi--user]" />
         </div>
