@@ -65,7 +65,7 @@ input * {
   }
 
   .button {
-    @apply relative flex items-center justify-center gap-1 bg-amber-400 text-white text-stroke-black font-bold px-4 py-2 rounded-xl shadow hover:bg-amber-300 active:bg-amber-300 cursor-pointer;
+    @apply relative flex items-center justify-center gap-1 bg-amber-400 text-white text-stroke-black font-bold px-4 py-2 rounded-xl shadow hover:bg-amber-300 active:bg-amber-300 cursor-pointer pointer-events-auto;
   }
   .button.success {
     @apply bg-green-500 hover:bg-green-400 active:bg-green-400;

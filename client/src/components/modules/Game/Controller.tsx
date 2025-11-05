@@ -1,8 +1,8 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useController } from '@stores'
-import Joystick, { DirectionCount, GhostArea } from 'rc-joystick'
 import type { PropsWithChildren } from 'react'
+import ReactNipple from 'react-nipplejs'
 
 export function Controller({ children }: PropsWithChildren) {
   const isTouch = useIsTouch()
@@ -28,20 +28,41 @@ export function Controller({ children }: PropsWithChildren) {
       }}
     >
       {isTouch && (
-        <Html center wrapperClass="fixed inset-0 ml-40">
-          <GhostArea className="h-[100dvh] w-screen">
-            <Joystick
-              throttle={200}
-              className="opacity-50"
-              directionCount={DirectionCount.Nine}
-              onDirectionChange={direction => {
-                setUp(direction.toLowerCase().includes('top'))
-                setDown(direction.toLowerCase().includes('bottom'))
-                setLeft(direction.toLowerCase().includes('left'))
-                setRight(direction.toLowerCase().includes('right'))
-              }}
-            />
-          </GhostArea>
+        <Html center wrapperClass="fixed inset-0 -z-0!" className="h-screen w-screen">
+          <ReactNipple
+            options={{ mode: 'semi', size: 120, catchDistance: 50 }}
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+            onMove={(_, data) => {
+              const directions = [
+                'right',
+                'top right',
+                'top',
+                'top left',
+                'left',
+                'bottom left',
+                'bottom',
+                'bottom right',
+              ]
+
+              const angle = (data.angle.radian + Math.PI * 2) % (Math.PI * 2)
+              const index = Math.round(angle / (Math.PI / 4)) % 8
+              const direction = directions[index]
+
+              setUp(direction.toLowerCase().includes('top'))
+              setDown(direction.toLowerCase().includes('bottom'))
+              setLeft(direction.toLowerCase().includes('left'))
+              setRight(direction.toLowerCase().includes('right'))
+            }}
+            onEnd={() => {
+              setUp(false)
+              setDown(false)
+              setLeft(false)
+              setRight(false)
+            }}
+          />
         </Html>
       )}
 
