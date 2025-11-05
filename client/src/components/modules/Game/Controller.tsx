@@ -1,7 +1,7 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useController } from '@stores'
-import type { PropsWithChildren } from 'react'
+import { useState, type PropsWithChildren } from 'react'
 import ReactNipple from 'react-nipplejs'
 
 export function Controller({ children }: PropsWithChildren) {
@@ -11,6 +11,8 @@ export function Controller({ children }: PropsWithChildren) {
   const setDown = useController(state => state.setDown)
   const setLeft = useController(state => state.setLeft)
   const setRight = useController(state => state.setRight)
+
+  const [nippleHelper, setNippleHelper] = useState(true)
 
   return (
     <KeyboardControls
@@ -28,14 +30,21 @@ export function Controller({ children }: PropsWithChildren) {
       }}
     >
       {isTouch && (
-        <Html center wrapperClass="fixed inset-0 -z-0!" className="h-screen w-screen">
+        <Html center wrapperClass="fixed inset-0 -z-0!" className="h-[100dvh] w-screen">
+          {nippleHelper && (
+            <ReactNipple
+              options={{ mode: 'static', size: 120 }}
+              className="w-30! h-30! absolute! bottom-8 right-8 pointer-events-none"
+            />
+          )}
           <ReactNipple
+            className="fixed inset-0 w-full! h-full!"
             options={{ mode: 'semi', size: 120, catchDistance: 50 }}
-            style={{
-              width: '100%',
-              height: '100%',
-            }}
             onMove={(_, data) => {
+              setNippleHelper(false)
+
+              if (data.force < 0.2) return
+
               const directions = [
                 'right',
                 'top right',
