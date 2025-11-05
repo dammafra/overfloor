@@ -92,7 +92,7 @@ export class GameLobby extends Room<GameLobbyState> {
 
   #updateOwner() {
     if (this.state.players.size === 0) this.state.owner = undefined
-    if (this.state.players.size === 1) this.state.owner = this.state.players.values().toArray().at(0) //prettier-ignore
+    if (this.state.players.size === 1) this.state.owner = [...this.state.players.values()].at(0)
     this.setMetadata({ owner: this.state.owner })
   }
 

@@ -16,6 +16,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
 
   const [canStart, setCanStart] = useState(false)
   const [countdown, setCountdown] = useState('')
+  const [isOwner, setIsOwner] = useState(false)
 
   const commonTextProps = useMemo<Partial<TextProps>>(
     () => ({
@@ -32,13 +33,14 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
+    $(room.state).listen('owner', owner => setIsOwner(owner === username))
     $(room.state).listen('canStart', setCanStart)
     $(room.state).listen('countdown', countdown => setCountdown(countdown.toString()))
   }, [room, username])
 
   const { scale, color } = useSpring({
-    from: { scale: 0, color: canStart ? 'green' : 'dodgerblue' },
-    to: { scale: 1.5, color: canStart ? 'green' : 'dodgerblue' },
+    from: { scale: 0, color: canStart && isOwner ? 'green' : 'dodgerblue' },
+    to: { scale: 1.5, color: canStart && isOwner ? 'green' : 'dodgerblue' },
   })
 
   return (
@@ -48,7 +50,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
       <ButtonTile
         scale={scale}
         color={color}
-        disabled={!canStart}
+        disabled={!isOwner || !canStart}
         rotation={[MathUtils.degToRad(90), MathUtils.degToRad(45), 0]}
         onClick={() => room?.send('start')}
       >
@@ -57,9 +59,11 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
             <Text fontSize={0.4} {...commonTextProps}>
               {countdown}
             </Text>
-            <Text fontSize={0.1} maxWidth={0.5} anchorY={0.2} {...commonTextProps}>
-              {isTouch ? 'Tap' : 'Click'} to start
-            </Text>
+            {isOwner && (
+              <Text fontSize={0.1} maxWidth={0.5} anchorY={0.2} {...commonTextProps}>
+                {isTouch ? 'Tap' : 'Click'} to start
+              </Text>
+            )}
           </>
         ) : (
           <Text fontSize={0.13} maxWidth={1} {...commonTextProps}>
