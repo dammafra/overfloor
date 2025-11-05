@@ -2,7 +2,7 @@ import { Dynamic } from '@components/helpers'
 import { Tile, type TileProps } from '@components/Tile'
 import { a } from '@react-spring/three'
 import { MenuButtonTile } from './MenuButtonTile'
-import { LetterTile } from './MenuLetterTile'
+import { MenuLetterTile } from './MenuLetterTile'
 
 export type MenuTileProps = TileProps & {
   type: 'base' | 'letter' | 'button'
@@ -13,7 +13,7 @@ export const MenuTile = a(({ type, index, ...props }: MenuTileProps) => {
   const a = type !== 'base' ? { index } : undefined
   return (
     <Dynamic
-      component={type === 'button' ? MenuButtonTile : type === 'letter' ? LetterTile : Tile}
+      component={type === 'button' ? MenuButtonTile : type === 'letter' ? MenuLetterTile : Tile}
       {...a}
       {...props}
     />

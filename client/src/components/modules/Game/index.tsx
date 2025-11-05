@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { useLocation, useParams } from 'wouter'
 import { Boundaries } from './Boundaries'
 import { CameraRig } from './CameraRig'
+import { Countdown } from './Countdown'
 import { Grid } from './Grid'
 import { LeaveButton } from './LeaveButton'
 import { LocalPlayer } from './LocalPlayer'
@@ -40,8 +41,9 @@ export function Game() {
       <LocalPlayer room={room} />
       <RemotePlayers room={room} />
       <Grid room={room} />
-      <CameraRig room={room} />
+      <Countdown room={room} />
       <LeaveButton />
+      <CameraRig room={room} />
       {debug && <Boundaries room={room} />}
     </>
   )

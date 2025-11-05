@@ -14,12 +14,18 @@ interface JoinGameRoomOptions {
 export class GameRoom extends Room<GameState> {
   state = new GameState()
 
+  IDLE = 1000 //ms
+  COUNTDOWN: number //s
+
+  #interval: Delayed
+
   #loop: Delayed
   #loopsCount = 0
   #phase = GameLoopPhase.IDLE
   #phaseDuration = 800 // min 300ms
   #resetDuration = 700
   #totalPhases = Object.keys(GameLoopPhase).filter(k => isNaN(Number(k))).length
+
   #training: boolean
 
   async onCreate(options: CreateGameRoomOptions) {
@@ -28,7 +34,19 @@ export class GameRoom extends Room<GameState> {
     this.#training = options.training
 
     this.state.init(options.playersCount <= 20 ? 'medium' : 'large')
-    this.#resetLoop()
+
+    this.clock.setTimeout(() => {
+      this.state.countdown = this.#training ? -1 : 3
+      this.#interval = this.clock.setInterval(async () => {
+        if (this.state.countdown >= 0) {
+          this.state.countdown--
+          return
+        }
+
+        this.#resetLoop()
+        this.#interval.clear()
+      }, 1000)
+    }, this.IDLE)
 
     this.onMessage('set-walking', (client, data) => {
       const player = this.state.players.get(client.sessionId)

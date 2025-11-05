@@ -1,62 +1,15 @@
-import { a, useSpring } from '@react-spring/three'
-import { Center, Float, Text3D, useCursor } from '@react-three/drei'
-import { useState } from 'react'
-import { MathUtils } from 'three'
+import { LetterTile } from '@components/LetterTile'
+import { a } from '@react-spring/three'
 import type { MenuTileProps } from './MenuTile'
 
-type LetterTileProps = Omit<MenuTileProps, 'type'>
+type MenuLetterTileProps = Omit<MenuTileProps, 'type'>
 
-export const LetterTile = a(({ index, ...props }: LetterTileProps) => {
-  const [hovered, setHovered] = useState(false)
-  const [clicked, setClicked] = useState(false)
-  useCursor(hovered)
-
-  const { scale } = useSpring({
-    scale: hovered ? 1.1 : (props.scale as number),
-  })
-
-  const { rotationX } = useSpring({
-    rotationX: MathUtils.degToRad(clicked ? -90 + 180 : -90),
-    onRest: () => setClicked(false),
-  })
-
+export const MenuLetterTile = a(({ index, ...props }: MenuLetterTileProps) => {
   if (typeof index === 'undefined') return <></>
 
   return (
-    <Float
-      floatIntensity={0.5}
-      speed={5}
-      rotationIntensity={0}
-      onPointerOver={e => {
-        setHovered(true)
-        e.stopPropagation()
-      }}
-      onPointerOut={e => {
-        setHovered(false)
-        e.stopPropagation()
-      }}
-      onClick={() => setClicked(true)}
-    >
-      <a.group {...props} scale={scale} rotation-x={rotationX} rotation-z={MathUtils.degToRad(-90)}>
-        <Center>
-          <Text3D
-            font="/fonts/audiowide.json"
-            bevelEnabled
-            size={0.9}
-            bevelSize={0.025}
-            bevelThickness={0.05}
-            bevelSegments={20}
-          >
-            {'OVERFLOOR'.at(index)}
-            <a.meshStandardMaterial
-              color={index < 4 ? 'brown' : 'limegreen'}
-              transparent
-              opacity={0.9}
-              roughness={0}
-            />
-          </Text3D>
-        </Center>
-      </a.group>
-    </Float>
+    <LetterTile {...props} color={index < 4 ? 'brown' : 'limegreen'}>
+      {'OVERFLOOR'.at(index)}
+    </LetterTile>
   )
 })
