@@ -39,7 +39,7 @@ export function ModalTile({
     return () => {
       document.removeEventListener('keydown', handler)
     }
-  }, [open])
+  }, [open, navigate])
 
   return (
     <ButtonTile
