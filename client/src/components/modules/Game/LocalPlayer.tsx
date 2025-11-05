@@ -87,7 +87,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
           colliders={false}
           gravityScale={5}
           friction={0.5}
-          linearDamping={0.5}
+          linearDamping={0.4}
           enabledRotations={[false, false, false]}
           position={initialPosition}
           collisionGroups={PLAYERS_COLLISION_GROUP}

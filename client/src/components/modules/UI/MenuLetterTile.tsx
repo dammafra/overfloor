@@ -28,12 +28,12 @@ export const LetterTile = a(({ index, ...props }: LetterTileProps) => {
       speed={5}
       rotationIntensity={0}
       onPointerOver={e => {
-        e.stopPropagation()
         setHovered(true)
+        e.stopPropagation()
       }}
       onPointerOut={e => {
-        e.stopPropagation()
         setHovered(false)
+        e.stopPropagation()
       }}
       onClick={() => setClicked(true)}
     >

@@ -60,7 +60,13 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
               {countdown}
             </Text>
             {isOwner && (
-              <Text fontSize={0.1} maxWidth={0.5} anchorY={0.2} {...commonTextProps}>
+              <Text
+                fontSize={0.1}
+                maxWidth={0.8}
+                anchorY={-0.45}
+                {...commonTextProps}
+                rotation-z={0}
+              >
                 {isTouch ? 'Tap' : 'Click'} to start
               </Text>
             )}

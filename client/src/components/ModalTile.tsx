@@ -1,7 +1,9 @@
 import { useSpring } from '@react-spring/three'
 import { useThree } from '@react-three/fiber'
 import { aspects } from '@utils'
+import { useEffect } from 'react'
 import { MathUtils, type ColorRepresentation, type Vector3Tuple } from 'three'
+import { useLocation } from 'wouter'
 import { ButtonTile, type ButtonTileProps } from './ButtonTile'
 
 interface ModalTileProps extends ButtonTileProps {
@@ -17,6 +19,7 @@ export function ModalTile({
   ...props
 }: ModalTileProps) {
   const { viewport } = useThree()
+  const [, navigate] = useLocation()
 
   const spring = useSpring({
     position: (open
@@ -26,9 +29,22 @@ export function ModalTile({
     color: (open ? openColor : color) as string,
   })
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      navigate('/')
+      e.stopPropagation()
+    }
+    document.addEventListener('keydown', handler)
+    return () => {
+      document.removeEventListener('keydown', handler)
+    }
+  }, [open])
+
   return (
     <ButtonTile
       {...props}
+      disabled={open}
       position={spring.position}
       rotation-x={spring.rotationX}
       color={spring.color}

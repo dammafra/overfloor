@@ -25,18 +25,18 @@ export const ButtonTile = a(
         scale={spring.scale}
         onPointerOver={e => {
           if (disabled) return
-          e.stopPropagation()
           setHovered(true)
+          e.stopPropagation()
         }}
         onPointerOut={e => {
           if (disabled) return
-          e.stopPropagation()
           setHovered(false)
+          e.stopPropagation()
         }}
         onClick={e => {
           if (disabled) return
-          e.stopPropagation()
           if (typeof onClick === 'function') onClick(e)
+          e.stopPropagation()
         }}
       >
         {typeof children === 'string' ? (

@@ -61,7 +61,10 @@ input * {
 
 @layer components {
   .page {
-    @apply fixed inset-0 overflow-hidden flex flex-col items-center justify-center;
+    @apply fixed inset-0 overflow-hidden flex flex-col items-center justify-center pointer-events-none;
+  }
+  .page * {
+    @apply pointer-events-auto;
   }
 
   .button {
