@@ -2,8 +2,10 @@ import { monitor } from '@colyseus/monitor'
 import { playground } from '@colyseus/playground'
 import config from '@colyseus/tools'
 import { GameLobby, GameRoom } from '@rooms'
-import { LobbyRoom } from 'colyseus'
+import { LobbyRoom, matchMaker } from 'colyseus'
 import basicAuth from 'express-basic-auth'
+
+export const ROOM_IDS_CHANNEL = '$IDS'
 
 export default config({
   initializeExpress: app => {
@@ -19,6 +21,16 @@ export default config({
       }),
       monitor(),
     )
+
+    app.get('/room-exists/:id', async (req, res) => {
+      const currentIds = await matchMaker.presence.smembers(ROOM_IDS_CHANNEL)
+      res.json(currentIds.includes(req.params.id))
+    })
+
+    app.get('/username-exists/:roomId/:username', async (req, res) => {
+      const currentUsernames = await matchMaker.presence.smembers(req.params.roomId)
+      res.json(currentUsernames.includes(req.params.username))
+    })
   },
 
   initializeGameServer: gameServer => {

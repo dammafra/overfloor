@@ -1,5 +1,6 @@
 import { Client, Delayed, matchMaker, Room } from '@colyseus/core'
 import { GameLobbyState } from '@schema'
+import { ROOM_IDS_CHANNEL } from '../app.config'
 
 interface CreateGameLobbyOptions {
   id: string
@@ -16,8 +17,6 @@ export class GameLobby extends Room<GameLobbyState> {
   autoDispose = false
   maxClients = 50
 
-  IDS_CHANNEL = '$IDS'
-  USERNAMES_CHANNEL: string
   MIN_PLAYERS = 2
   COUNTDOWN = 60
 
@@ -26,9 +25,9 @@ export class GameLobby extends Room<GameLobbyState> {
   #training: boolean
 
   async onCreate(options: CreateGameLobbyOptions) {
-    await this.#checkRoomId(options.id)
+    await this.#checkPresence(ROOM_IDS_CHANNEL, options.id, 'Room ID already exists')
+
     this.roomId = options.id
-    this.USERNAMES_CHANNEL = options.id
     this.COUNTDOWN = options.countdown || this.COUNTDOWN
 
     if (options.training) {
@@ -64,7 +63,8 @@ export class GameLobby extends Room<GameLobbyState> {
   }
 
   async onJoin(client: Client, options: JoinGameLobbyOptions) {
-    await this.#checkUsername(options.username)
+    await this.#checkPresence(this.roomId, options.username, 'Username already exists')
+
     this.state.players.set(client.sessionId, options.username)
     this.#updateOwner()
     this.#checkMatchCanStart()
@@ -76,7 +76,8 @@ export class GameLobby extends Room<GameLobbyState> {
     const player = this.state.players.get(client.sessionId)
 
     if (player) {
-      await this.presence.srem(this.USERNAMES_CHANNEL, player)
+      await this.presence.srem(this.roomId, player)
+
       this.state.players.delete(client.sessionId)
       this.#updateOwner()
       this.#checkMatchCanStart()
@@ -86,7 +87,7 @@ export class GameLobby extends Room<GameLobbyState> {
   }
 
   onDispose() {
-    this.presence.srem(this.IDS_CHANNEL, this.roomId)
+    this.presence.srem(ROOM_IDS_CHANNEL, this.roomId)
     console.log(`[${this.roomName}] 🗑️ disposing room ${this.roomId}`)
   }
 
@@ -118,27 +119,11 @@ export class GameLobby extends Room<GameLobbyState> {
     if (!this.state.canStart) this.state.countdown = this.COUNTDOWN
   }
 
-  #checkRoomId(roomId: string) {
-    return this.#checkPresence(
-      this.IDS_CHANNEL,
-      roomId,
-      'Room ID already exists, choose a new one or join the existing room',
-    )
-  }
-
-  #checkUsername(username: string) {
-    return this.#checkPresence(
-      this.USERNAMES_CHANNEL,
-      username,
-      'Username already exists, choose a new one',
-    )
-  }
-
   async #checkPresence(channel: string, value: string, message: string) {
     if (!value) throw new Error(`Empty value provided for ${channel} presence`)
 
-    const currentIds = await this.presence.smembers(channel)
-    if (currentIds.includes(value)) throw new Error(message)
+    const current = await this.presence.smembers(channel)
+    if (current.includes(value)) throw new Error(message)
     return this.presence.sadd(channel, value)
   }
 }

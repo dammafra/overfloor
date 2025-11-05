@@ -10,18 +10,26 @@ export function CreateRoom() {
 
   const [id, setId] = useState<string>('')
   const [username, setUsername] = useState<string>(localStorage.getItem('overfloor-username') ?? '')
+  const [loading, setLoading] = useState(false)
   const client = useColyseus()
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (!id) return
 
-    const options = { id, username }
-    client
-      .create('game-lobby', options)
-      .then(room => room.leave())
-      .then(() => navigate(`/lobby/${btoa(JSON.stringify(options))}`))
+    setLoading(true)
+    client.http
+      .get(`/room-exists/${id}`)
+      .then(res => {
+        const exists = res.data
+        if (exists) toast.error('Room already exists, join it or pick another ID')
+        else {
+          const options = btoa(JSON.stringify({ id, username }))
+          navigate(`/new/lobby/${options}`)
+        }
+      })
       .catch(e => toast.error(e.message))
+      .finally(() => setLoading(false))
   }
 
   const { opacity } = useSpring({
@@ -58,8 +66,11 @@ export function CreateRoom() {
           <Link href="/" className="button danger">
             back
           </Link>
-          <button type="submit" className={clsx('button flex-1', { disabled: !id || !username })}>
-            create room
+          <button
+            type="submit"
+            className={clsx('button flex-1', { disabled: !id || !username || loading })}
+          >
+            {loading ? 'loading... ' : 'create room'}
           </button>
         </div>
       </form>

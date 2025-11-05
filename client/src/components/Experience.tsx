@@ -36,7 +36,7 @@ export function Experience() {
       <UI />
 
       <Physics {...physicsControls}>
-        <Route path="/lobby/:options" component={Lobby} />
+        <Route path="/:from/lobby/:options" component={Lobby} />
         <Route path="/game/:reservation" component={Game} />
         <Helpers />
       </Physics>

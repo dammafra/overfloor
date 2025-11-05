@@ -42,7 +42,7 @@ export class GameRoom extends Room<GameState> {
       if (!player) return
 
       if (data[1] < -50) {
-        this.state.players.delete(client.sessionId)
+        this.state.players.delete(client.sessionId) // TODO if I do delete here, onLeave when game ends throws error
         if (this.#training) {
           // TODO improve
           this.state.dimension = 'medium'
