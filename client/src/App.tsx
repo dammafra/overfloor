@@ -1,5 +1,5 @@
 import { Experience, GUI } from '@components'
-import { ErrorBoundary } from '@components/helpers'
+import { DoubleTapPreventer, ErrorBoundary } from '@components/helpers'
 import { ChooseRoom, CreateRoom, Credits } from '@components/pages'
 import { JoinRoom } from '@components/pages/JoinRoom'
 import { Test } from '@components/test'
@@ -14,6 +14,7 @@ export default function App() {
   return (
     <>
       <GUI />
+      <DoubleTapPreventer />
 
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
