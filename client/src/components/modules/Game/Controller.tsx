@@ -39,7 +39,7 @@ export function Controller({ children }: PropsWithChildren) {
           )}
           <ReactNipple
             className="fixed inset-0 w-full! h-full!"
-            options={{ mode: 'semi', size: 120 }}
+            options={{ mode: 'semi', size: 120, catchDistance: 0 }}
             onMove={(_, data) => {
               setNippleHelper(false)
 
