@@ -1,6 +1,7 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
 import { useController } from '@stores'
+import clsx from 'clsx'
 import { useState, type PropsWithChildren } from 'react'
 import ReactNipple from 'react-nipplejs'
 
@@ -31,12 +32,12 @@ export function Controller({ children }: PropsWithChildren) {
     >
       {isTouch && (
         <Html center wrapperClass="fixed inset-0 -z-0!" className="h-[100dvh] w-screen">
-          {nippleHelper && (
-            <ReactNipple
-              options={{ mode: 'static', size: 120 }}
-              className="w-30! h-30! absolute! bottom-8 right-8 pointer-events-none"
-            />
-          )}
+          <ReactNipple
+            options={{ mode: 'static', size: 120 }}
+            className={clsx('w-30! h-30! absolute! bottom-8 right-8 pointer-events-none', {
+              hidden: !nippleHelper,
+            })}
+          />
           <ReactNipple
             className="fixed inset-0 w-full! h-full!"
             options={{ mode: 'semi', size: 120, catchDistance: 0 }}
