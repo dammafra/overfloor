@@ -36,7 +36,7 @@ export function ChooseRoom() {
               {rooms.map(room => (
                 <tr key={room.roomId}>
                   <td className="max-w-50">
-                    <p className="overflow-hidden text-ellipsis">{room.roomId}ooooooooooooooo</p>
+                    <p className="overflow-hidden text-ellipsis">{room.roomId}</p>
                     <p className="flex items-center gap-1 text-xs">
                       <span className="icon-[mdi--crown]" /> {room.metadata?.owner || '-'}
                     </p>
