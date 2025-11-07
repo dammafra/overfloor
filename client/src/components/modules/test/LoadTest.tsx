@@ -2,6 +2,7 @@ import { GameLobbyState, GameState } from '@schema'
 import clsx from 'clsx'
 import { Client, Room } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'wouter'
 
 interface FakePlayer {
   id: string
@@ -19,6 +20,7 @@ interface FakePlayer {
 }
 
 export function LoadTest() {
+  const [, navigate] = useLocation()
   const [fakePlayers, setFakePlayers] = useState<FakePlayer[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [playerCount, setPlayerCount] = useState(5)
@@ -251,8 +253,8 @@ export function LoadTest() {
   }, [])
 
   return (
-    <div className="page">
-      <div className="bg-black/80 text-white p-5 rounded-lg font-mono w-full mx-20 max-w-4xl">
+    <div className="page bg-black/90 text-white p-5 font-mono">
+      <div className="w-full mx-20 max-w-4xl">
         <h3 className="text-lg font-bold mb-3">Load Test</h3>
 
         {/* Configuration Inputs */}
@@ -322,6 +324,12 @@ export function LoadTest() {
         </div>
 
         <div className="mb-3">
+          <button
+            onClick={() => navigate('/')}
+            className="px-4 py-2 text-white border-none rounded cursor-pointer mr-2 font-medium transition-colors bg-slate-500 hover:bg-slate-600"
+          >
+            Back
+          </button>
           <button
             onClick={isRunning ? stopLoadTest : startLoadTest}
             className={clsx(

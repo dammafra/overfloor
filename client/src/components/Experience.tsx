@@ -17,7 +17,7 @@ export function Experience() {
   const physicsControls = useControls(
     'physics',
     { debug: false, paused: false },
-    { collapsed: true },
+    { order: 1, collapsed: true },
   )
 
   return (

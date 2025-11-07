@@ -14,7 +14,7 @@ export function Helpers() {
       axes: false,
       gizmo: false,
     },
-    { collapsed: true },
+    { order: 3, collapsed: true },
   )
 
   const { step, world } = useRapier()

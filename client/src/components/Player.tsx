@@ -28,6 +28,7 @@ export function Player({ username, showIndicator, showUsername, animate, ...prop
             overflowWrap="break-word"
             maxWidth={20}
             anchorY="bottom"
+            textAlign="center"
             fontSize={1.5}
             outlineWidth={0.1}
           >

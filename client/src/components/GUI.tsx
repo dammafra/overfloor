@@ -15,7 +15,6 @@ export function GUI() {
       {/* See https://github.com/pmndrs/leva/issues/552 */}
       <Leva
         hidden={!debug}
-        collapsed
         fill
         flat
         titleBar={{ drag: false }}

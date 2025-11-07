@@ -34,7 +34,7 @@ export function Environment({ shadows }: EnvironmentProps) {
           label: 'directional position',
         },
       },
-      { collapsed: true },
+      { order: 2, collapsed: true },
     )
 
   return (
