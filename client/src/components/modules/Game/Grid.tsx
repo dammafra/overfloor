@@ -79,7 +79,7 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
           type="fixed"
           colliders={false}
         >
-          <CuboidCollider args={[unit * 0.5, 0.25 * 0.5, unit * 0.5]} />
+          <CuboidCollider args={[unit * 0.5, 0.3, unit * 0.5]} />
         </RigidBody>
       ))}
     </>
