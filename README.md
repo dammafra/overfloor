@@ -9,6 +9,8 @@
 
 > Try it live here 👉 [overfloor.vercel.app](https://overfloor.vercel.app)
 
+<img src="./client/public/cover.png" alt="Cover"  >
+
 ## Technologies Used
 
 - [React](https://react.dev/)
