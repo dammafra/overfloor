@@ -7,7 +7,7 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-> Try it live here 👉 TBD
+> Try it live here 👉 [overfloor.vercel.app](https://overfloor.vercel.app)
 
 ## Technologies Used
 
@@ -17,7 +17,7 @@
 - [@react-three/fiber](https://r3f.docs.pmnd.rs/getting-started/introduction)
 - [@react-three/drei](https://drei.docs.pmnd.rs/getting-started/introduction)
 - [@react-three/rapier](https://github.com/pmndrs/react-three-rapier)
-- [@react-spring/web](https://www.react-spring.dev/)
+- [@react-spring](https://www.react-spring.dev/)
 - [zustand](https://zustand.docs.pmnd.rs/getting-started/introduction)
 - [use-sound](https://github.com/joshwcomeau/use-sound?tab=readme-ov-file)
 
