@@ -1,6 +1,6 @@
 import type { PropsWithRoom } from '@hooks'
 import { CuboidCollider } from '@react-three/rapier'
-import type { GameState } from '@server/schema'
+import type { GameState } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 

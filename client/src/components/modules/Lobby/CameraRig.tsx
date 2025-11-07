@@ -1,7 +1,7 @@
 import type { PropsWithRoom } from '@hooks'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import type { GameLobbyState } from '@server/schema'
+import type { GameLobbyState } from '@schema'
 import { aspects, positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'

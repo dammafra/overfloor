@@ -29,8 +29,7 @@
       "@components": ["./src/components/index.ts"],
       "@components/*": ["./src/components/*"],
       "@hooks": ["./src/hooks/index.ts"],
-      "@modules/*": ["./src/components/modules/*"],
-      "@server/schema": ["../server/src/schema/index.ts"],
+      "@schema": ["../server/src/schema/index.ts"],
       "@stores": ["./src/stores/index.ts"],
       "@utils": ["./src/utils/index.ts"]
     }

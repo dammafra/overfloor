@@ -1,5 +1,4 @@
-import { ButtonTile, type ButtonTileProps } from '@components/ButtonTile'
-import { ModalTile } from '@components/ModalTile'
+import { ButtonTile, ModalTile, type ButtonTileProps } from '@components/modules/tiles'
 import { a } from '@react-spring/three'
 import { v4 as uuid } from 'uuid'
 import { useLocation, useRoute } from 'wouter'

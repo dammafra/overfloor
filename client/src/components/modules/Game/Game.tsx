@@ -1,9 +1,10 @@
 import { useColyseus, useDebug } from '@hooks'
-import type { GameState } from '@server/schema'
+import type { GameState } from '@schema'
 import { type SeatReservation } from 'colyseus.js'
 import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { useLocation, useParams } from 'wouter'
+
 import { Boundaries } from './Boundaries'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'

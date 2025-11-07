@@ -1,8 +1,9 @@
 import { useColyseus } from '@hooks'
-import { GameLobbyState } from '@server/schema'
+import { GameLobbyState } from '@schema'
 import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { useLocation, useParams } from 'wouter'
+
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Players } from './Players'

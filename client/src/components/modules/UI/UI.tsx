@@ -5,6 +5,7 @@ import { aspects, positions } from '@utils'
 import { useCallback, useMemo, useRef } from 'react'
 import { type Vector3Tuple } from 'three'
 import { useRoute } from 'wouter'
+
 import { Backdrop } from './Backdrop'
 import { CameraRig } from './CameraRig'
 import { Cursor } from './Cursor'

@@ -14,7 +14,7 @@ type PointerControlsProps = JSX.IntrinsicElements['object3D'] &
     onMove?: (position: Vector3, quaternion: Quaternion) => void
   }
 
-export default function PointerControls({
+export function PointerControls({
   children,
   enabled = true,
   lockPositionYAt = 0,

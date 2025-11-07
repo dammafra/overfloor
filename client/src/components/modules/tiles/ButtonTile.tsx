@@ -1,8 +1,8 @@
-import { Tile, type TileProps } from '@components/Tile'
 import { a, useSpring } from '@react-spring/three'
 import { Text, useCursor, type TextProps } from '@react-three/drei'
 import { useState } from 'react'
 import { MathUtils } from 'three'
+import { Tile, type TileProps } from './Tile'
 
 export type ButtonTileProps = TileProps & {
   disabled?: boolean

@@ -1,14 +1,14 @@
-import { Environment } from '@components'
 import { Helpers } from '@components/helpers'
+import { Game } from '@components/modules/game'
+import { Lobby } from '@components/modules/lobby'
+import { UI } from '@components/modules/ui'
 import { useDebug, useIsTouch } from '@hooks'
-import { Game } from '@modules/Game'
-import { Lobby } from '@modules/Lobby'
-import { UI } from '@modules/UI'
 import { CameraControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
 import { useControls } from 'leva'
 import { Route } from 'wouter'
+import { Environment } from './Environment'
 
 export function Experience() {
   const isTouch = useIsTouch()

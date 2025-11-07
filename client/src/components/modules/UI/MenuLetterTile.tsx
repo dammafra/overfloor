@@ -1,4 +1,4 @@
-import { LetterTile } from '@components/LetterTile'
+import { LetterTile } from '@components/modules/tiles'
 import { a } from '@react-spring/three'
 import type { MenuTileProps } from './MenuTile'
 

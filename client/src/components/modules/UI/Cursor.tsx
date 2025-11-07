@@ -1,4 +1,4 @@
-import PointerControls from '@components/helpers/PointerControls'
+import { PointerControls } from '@components/helpers'
 import { useIsTouch } from '@hooks'
 
 export function Cursor() {

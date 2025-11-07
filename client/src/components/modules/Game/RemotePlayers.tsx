@@ -1,5 +1,5 @@
 import type { PropsWithRoom } from '@hooks'
-import type { GameState, PlayerState } from '@server/schema'
+import type { GameState, PlayerState } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { RemotePlayer } from './RemotePlayer'

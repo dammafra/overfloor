@@ -1,4 +1,4 @@
-import { GameLobbyState, GameState } from '@server/schema'
+import { GameLobbyState, GameState } from '@schema'
 import clsx from 'clsx'
 import { Client, Room } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'

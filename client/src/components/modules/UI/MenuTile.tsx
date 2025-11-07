@@ -1,5 +1,5 @@
 import { Dynamic } from '@components/helpers'
-import { Tile, type TileProps } from '@components/Tile'
+import { Tile, type TileProps } from '@components/modules/tiles'
 import { a } from '@react-spring/three'
 import { MenuButtonTile } from './MenuButtonTile'
 import { MenuLetterTile } from './MenuLetterTile'
