@@ -1,10 +1,9 @@
 import { a, useSpring, useTransition } from '@react-spring/web'
-import { Html } from '@react-three/drei'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { Link, useParams } from 'wouter'
 
-export function RoomTitle() {
+export function LobbyOverlay() {
   const { options } = useParams()
   const { id, training } = JSON.parse(atob(options!))
   const [info, setInfo] = useState(false)
@@ -35,11 +34,8 @@ export function RoomTitle() {
   })
 
   return (
-    <Html className="fixed inset-0" wrapperClass="fixed inset-0">
-      <a.div
-        className="absolute bottom-5 w-full text-white text-stroke-black text-center"
-        style={spring}
-      >
+    <a.div className="page" style={spring}>
+      <a.div className="absolute bottom-5 w-full text-white text-stroke-black text-center">
         <div className="flex justify-center items-center gap-4 mb-2 relative">
           {transition(
             (spring, info) =>
@@ -62,6 +58,6 @@ export function RoomTitle() {
           {training ? 'TRAINING' : id}
         </h1>
       </a.div>
-    </Html>
+    </a.div>
   )
 }

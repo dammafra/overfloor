@@ -6,7 +6,6 @@ import { useLocation, useParams } from 'wouter'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Players } from './Players'
-import { RoomTitle } from './RoomTitle'
 
 export function Lobby() {
   const { from, options } = useParams()
@@ -40,7 +39,6 @@ export function Lobby() {
     <>
       <Countdown room={room} />
       <Players room={room} />
-      <RoomTitle />
       <CameraRig room={room} />
     </>
   )
