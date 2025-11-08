@@ -21,7 +21,7 @@ export function ChooseRoom() {
   return (
     <a.div className="page" style={{ opacity }}>
       {rooms.length ? (
-        <div className="w-full max-w-110 max-h-60 overflow-scroll fade-bottom">
+        <div className="w-full max-w-110 max-h-80 overflow-scroll fade-vertical">
           <table className="w-full">
             <thead>
               <tr>
@@ -59,8 +59,8 @@ export function ChooseRoom() {
         </p>
       )}
 
-      <Link href="/" className="button danger">
-        back
+      <Link href="/" className="button icon danger mt-4">
+        <span className="icon-[mdi--chevron-left]" />
       </Link>
     </a.div>
   )

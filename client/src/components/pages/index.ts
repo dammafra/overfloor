@@ -1,5 +1,6 @@
 export * from './ChooseRoom'
 export * from './CreateRoom'
 export * from './Credits'
+export * from './game-overlay'
 export * from './JoinRoom'
 export * from './LobbyOverlay'

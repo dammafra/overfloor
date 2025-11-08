@@ -1,52 +1,38 @@
 import { create } from 'zustand'
 
-type MenuSection = 'main' | 'tutorial' | 'credits' | 'game-over' | 'pause'
-type GamePhase = 'ready' | 'started' | 'paused' | 'ended'
+type GamePhase = 'ready' | 'started' | 'ended'
 
 type GameStore = {
   phase: GamePhase
-
+  ready: () => void
   start: () => void
-  pause: () => void
-  resume: () => void
   end: () => void
 
-  menu?: MenuSection
-  setMenu: (menu?: MenuSection) => void
+  playersCount: number
+  incrementPlayersCount: () => void
+  decrementPlayersCount: () => void
+
+  time: number
+  setTime: (time?: number) => void
+
+  leaderboard: string[]
+  updateLeaderboard: (player: string) => void
 }
 
 export const useGame = create<GameStore>()(set => ({
   phase: 'ready',
 
-  start: () => {
-    set(state => {
-      if (state.phase === 'ready' || state.phase === 'ended') {
-        return {
-          phase: 'started',
-          menu: undefined,
-        }
-      }
+  ready: () => set(() => ({ phase: 'ready', playersCount: 0, time: 0, leaderboard: [] })),
+  start: () => set(() => ({ phase: 'started' })),
+  end: () => set(() => ({ phase: 'ended' })),
 
-      return {}
-    })
-  },
+  playersCount: 0,
+  incrementPlayersCount: () => set(state => ({ playersCount: state.playersCount + 1 })),
+  decrementPlayersCount: () => set(state => ({ playersCount: state.playersCount - 1 })),
 
-  pause: () => set(() => ({ phase: 'paused' })),
-  resume: () => set(() => ({ phase: 'started' })),
+  time: 0,
+  setTime: time => set(() => ({ time })),
 
-  end: () => {
-    set(state => {
-      if (state.phase !== 'ended') {
-        return {
-          phase: 'ended',
-          menu: 'game-over',
-        }
-      }
-
-      return {}
-    })
-  },
-
-  menu: 'main',
-  setMenu: menu => set(() => ({ menu })),
+  leaderboard: [],
+  updateLeaderboard: player => set(state => ({ leaderboard: [player, ...state.leaderboard] })),
 }))

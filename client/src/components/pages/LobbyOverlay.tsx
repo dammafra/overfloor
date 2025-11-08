@@ -23,6 +23,7 @@ export function LobbyOverlay() {
   const spring = useSpring({
     from: { scale: 0, opacity: 0 },
     to: { scale: 1, opacity: 1 },
+    config: { tension: 300, friction: 20 },
   })
 
   const transition = useTransition(info, {
@@ -34,13 +35,13 @@ export function LobbyOverlay() {
   })
 
   return (
-    <a.div className="page" style={spring}>
-      <a.div className="absolute bottom-5 w-full text-white text-stroke-black text-center">
+    <a.div className="page pointer-events-none" style={spring}>
+      <a.div className="absolute bottom-5 w-full text-white text-stroke-black text-center pointer-events-auto">
         <div className="flex justify-center items-center gap-4 mb-2 relative">
           {transition(
             (spring, info) =>
               info && (
-                <a.p style={spring} className="absolute -top-12 bg-sky-500 px-4 py-2 rounded-xl">
+                <a.p style={spring} className="absolute -top-12 bg-white/20 px-4 py-2 rounded-xl">
                   URL copied to clipboard
                 </a.p>
               ),
@@ -48,7 +49,7 @@ export function LobbyOverlay() {
           <Link href="/" className="button danger icon">
             <span className="icon-[mdi--chevron-left]" />
           </Link>
-          <p className="bg-white/20 px-10 -mx-10">leave / share</p>
+          <p>leave / share</p>
           <button className={clsx('button icon', { disabled: training })} onClick={() => share()}>
             <span className="icon-[mdi--share]" />
           </button>

@@ -3,6 +3,7 @@ import { GameLobbyState } from '@schema'
 import { useEffect } from 'react'
 import { useLocation, useParams } from 'wouter'
 
+import { useGame } from '@stores'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Players } from './Players'
@@ -11,6 +12,8 @@ export function Lobby() {
   const { from, options } = useParams()
   const { id, username, training, countdown } = JSON.parse(atob(options!))
   const [, navigate] = useLocation()
+
+  const ready = useGame(s => s.ready)
 
   const { room, error } = useColyseus<GameLobbyState>({
     roomId: from === 'new' ? undefined : id,
@@ -26,9 +29,10 @@ export function Lobby() {
     }
 
     room.onMessage('start', reservation => {
+      ready()
       navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })
     })
-  }, [from, room, options, navigate])
+  }, [from, room, options, ready, navigate])
 
   useEffect(() => {
     if (!error) return

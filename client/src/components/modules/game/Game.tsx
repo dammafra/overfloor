@@ -1,19 +1,17 @@
 import { useColyseus, useDebug } from '@hooks'
 import type { GameState } from '@schema'
-import { type SeatReservation } from 'colyseus.js'
-import { useEffect, useState } from 'react'
+import { getStateCallbacks, type SeatReservation } from 'colyseus.js'
+import { useEffect } from 'react'
 import { useLocation, useParams } from 'wouter'
 
+import { useGame } from '@stores'
 import { Boundaries } from './Boundaries'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Grid } from './Grid'
 import { Leaderboard } from './Leaderboard'
-import { LeaveButton } from './LeaveButton'
 import { LocalPlayer } from './LocalPlayer'
-import { PlayersCount } from './PlayersCount'
 import { RemotePlayers } from './RemotePlayers'
-import { Time } from './Time'
 
 export function Game() {
   const debug = useDebug()
@@ -22,12 +20,26 @@ export function Game() {
   const [, navigate] = useLocation()
 
   const { room, error } = useColyseus<GameState>({ roomName: 'game-room', reservation })
-  const [gameOver, setGameOver] = useState(false)
+
+  const start = useGame(s => s.start)
+  const end = useGame(s => s.end)
+  const ended = useGame(s => s.phase === 'ended')
+
+  const incrementPlayersCount = useGame(s => s.incrementPlayersCount)
+  const decrementPlayersCount = useGame(s => s.decrementPlayersCount)
+  const setTime = useGame(s => s.setTime)
 
   useEffect(() => {
     if (!room) return
-    room.onMessage('end', () => setGameOver(true))
-  }, [room, navigate])
+    const $ = getStateCallbacks(room)
+
+    $(room.state).listen('countdown', countdown => countdown < 0 && start())
+    room.onMessage('end', end)
+
+    $(room.state).players.onAdd(incrementPlayersCount)
+    $(room.state).players.onRemove(decrementPlayersCount)
+    $(room.state).listen('time', setTime)
+  }, [room, start, end, incrementPlayersCount, decrementPlayersCount, setTime])
 
   useEffect(() => {
     if (!error) return
@@ -36,16 +48,11 @@ export function Game() {
 
   return (
     <>
-      <Grid room={room} />
-      {!gameOver && <LocalPlayer room={room} />}
-      {!gameOver && <RemotePlayers room={room} />}
-      {gameOver && <Leaderboard room={room} />}
-
       <Countdown room={room} />
-      {!gameOver && <PlayersCount room={room} />}
-      {!gameOver && <Time room={room} />}
-      {!gameOver && <LeaveButton />}
-
+      <Grid room={room} />
+      {!ended && <LocalPlayer room={room} />}
+      {!ended && <RemotePlayers room={room} />}
+      {ended && <Leaderboard room={room} />}
       <CameraRig room={room} />
       {debug && <Boundaries room={room} />}
     </>

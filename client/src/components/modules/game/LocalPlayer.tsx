@@ -3,7 +3,7 @@ import { useThrottle, type PropsWithRoom } from '@hooks'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import type { GameState } from '@schema'
-import { useController } from '@stores'
+import { useController, useGame } from '@stores'
 import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
@@ -16,11 +16,11 @@ const MASK = 0xffff ^ GROUP // collide with everything except itself
 export const PLAYERS_COLLISION_GROUP = (GROUP << 16) | MASK
 
 export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
+  const started = useGame(s => s.phase === 'started')
   const { up, down, left, right, strength } = useController()
 
   const bodyRef = useRef<RapierRigidBody>(null)
 
-  const [enabled, setEnabled] = useState(false)
   const [walking, setWalking] = useState(false)
   const [username, setUsername] = useState<string>()
   const [bodyKey, setBodyKey] = useState<string>()
@@ -37,7 +37,6 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('countdown', countdown => setEnabled(countdown < 0))
     $(room.state).players.onAdd((player, sessionId) => {
       if (room.sessionId !== sessionId) return
 
@@ -53,7 +52,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
     if (!bodyRef.current) return
     sendMovement()
 
-    if (!enabled) return
+    if (!started) return
     setWalking(up || down || left || right)
 
     const impulse = new Vector3()

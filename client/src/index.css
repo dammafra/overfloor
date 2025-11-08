@@ -18,10 +18,20 @@
   cursor: url('/cursors/pointer.png'), pointer;
 }
 
-@utility fade-bottom {
-  padding-bottom: calc(var(--spacing) * 8) /* 2rem = 32px */;
-  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+@utility fade-vertical {
+  margin-block: calc(var(--spacing) * -8);
+  padding-block: calc(var(--spacing) * 8);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 20%,
+    black 80%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* Prevent iOS text selection */

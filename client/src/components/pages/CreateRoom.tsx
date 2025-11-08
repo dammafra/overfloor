@@ -17,7 +17,7 @@ export function CreateRoom() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    if (!id) return
+    if (!id || error) return
 
     setLoading(true)
     client.http
@@ -71,7 +71,7 @@ export function CreateRoom() {
           <button
             type="submit"
             className={clsx('button flex-1', {
-              disabled: !id || !username || loading || error,
+              disabled: !id || !username || loading,
               danger: error,
             })}
           >
