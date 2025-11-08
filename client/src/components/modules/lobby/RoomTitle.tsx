@@ -37,7 +37,7 @@ export function RoomTitle() {
           <Link href="/" className="button danger icon">
             <span className="icon-[mdi--chevron-left]" />
           </Link>
-          <p>leave / share</p>
+          <p className="bg-white/20 px-10 -mx-10">leave / share</p>
           <button className={clsx('button icon', { disabled: training })} onClick={() => share()}>
             <span className="icon-[mdi--share]" />
           </button>

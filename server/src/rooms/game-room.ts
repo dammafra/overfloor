@@ -62,6 +62,7 @@ export class GameRoom extends Room<GameState> {
       if (!player) return
 
       if (data[1] < -50) {
+        this.state.leaderboard.push(player.username)
         this.state.players.delete(client.sessionId)
 
         if (this.#training) {
@@ -178,6 +179,9 @@ export class GameRoom extends Room<GameState> {
   }
 
   #end() {
+    const winner = [...this.state.players.values()].at(0)
+    if (winner) this.state.leaderboard.push(winner.username)
+
     this.#loop.clear()
     this.#timer.clear()
     this.clients.forEach(async client => {

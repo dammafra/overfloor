@@ -6,6 +6,7 @@ import type { GameLobbyState } from '@schema'
 import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
+import type { Vector3Tuple } from 'three'
 import { useParams } from 'wouter'
 
 export function Players({ room }: PropsWithRoom<GameLobbyState>) {
@@ -23,10 +24,10 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
   }, [room])
 
   const transitions = useTransition(players, {
-    from: { scale: 0, position: [0, 0, 0] },
-    enter: (_, i) => ({ scale: 1, position: positions.lobby.player(i), delay: i * 50 }),
+    from: { scale: 0, position: [0, 0, 0] as Vector3Tuple },
+    enter: (_, i) => ({ scale: 0.5, position: positions.lobby.player(i), delay: i * 50 }),
     update: (_, i) => ({ position: positions.lobby.player(i) }),
-    leave: { scale: 0, position: [0, 0, 0] },
+    leave: { scale: 0, position: [0, 0, 0] as Vector3Tuple },
     config: { mass: 1, tension: 200, friction: 20 },
   })
 
@@ -34,8 +35,8 @@ export function Players({ room }: PropsWithRoom<GameLobbyState>) {
     <Hud renderPriority={1}>
       <Environment />
       {transitions((spring, player) => (
-        <a.group scale={spring.scale} position={spring.position.to((x, y, z) => [x, y, z])}>
-          <Float floatIntensity={2} rotationIntensity={2} scale={0.5}>
+        <a.group scale={spring.scale} position={spring.position}>
+          <Float floatIntensity={2} rotationIntensity={2}>
             <Player username={player} showUsername={!training} />
           </Float>
         </a.group>

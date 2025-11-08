@@ -18,6 +18,12 @@
   cursor: url('/cursors/pointer.png'), pointer;
 }
 
+@utility fade-bottom {
+  padding-bottom: calc(var(--spacing) * 8) /* 2rem = 32px */;
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
 /* Prevent iOS text selection */
 body,
 * {
@@ -110,11 +116,6 @@ input * {
     @apply absolute text-slate-500 text-2xl left-2 top-2;
   }
 
-  div:has(> table) {
-    @apply max-h-60 overflow-scroll pb-8;
-    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-  }
   table {
     @apply text-white text-stroke-black border-separate border-spacing-y-1;
   }

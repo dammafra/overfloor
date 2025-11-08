@@ -21,7 +21,7 @@ export function ChooseRoom() {
   return (
     <a.div className="page" style={{ opacity }}>
       {rooms.length ? (
-        <div className="w-full max-w-110">
+        <div className="w-full max-w-110 max-h-60 overflow-scroll fade-bottom">
           <table className="w-full">
             <thead>
               <tr>
@@ -36,7 +36,7 @@ export function ChooseRoom() {
                   <td className="max-w-1">
                     <p className="overflow-hidden text-ellipsis">{room.roomId}</p>
                     <p className="flex items-center gap-1 text-xs">
-                      <span className="icon-[mdi--crown] text-sm shrink-0" />
+                      <span className="icon-[mdi--user] text-sm shrink-0" />
                       <span className="overflow-hidden text-ellipsis">
                         {room.metadata?.owner || '-'}
                       </span>

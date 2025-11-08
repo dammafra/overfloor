@@ -59,6 +59,7 @@ export class GameState extends Schema {
   @type('float32') gap: number = 0.15
 
   @type({ map: PlayerState }) players = new MapSchema<PlayerState>()
+  @type({ array: 'string' }) leaderboard = new ArraySchema<string>()
   @type({ array: TileState }) tiles = new ArraySchema<TileState>()
 
   #lastPattern: string

@@ -1,14 +1,14 @@
 import { useColyseus, useDebug } from '@hooks'
 import type { GameState } from '@schema'
 import { type SeatReservation } from 'colyseus.js'
-import { useEffect } from 'react'
-import { toast } from 'react-toastify'
+import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'wouter'
 
 import { Boundaries } from './Boundaries'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Grid } from './Grid'
+import { Leaderboard } from './Leaderboard'
 import { LeaveButton } from './LeaveButton'
 import { LocalPlayer } from './LocalPlayer'
 import { PlayersCount } from './PlayersCount'
@@ -22,33 +22,30 @@ export function Game() {
   const [, navigate] = useLocation()
 
   const { room, error } = useColyseus<GameState>({ roomName: 'game-room', reservation })
+  const [gameOver, setGameOver] = useState(false)
 
   useEffect(() => {
     if (!room) return
-
-    // TODO
-    room.onMessage('end', () => {
-      toast.info('GAME OVER')
-      navigate('/')
-    })
+    room.onMessage('end', () => setGameOver(true))
   }, [room, navigate])
 
   useEffect(() => {
     if (!error) return
-    toast.error(error.message)
+    // toast.error(error.message)
     navigate('/')
   }, [error, navigate])
 
   return (
     <>
-      <LocalPlayer room={room} />
-      <RemotePlayers room={room} />
       <Grid room={room} />
+      {!gameOver && <LocalPlayer room={room} />}
+      {!gameOver && <RemotePlayers room={room} />}
+      {gameOver && <Leaderboard room={room} />}
 
       <Countdown room={room} />
-      <PlayersCount room={room} />
-      <Time room={room} />
-      <LeaveButton />
+      {!gameOver && <PlayersCount room={room} />}
+      {!gameOver && <Time room={room} />}
+      {!gameOver && <LeaveButton />}
 
       <CameraRig room={room} />
       {debug && <Boundaries room={room} />}

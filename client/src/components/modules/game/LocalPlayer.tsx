@@ -20,6 +20,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
 
   const bodyRef = useRef<RapierRigidBody>(null)
 
+  const [enabled, setEnabled] = useState(false)
   const [walking, setWalking] = useState(false)
   const [username, setUsername] = useState<string>()
   const [bodyKey, setBodyKey] = useState<string>()
@@ -36,6 +37,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
+    $(room.state).listen('countdown', countdown => setEnabled(countdown < 0))
     $(room.state).players.onAdd((player, sessionId) => {
       if (room.sessionId !== sessionId) return
 
@@ -49,8 +51,9 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
 
   useFrame((_, delta) => {
     if (!bodyRef.current) return
-
     sendMovement()
+
+    if (!enabled) return
     setWalking(up || down || left || right)
 
     const impulse = new Vector3()
