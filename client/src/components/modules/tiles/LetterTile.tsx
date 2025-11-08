@@ -6,7 +6,7 @@ import type { TileProps } from './Tile'
 
 export const LetterTile = a(({ children, color, ...props }: TileProps) => {
   const [hovered, setHovered] = useState(false)
-  const [clicked, setClicked] = useState(false)
+  const [clicked, setClicked] = useState(0)
   useCursor(hovered)
 
   const { scale } = useSpring({
@@ -14,8 +14,7 @@ export const LetterTile = a(({ children, color, ...props }: TileProps) => {
   })
 
   const { rotationX } = useSpring({
-    rotationX: MathUtils.degToRad(clicked ? -90 + 180 : -90),
-    onRest: () => setClicked(false),
+    rotationX: MathUtils.degToRad(-90 + clicked * 360),
   })
 
   return (
@@ -31,7 +30,7 @@ export const LetterTile = a(({ children, color, ...props }: TileProps) => {
         setHovered(false)
         e.stopPropagation()
       }}
-      onClick={() => setClicked(true)}
+      onClick={() => setClicked(c => c + 1)}
     >
       <a.group scale={scale} rotation-x={rotationX} rotation-z={MathUtils.degToRad(-90)} {...props}>
         <Center>

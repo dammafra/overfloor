@@ -14,7 +14,7 @@ export function Test() {
       countdown: { value: 5, min: 0, max: 60, step: 1 },
       CREATE: button(get => navigate(`/new/lobby/${btoa(JSON.stringify({ id: get('test.roomId'), username: uuid(), countdown: get('test.countdown') }))}`)),
       JOIN: button(get => navigate(`/join/lobby/${btoa(JSON.stringify({ id: get('test.roomId'), username: uuid() }))}`)),
-      DEBUG: button(() => navigate(`/new/lobby/${btoa(JSON.stringify({ id: 'test', username: uuid(), training: true }))}`)),
+      DEBUG: button(() => navigate(`/new/lobby/${btoa(JSON.stringify({ id: uuid(), username: uuid(), training: true }))}`)),
       'LOAD TEST': button(() => navigate(`/test`)),
     },
     { order: 4, collapsed: true },

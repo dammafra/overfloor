@@ -52,23 +52,22 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
   }, [room])
 
   const transitions = useTransition(tiles, {
-    from: { scale: 0.1, color: defaultColor },
-    enter: () => ({ scale: unit }),
-    leave: () => ({ scale: 0 }),
+    from: tile => ({
+      scale: 0,
+      color: defaultColor,
+      position: tile.position.toArray() as Vector3Tuple,
+    }),
+    enter: { scale: unit },
+    leave: { scale: 0 },
     update: tile => ({ color: phaseColors[tile.phase] }),
-    config: { mass: 1, tension: 200, friction: 20 },
+    config: { mass: 1, tension: 120, friction: 15 },
   })
 
   return (
     <>
       {/* meshes */}
-      {transitions((spring, tile) => (
-        <Tile
-          color={spring.color}
-          position={tile.position.toArray() as Vector3Tuple}
-          scale={spring.scale}
-          receiveShadow
-        />
+      {transitions(spring => (
+        <Tile {...spring} receiveShadow />
       ))}
 
       {/* bodies */}

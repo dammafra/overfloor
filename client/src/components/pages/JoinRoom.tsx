@@ -15,7 +15,7 @@ export function JoinRoom() {
 
   useEffect(() => {
     {
-      const safeUsername = username.replace(/\s+/g, '')
+      const safeUsername = username.replace(/[^a-zA-Z0-9-_]/g, '')
       setUsername(safeUsername)
       localStorage.setItem('overfloor-username', safeUsername)
     }

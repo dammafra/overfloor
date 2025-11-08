@@ -18,6 +18,8 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
   const [countdown, setCountdown] = useState('')
   const [isOwner, setIsOwner] = useState(false)
 
+  const [clicked, setClicked] = useState(0)
+
   const commonTextProps = useMemo<Partial<TextProps>>(
     () => ({
       font: '/fonts/audiowide.ttf',
@@ -43,6 +45,10 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
     to: { scale: 1.5, color: canStart && isOwner ? 'green' : 'dodgerblue' },
   })
 
+  const { rotationZ } = useSpring({
+    rotationZ: MathUtils.degToRad(0 - clicked * 360),
+  })
+
   return (
     <Hud renderPriority={2}>
       <Environment />
@@ -50,9 +56,12 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
       <ButtonTile
         scale={scale}
         color={color}
-        disabled={!isOwner || !canStart}
         rotation={[MathUtils.degToRad(90), MathUtils.degToRad(45), 0]}
-        onClick={() => room?.send('start')}
+        rotation-z={rotationZ}
+        onClick={() => {
+          if (isOwner && canStart) room?.send('start')
+          else setClicked(c => c + 1)
+        }}
       >
         {canStart ? (
           <>

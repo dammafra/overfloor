@@ -25,6 +25,7 @@ export function Experience() {
       gl={{ debug: { checkShaderErrors: debug, onShaderError: console.error } }}
       shadows
       camera={{
+        position: [0, 0, 0],
         fov: 45,
         near: 0.1,
         far: 100,

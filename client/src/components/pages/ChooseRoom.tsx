@@ -23,7 +23,7 @@ export function ChooseRoom() {
   return (
     <a.div className="page" style={{ opacity }}>
       {rooms.length ? (
-        <div className="w-full max-w-120">
+        <div className="w-full max-w-110">
           <table className="w-full">
             <thead>
               <tr>
@@ -35,10 +35,11 @@ export function ChooseRoom() {
             <tbody>
               {rooms.map(room => (
                 <tr key={room.roomId}>
-                  <td className="max-w-50">
-                    <p className="overflow-hidden text-ellipsis">{room.roomId}</p>
+                  <td>
+                    <p className="line-clamp-1">{room.roomId}</p>
                     <p className="flex items-center gap-1 text-xs">
-                      <span className="icon-[mdi--crown]" /> {room.metadata?.owner || '-'}
+                      <span className="icon-[mdi--crown] shrink-0" />
+                      <span className="line-clamp-1">{room.metadata?.owner || '-'}</span>
                     </p>
                   </td>
                   <td className="text-center text-xl w-30">{room.clients}</td>

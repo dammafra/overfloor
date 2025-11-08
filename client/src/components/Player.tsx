@@ -25,14 +25,16 @@ export function Player({ username, showIndicator, showUsername, animate, ...prop
         <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>
           <Text
             font="/fonts/audiowide.ttf"
-            overflowWrap="break-word"
             maxWidth={20}
-            anchorY="bottom"
             textAlign="center"
             fontSize={1.5}
             outlineWidth={0.1}
           >
-            {showUsername ? username : 'YOU'}
+            {showUsername && username
+              ? username.length > 20
+                ? `${username.substring(0, 18)}...`
+                : username
+              : 'YOU'}
           </Text>
           <mesh
             scale={[showUsername ? Math.min(username!.length, 20) : 4, 0.5, 1]}

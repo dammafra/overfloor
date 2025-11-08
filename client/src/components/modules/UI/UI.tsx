@@ -79,9 +79,9 @@ export function UI() {
       scale: 1,
       delay: firstRenderRef.current ? i * 10 : 0,
     }),
-    leave: () => ({
+    leave: {
       scale: 0,
-    }),
+    },
     update: (_, i) => ({
       position: getTilePosition(i),
       config: { friction: matchLobby ? 150 : 50 },
@@ -99,14 +99,14 @@ export function UI() {
           {...spring}
           type={getTileType(index)}
           index={getTileIndex(index)}
-          rotate={matchLobby}
+          rotate={match}
         />
       ))}
 
       {!match && <Backdrop />}
       {!match && <Cursor />}
       {!match && <CameraRig />}
-      <Sparkles scale={100} count={1000} size={10} />
+      <Sparkles scale={30} count={300} size={5} />
     </>
   )
 }
