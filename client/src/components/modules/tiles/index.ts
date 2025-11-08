@@ -1,4 +1,5 @@
 export * from './ButtonTile'
 export * from './LetterTile'
 export * from './ModalTile'
+export * from './NotificatonTile'
 export * from './Tile'
