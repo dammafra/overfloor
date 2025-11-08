@@ -2,7 +2,6 @@ import { useColyseus, useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
 import { useEffect, useState, type FormEvent } from 'react'
-import { toast } from 'react-toastify'
 import { Link, useLocation, useParams } from 'wouter'
 
 export function JoinRoom() {
@@ -11,6 +10,7 @@ export function JoinRoom() {
 
   const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
   const client = useColyseus()
 
   useEffect(() => localStorage.setItem('overfloor-username', username), [username])
@@ -23,13 +23,12 @@ export function JoinRoom() {
       .get(`/username-exists/${id}/${username}`)
       .then(res => {
         const exists = res.data
-        if (exists) toast.error('Username already exists, choose a new one')
+        if (exists) setError(true)
         else {
           const options = btoa(JSON.stringify({ id, username }))
           navigate(`/join/lobby/${options}`)
         }
       })
-      .catch(e => toast.error(e.message))
       .finally(() => setLoading(false))
   }
 
@@ -47,19 +46,26 @@ export function JoinRoom() {
             className="input"
             placeholder="username"
             value={username}
-            onChange={e => setUsername(e.target.value)}
+            onChange={e => {
+              setError(false)
+              setUsername(e.target.value)
+            }}
           />
           <span className="icon-[mdi--user]" />
         </div>
         <div className="flex gap-2">
-          <Link href="/" className="button danger">
-            back
+          <Link href="/" className="button danger icon">
+            <span className="icon-[mdi--chevron-left]" />
           </Link>
           <button
             type="submit"
-            className={clsx('button flex-1', { disabled: !id || !username || loading })}
+            className={clsx('button flex-1 h-10', {
+              disabled: !id || !username || loading || error,
+              danger: error,
+              'text-sm': error,
+            })}
           >
-            {loading ? 'loading... ' : 'join room'}
+            {loading ? 'loading... ' : error ? 'Username already exists' : 'join room'}
           </button>
         </div>
       </form>

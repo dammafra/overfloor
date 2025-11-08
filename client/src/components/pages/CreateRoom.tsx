@@ -2,7 +2,6 @@ import { useColyseus, useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { clsx } from 'clsx'
 import { useEffect, useState, type FormEvent } from 'react'
-import { toast } from 'react-toastify'
 import { Link, useLocation } from 'wouter'
 
 export function CreateRoom() {
@@ -11,6 +10,7 @@ export function CreateRoom() {
   const [id, setId] = useSafeInput()
   const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
   const client = useColyseus()
 
   useEffect(() => localStorage.setItem('overfloor-username', username), [username])
@@ -24,13 +24,12 @@ export function CreateRoom() {
       .get(`/room-exists/${id}`)
       .then(res => {
         const exists = res.data
-        if (exists) toast.error('Room already exists, join it or pick another ID')
+        if (exists) setError(true)
         else {
           const options = btoa(JSON.stringify({ id, username }))
           navigate(`/new/lobby/${options}`)
         }
       })
-      .catch(e => toast.error(e.message))
       .finally(() => setLoading(false))
   }
 
@@ -49,7 +48,10 @@ export function CreateRoom() {
             className="input"
             placeholder="room ID"
             value={id}
-            onChange={e => setId(e.target.value)}
+            onChange={e => {
+              setError(false)
+              setId(e.target.value)
+            }}
           />
           <span className="icon-[mdi--gamepad-variant]" />
         </div>
@@ -63,14 +65,17 @@ export function CreateRoom() {
           <span className="icon-[mdi--user]" />
         </div>
         <div className="flex gap-2 items-center">
-          <Link href="/" className="button danger">
-            back
+          <Link href="/" className="button danger icon">
+            <span className="icon-[mdi--chevron-left]" />
           </Link>
           <button
             type="submit"
-            className={clsx('button flex-1', { disabled: !id || !username || loading })}
+            className={clsx('button flex-1', {
+              disabled: !id || !username || loading || error,
+              danger: error,
+            })}
           >
-            {loading ? 'loading... ' : 'create room'}
+            {loading ? 'loading... ' : error ? 'Room already exists' : 'create room'}
           </button>
         </div>
       </form>

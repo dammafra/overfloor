@@ -31,7 +31,6 @@ export function Game() {
 
   useEffect(() => {
     if (!error) return
-    // toast.error(error.message)
     navigate('/')
   }, [error, navigate])
 

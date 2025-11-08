@@ -1,21 +1,20 @@
-import { a, useSpring } from '@react-spring/web'
+import { a, useSpring, useTransition } from '@react-spring/web'
 import { Html } from '@react-three/drei'
 import clsx from 'clsx'
-import { toast } from 'react-toastify'
+import { useState } from 'react'
 import { Link, useParams } from 'wouter'
 
 export function RoomTitle() {
   const { options } = useParams()
   const { id, training } = JSON.parse(atob(options!))
+  const [info, setInfo] = useState(false)
 
   const share = async () => {
     const url = `${location.protocol}//${location.host}/join/${id}`
-    const toShare = {
-      text: url,
-    }
+    const toShare = { text: url }
 
     navigator.clipboard.writeText(url)
-    toast.info('Join URL copied to clipboard')
+    setInfo(true)
 
     if (navigator.canShare(toShare)) {
       await navigator.share(toShare)
@@ -27,13 +26,29 @@ export function RoomTitle() {
     to: { scale: 1, opacity: 1 },
   })
 
+  const transition = useTransition(info, {
+    from: { scale: 0, opacity: 0 },
+    enter: { scale: 1, opacity: 1 },
+    leave: { scale: 0, opacity: 0, delay: 3000 },
+    config: { tension: 300, friction: 20 },
+    onRest: () => setInfo(false),
+  })
+
   return (
-    <Html center className="absolute inset-0" wrapperClass="fixed inset-0">
+    <Html className="fixed inset-0" wrapperClass="fixed inset-0">
       <a.div
         className="absolute bottom-5 w-full text-white text-stroke-black text-center"
         style={spring}
       >
-        <div className="flex justify-center items-center gap-4 mb-2">
+        <div className="flex justify-center items-center gap-4 mb-2 relative">
+          {transition(
+            (spring, info) =>
+              info && (
+                <a.p style={spring} className="absolute -top-12 bg-sky-500 px-4 py-2 rounded-xl">
+                  URL copied to clipboard
+                </a.p>
+              ),
+          )}
           <Link href="/" className="button danger icon">
             <span className="icon-[mdi--chevron-left]" />
           </Link>
