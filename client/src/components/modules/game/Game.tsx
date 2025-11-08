@@ -46,6 +46,13 @@ export function Game() {
     navigate('/')
   }, [error, navigate])
 
+  useEffect(() => {
+    if (!room) return
+    const handleVisibilityChange = () => navigate('/')
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [room, navigate])
+
   return (
     <>
       <Countdown room={room} />
