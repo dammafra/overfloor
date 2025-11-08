@@ -25,6 +25,7 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
 
+    "baseUrl": ".",
     "paths": {
       "@components": ["./src/components/index.ts"],
       "@components/*": ["./src/components/*"],
