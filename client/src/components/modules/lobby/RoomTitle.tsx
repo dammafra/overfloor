@@ -43,7 +43,9 @@ export function RoomTitle() {
           </button>
         </div>
 
-        <h1 className="text-5xl px-4 break-all">{training ? 'TRAINING' : id}</h1>
+        <h1 className="text-4xl md:text-5xl px-4 break-all line-clamp-1">
+          {training ? 'TRAINING' : id}
+        </h1>
       </a.div>
     </Html>
   )

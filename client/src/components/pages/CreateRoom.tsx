@@ -1,4 +1,4 @@
-import { useColyseus } from '@hooks'
+import { useColyseus, useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { clsx } from 'clsx'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -8,23 +8,12 @@ import { Link, useLocation } from 'wouter'
 export function CreateRoom() {
   const [, navigate] = useLocation()
 
-  const [id, setId] = useState<string>('')
-  const [username, setUsername] = useState<string>(localStorage.getItem('overfloor-username') ?? '')
+  const [id, setId] = useSafeInput()
+  const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
   const [loading, setLoading] = useState(false)
   const client = useColyseus()
 
-  useEffect(() => {
-    const safeId = id.replace(/[^a-zA-Z0-9-_]/g, '')
-    setId(safeId)
-  }, [id])
-
-  useEffect(() => {
-    {
-      const safeUsername = username.replace(/[^a-zA-Z0-9-_]/g, '')
-      setUsername(safeUsername)
-      localStorage.setItem('overfloor-username', safeUsername)
-    }
-  }, [username])
+  useEffect(() => localStorage.setItem('overfloor-username', username), [username])
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()

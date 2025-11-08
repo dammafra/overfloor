@@ -13,6 +13,8 @@ interface JoinGameLobbyOptions {
   username: string
 }
 
+const getSafeValue = (value: string) => value.replace(/[^a-zA-Z0-9-_]/g, '').substring(0, 20)
+
 export class GameLobby extends Room<GameLobbyState> {
   autoDispose = false
   maxClients = 50
@@ -25,9 +27,10 @@ export class GameLobby extends Room<GameLobbyState> {
   #training: boolean
 
   async onCreate(options: CreateGameLobbyOptions) {
-    await this.#checkPresence(ROOM_IDS_CHANNEL, options.id, 'Room ID already exists')
+    const safeId = getSafeValue(options.id)
+    await this.#checkPresence(ROOM_IDS_CHANNEL, safeId, 'Room ID already exists')
 
-    this.roomId = options.id
+    this.roomId = safeId
     this.COUNTDOWN = options.countdown || this.COUNTDOWN
 
     if (options.training) {
@@ -63,13 +66,14 @@ export class GameLobby extends Room<GameLobbyState> {
   }
 
   async onJoin(client: Client, options: JoinGameLobbyOptions) {
-    await this.#checkPresence(this.roomId, options.username, 'Username already exists')
+    const safeUsername = getSafeValue(options.username)
+    await this.#checkPresence(this.roomId, safeUsername, 'Username already exists')
 
-    this.state.players.set(client.sessionId, options.username)
+    this.state.players.set(client.sessionId, safeUsername)
     this.#updateOwner()
     this.#checkMatchCanStart()
 
-    console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
+    console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${safeUsername} joined`)
   }
 
   async onLeave(client: Client) {

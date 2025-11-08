@@ -30,16 +30,9 @@ export function Player({ username, showIndicator, showUsername, animate, ...prop
             fontSize={1.5}
             outlineWidth={0.1}
           >
-            {showUsername && username
-              ? username.length > 20
-                ? `${username.substring(0, 18)}...`
-                : username
-              : 'YOU'}
+            {showUsername ? username : 'YOU'}
           </Text>
-          <mesh
-            scale={[showUsername ? Math.min(username!.length, 20) : 4, 0.5, 1]}
-            position-y={-1.3}
-          >
+          <mesh scale={[showUsername ? username!.length : 4, 0.5, 1]} position-y={-1.3}>
             <planeGeometry />
             <meshBasicMaterial color={color} />
           </mesh>
