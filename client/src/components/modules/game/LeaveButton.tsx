@@ -17,7 +17,7 @@ export function LeaveButton() {
   return (
     <Html
       center
-      className="absolute inset-0 pointer-events-none"
+      className="fixed inset-0 pointer-events-none"
       wrapperClass="fixed inset-0 pointer-events-none"
     >
       {transitions((spring, confirm) =>

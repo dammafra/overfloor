@@ -36,7 +36,7 @@ export function ChooseRoom() {
                   <td className="max-w-1">
                     <p className="overflow-hidden text-ellipsis">{room.roomId}</p>
                     <p className="flex items-center gap-1 text-xs">
-                      <span className="icon-[mdi--crown] shrink-0" />
+                      <span className="icon-[mdi--crown] text-sm shrink-0" />
                       <span className="overflow-hidden text-ellipsis">
                         {room.metadata?.owner || '-'}
                       </span>

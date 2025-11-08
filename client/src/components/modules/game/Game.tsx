@@ -11,7 +11,9 @@ import { Countdown } from './Countdown'
 import { Grid } from './Grid'
 import { LeaveButton } from './LeaveButton'
 import { LocalPlayer } from './LocalPlayer'
+import { PlayersCount } from './PlayersCount'
 import { RemotePlayers } from './RemotePlayers'
+import { Time } from './Time'
 
 export function Game() {
   const debug = useDebug()
@@ -42,8 +44,12 @@ export function Game() {
       <LocalPlayer room={room} />
       <RemotePlayers room={room} />
       <Grid room={room} />
+
       <Countdown room={room} />
+      <PlayersCount room={room} />
+      <Time room={room} />
       <LeaveButton />
+
       <CameraRig room={room} />
       {debug && <Boundaries room={room} />}
     </>

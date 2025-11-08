@@ -50,6 +50,7 @@ export class TileState extends Schema {
 
 export class GameState extends Schema {
   @type('int16') countdown: number
+  @type('int16') time: number = 0
 
   @type('int8') width: number
   @type('int8') height: number

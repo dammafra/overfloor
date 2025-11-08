@@ -106,7 +106,7 @@ export function UI() {
       {!match && <Backdrop />}
       {!match && <Cursor />}
       {!match && <CameraRig />}
-      <Sparkles scale={30} count={300} size={5} />
+      <Sparkles scale={100} count={1000} size={10} />
     </>
   )
 }

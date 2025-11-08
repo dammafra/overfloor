@@ -22,7 +22,7 @@ export function Countdown({ room }: PropsWithRoom<GameState>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('countdown', countdown => setCountdown(countdown))
+    $(room.state).listen('countdown', setCountdown)
   }, [room])
 
   const transitions = useTransition(countdown, {

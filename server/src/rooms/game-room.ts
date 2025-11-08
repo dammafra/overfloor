@@ -17,6 +17,7 @@ export class GameRoom extends Room<GameState> {
   IDLE = 1000 //ms
   COUNTDOWN: number //s
 
+  #timer: Delayed
   #interval: Delayed
 
   #loop: Delayed
@@ -44,6 +45,7 @@ export class GameRoom extends Room<GameState> {
         }
 
         this.#resetLoop()
+        this.#timer = this.clock.setInterval(() => this.state.time++, 1000)
         this.#interval.clear()
       }, 1000)
     }, this.IDLE)
@@ -175,9 +177,9 @@ export class GameRoom extends Room<GameState> {
     }
   }
 
-  // TODO chart
   #end() {
     this.#loop.clear()
+    this.#timer.clear()
     this.clients.forEach(async client => {
       client.send('end')
     })

@@ -15,7 +15,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
   const isTouch = useIsTouch()
 
   const [canStart, setCanStart] = useState(false)
-  const [countdown, setCountdown] = useState('')
+  const [countdown, setCountdown] = useState<number>()
   const [isOwner, setIsOwner] = useState(false)
 
   const [clicked, setClicked] = useState(0)
@@ -37,7 +37,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
 
     $(room.state).listen('owner', owner => setIsOwner(owner === username))
     $(room.state).listen('canStart', setCanStart)
-    $(room.state).listen('countdown', countdown => setCountdown(countdown.toString()))
+    $(room.state).listen('countdown', setCountdown)
   }, [room, username])
 
   const { scale, color } = useSpring({
