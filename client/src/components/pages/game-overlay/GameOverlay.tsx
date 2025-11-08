@@ -5,13 +5,14 @@ import { PlayersCount } from './PlayersCount'
 import { Time } from './Time'
 
 export function GameOverlay() {
+  const started = useGame(s => s.phase === 'started')
   const ended = useGame(s => s.phase === 'ended')
 
   return (
     <div className="page pointer-events-none">
-      {!ended && <LeaveButton />}
-      {!ended && <PlayersCount />}
-      {!ended && <Time />}
+      {started && !ended && <LeaveButton />}
+      {started && !ended && <PlayersCount />}
+      {started && !ended && <Time />}
       {ended && <Leaderboard />}
     </div>
   )
