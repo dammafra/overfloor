@@ -3,12 +3,11 @@ import { DoubleTapPreventer, ErrorBoundary } from '@components/helpers'
 import { Test } from '@components/modules/test'
 import { ChooseRoom, CreateRoom, Credits, JoinRoom } from '@components/pages'
 import { useDebug } from '@hooks'
-import { toast, ToastContainer } from 'react-toastify'
-import { Redirect, Route, Switch, useLocation } from 'wouter'
+import { ToastContainer } from 'react-toastify'
+import { Redirect, Route, Switch } from 'wouter'
 
 export default function App() {
   const debug = useDebug()
-  const [, navigate] = useLocation()
 
   return (
     <>
@@ -18,12 +17,7 @@ export default function App() {
       {/* TODO: handle useColyseus side effect */}
       {/* <StrictMode> */}
       <ToastContainer position="top-right" />
-      <ErrorBoundary
-        onError={() => {
-          toast.error('Something went wrong')
-          navigate('/', { replace: true })
-        }}
-      >
+      <ErrorBoundary>
         <Experience />
         <Switch>
           <Route path="/new" component={CreateRoom} />

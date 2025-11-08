@@ -45,6 +45,7 @@ export function CreateRoom() {
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
+            autoFocus
             className="input"
             placeholder="room ID"
             value={id}

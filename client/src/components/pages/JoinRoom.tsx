@@ -43,6 +43,7 @@ export function JoinRoom() {
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
+            autoFocus
             className="input"
             placeholder="username"
             value={username}

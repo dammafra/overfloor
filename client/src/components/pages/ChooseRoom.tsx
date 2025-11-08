@@ -1,7 +1,6 @@
 import { useLobby } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { useEffect } from 'react'
-import { toast } from 'react-toastify'
 import { Link, useLocation } from 'wouter'
 
 export function ChooseRoom() {
@@ -16,7 +15,6 @@ export function ChooseRoom() {
 
   useEffect(() => {
     if (!error) return
-    toast.error(error.message)
     navigate('/')
   }, [error, navigate])
 

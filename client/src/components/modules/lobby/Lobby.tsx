@@ -1,7 +1,6 @@
 import { useColyseus } from '@hooks'
 import { GameLobbyState } from '@schema'
 import { useEffect } from 'react'
-import { toast } from 'react-toastify'
 import { useLocation, useParams } from 'wouter'
 
 import { CameraRig } from './CameraRig'
@@ -34,7 +33,6 @@ export function Lobby() {
 
   useEffect(() => {
     if (!error) return
-    toast.error(error.message)
     navigate('/')
   }, [error, navigate])
 
