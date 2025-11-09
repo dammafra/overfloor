@@ -6,7 +6,7 @@ export const aspects = {
     },
     tile: {
       button: {
-        position: (aspect: number) => [0, Math.max(aspect > 2 ? 4.7 : 3.5, aspects.ui.camera.distance(aspect) - 2), 0], //prettier-ignore
+        position: (aspect: number) => [0, Math.max(aspect > 2 ? 4.7 : 3.5, aspects.ui.camera.distance(aspect) - 1.5), 0], //prettier-ignore
         indices: (size: number, aspect: number) => {
           const center = Math.floor((size * size) / 2)
 

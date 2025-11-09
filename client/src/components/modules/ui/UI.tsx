@@ -20,9 +20,9 @@ type MenuTileSprings = {
 }
 
 export function UI() {
-  const [matchGame] = useRoute(/game/)
-  const [matchLobby] = useRoute(/lobby/)
-  const [matchTest] = useRoute(/test/)
+  const [matchGame] = useRoute('/game/:reservation')
+  const [matchLobby] = useRoute('/:from/lobby/:options')
+  const [matchTest] = useRoute('/test/*?')
   const match = matchGame || matchLobby || matchTest
   const { viewport } = useThree()
 
