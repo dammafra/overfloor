@@ -38,6 +38,7 @@ export function CameraRig({ room }: PropsWithRoom<GameState>) {
     const boundingBox = new Box3().setFromCenterAndSize(center, size)
 
     cameraControls.fitToBox(boundingBox, true)
+    cameraControls.rotateAzimuthTo(0, true)
     cameraControls.rotatePolarTo(Math.PI * 0.25, true)
   }, [gap, height, unit, width, controls, size])
 

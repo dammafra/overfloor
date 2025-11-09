@@ -1,6 +1,7 @@
 import { Helpers } from '@components/helpers'
 import { Game } from '@components/modules/game'
 import { Lobby } from '@components/modules/lobby'
+import { OfflineGrid } from '@components/modules/test'
 import { UI } from '@components/modules/ui'
 import { useDebug, useIsTouch } from '@hooks'
 import { CameraControls } from '@react-three/drei'
@@ -34,11 +35,11 @@ export function Experience() {
       <Environment shadows />
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
-      <UI />
-
       <Physics {...physicsControls}>
+        <Route path="/" nest component={UI} />
         <Route path="/:from/lobby/:options" component={Lobby} />
         <Route path="/game/:reservation" component={Game} />
+        <Route path="/test/offline" component={OfflineGrid} />
         <Helpers />
       </Physics>
 

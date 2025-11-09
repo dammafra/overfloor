@@ -7,7 +7,7 @@ import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { MathUtils } from 'three'
 
-// TODO*: find a better way to implement CameraRig, I don't like importing `spiralPositionLobby`
+// TODO*: find a better way to implement CameraRig, I don't like using `aspects` utils
 export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
   const { controls, viewport } = useThree()
   const [playersCount, setPlayersCount] = useState(0)

@@ -8,16 +8,13 @@ import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 
 export function Grid({ room }: PropsWithRoom<GameState>) {
-  // TODO improve
-  const defaultColor = 'dodgerblue'
-
   // prettier-ignore
   const phaseColors = [
-    defaultColor,   // IDLE
+    undefined,      // IDLE
     'green',        // COUNTDOWN_3
     'orange',       // COUNTDOWN_2
     'brown',        // COUNTDOWN_1
-    defaultColor,   // FALLING
+    undefined,      // FALLING
   ]
 
   const [unit, setUnit] = useState<number>(0)
@@ -54,7 +51,6 @@ export function Grid({ room }: PropsWithRoom<GameState>) {
   const transitions = useTransition(tiles, {
     from: tile => ({
       scale: 0,
-      color: defaultColor,
       position: tile.position.toArray() as Vector3Tuple,
     }),
     enter: { scale: unit },

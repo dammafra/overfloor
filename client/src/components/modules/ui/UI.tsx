@@ -22,10 +22,11 @@ type MenuTileSprings = {
 export function UI() {
   const [matchGame] = useRoute(/game/)
   const [matchLobby] = useRoute(/lobby/)
-  const match = matchGame || matchLobby
+  const [matchTest] = useRoute(/test/)
+  const match = matchGame || matchLobby || matchTest
   const { viewport } = useThree()
 
-  const size = useMemo(() => (matchGame ? 0 : 11), [matchGame])
+  const size = useMemo(() => (matchGame || matchTest ? 0 : 11), [matchGame, matchTest])
   const tiles = useMemo(() => [...Array(size * size).keys()], [size])
   const firstRenderRef = useRef(true)
 

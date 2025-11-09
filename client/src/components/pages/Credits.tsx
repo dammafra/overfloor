@@ -1,7 +1,6 @@
 import { a, useSpring } from '@react-spring/web'
 import { Link } from 'wouter'
 
-// TODO
 export function Credits() {
   const { opacity } = useSpring({
     from: { opacity: 0 },
