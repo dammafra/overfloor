@@ -1,14 +1,37 @@
-import { useConfetti } from '@hooks'
+import { useColyseus, useConfetti } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { useGame } from '@stores'
 import clsx from 'clsx'
-import { Link } from 'wouter'
+import type { SeatReservation } from 'colyseus.js'
+import { useState } from 'react'
+import { Link, useLocation, useParams } from 'wouter'
 
 export function Leaderboard() {
-  const burst = useConfetti()
+  const params = useParams()
+  const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
+  const [, navigate] = useLocation()
 
   const leaderboard = useGame(s => s.leaderboard)
+  const [loading, setLoading] = useState(false)
 
+  const client = useColyseus()
+
+  const rematch = async () => {
+    // @ts-expect-error id and username are custom fields
+    const { id, username } = reservation
+
+    setLoading(true)
+    client.http
+      .get(`/room-exists/${id}`)
+      .then(res => {
+        const exists = res.data
+        const options = btoa(JSON.stringify({ id, username }))
+        navigate(`/${exists ? 'join' : 'new'}/lobby/${options}`)
+      })
+      .finally(() => setLoading(false))
+  }
+
+  const burst = useConfetti()
   const webSpring = useSpring({
     from: { scale: 0, opacity: 0 },
     to: { scale: 1, opacity: 1 },
@@ -27,9 +50,13 @@ export function Leaderboard() {
           <span className="icon-[mdi--close]" />
         </Link>
         <p className="">leave / rematch</p>
-        <Link href="/" className="button icon disabled">
-          <span className="icon-[mdi--reload]" />
-        </Link>
+        <button className={clsx('button icon', { disabled: loading })} onClick={rematch}>
+          {loading ? (
+            <span className="icon-[codex--loader]" />
+          ) : (
+            <span className="icon-[mdi--reload]" />
+          )}
+        </button>
       </div>
 
       <ol className="list-decimal list-inside text-xl w-full max-w-80 h-80 overflow-scroll fade-vertical">

@@ -1,4 +1,5 @@
 import { Client, Delayed, matchMaker, Room } from '@colyseus/core'
+import { gridConfig } from '@schema'
 import { ROOM_IDS_CHANNEL } from '../app.config'
 import { GameLobbyState } from './game-lobby.state'
 
@@ -15,7 +16,7 @@ interface JoinGameLobbyOptions {
 
 export class GameLobby extends Room<GameLobbyState> {
   autoDispose = false
-  maxClients = 50
+  maxClients = gridConfig.large.maxPlayers
 
   MIN_PLAYERS = 2
   COUNTDOWN = 60
@@ -110,7 +111,7 @@ export class GameLobby extends Room<GameLobbyState> {
     this.clients.forEach(async client => {
       const username = this.state.players.get(client.sessionId)
       const reservation = await matchMaker.reserveSeatFor(room, { username })
-      client.send('start', reservation)
+      client.send('start', { ...reservation, id: this.roomId, username })
     })
   }
 
