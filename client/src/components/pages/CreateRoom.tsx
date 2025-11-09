@@ -71,9 +71,10 @@ export function CreateRoom() {
           </Link>
           <button
             type="submit"
-            className={clsx('button flex-1', {
+            className={clsx('button flex-1 h-10', {
               disabled: !id || !username || loading,
               danger: error,
+              'text-sm': error,
             })}
           >
             {loading ? 'loading... ' : error ? 'Room already exists' : 'create room'}

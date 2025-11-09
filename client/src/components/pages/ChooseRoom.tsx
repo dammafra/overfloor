@@ -10,7 +10,7 @@ export function ChooseRoom() {
   const { opacity } = useSpring({
     from: { opacity: 0 },
     to: { opacity: 1 },
-    delay: 500,
+    delay: history.state ? 0 : 500,
   })
 
   useEffect(() => {

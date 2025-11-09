@@ -55,8 +55,8 @@ export function JoinRoom() {
           />
           <span className="icon-[mdi--user]" />
         </div>
-        <div className="flex gap-2">
-          <Link href="/" className="button danger icon">
+        <div className="flex gap-2 items-center">
+          <Link href="/join" state="join" className="button danger icon">
             <span className="icon-[mdi--chevron-left]" />
           </Link>
           <button

@@ -31,7 +31,7 @@ export function LeaveButton() {
           setTimeout(() => setConfirm(false), 3000)
         }}
       >
-        <span className="icon-[mdi--chevron-left]" />
+        <span className="icon-[mdi--close]" />
       </a.button>
     ),
   )
