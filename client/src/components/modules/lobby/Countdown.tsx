@@ -41,8 +41,8 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
   }, [room, username])
 
   const { scale, color } = useSpring({
-    from: { scale: 0, color: canStart && isOwner ? 'green' : 'dodgerblue' },
-    to: { scale: 1.5, color: canStart && isOwner ? 'green' : 'dodgerblue' },
+    from: { scale: 0, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },
+    to: { scale: 1.5, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },
   })
 
   const { rotationZ } = useSpring({

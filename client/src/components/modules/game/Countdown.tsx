@@ -12,10 +12,10 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
 
   // prettier-ignore
   const colors = [
-    'white',      // GO!
-    'brown',      // 1
+    'limegreen',  // GO!
+    'orange',     // 1
     'orange',     // 2
-    'green',      // 3
+    'brown',      // 3
   ]
 
   useEffect(() => {
