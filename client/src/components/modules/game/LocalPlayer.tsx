@@ -2,7 +2,7 @@ import { Player } from '@components'
 import { useThrottle, type PropsWithRoom } from '@hooks'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
-import type { GameState } from '@schema'
+import type { GameSchema } from '@schema'
 import { useController, useGame } from '@stores'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
@@ -14,7 +14,7 @@ const GROUP = 0x0001 // category bit 1
 const MASK = 0xffff ^ GROUP // collide with everything except itself
 export const PLAYERS_COLLISION_GROUP = (GROUP << 16) | MASK
 
-export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
+export function LocalPlayer({ room }: PropsWithRoom<GameSchema>) {
   const started = useGame(s => s.phase === 'started')
   const { up, down, left, right, strength } = useController()
 

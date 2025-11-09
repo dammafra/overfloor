@@ -3,13 +3,13 @@ import type { PropsWithRoom } from '@hooks'
 import { a } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
-import type { GameState } from '@schema'
+import type { GameSchema } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type QuaternionTuple, type Vector3Tuple } from 'three'
 import { PLAYERS_COLLISION_GROUP } from './LocalPlayer'
 
-type RemotePlayerProps = PropsWithRoom<GameState> &
+type RemotePlayerProps = PropsWithRoom<GameSchema> &
   PlayerProps & {
     username: string
     position: Vector3Tuple

@@ -1,14 +1,12 @@
 import type { PropsWithRoom } from '@hooks'
 import { CuboidCollider } from '@react-three/rapier'
-import type { GameState } from '@schema'
+import { GRID_GAP, GRID_UNIT, type GameSchema } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 
-export function Boundaries({ room }: PropsWithRoom<GameState>) {
+export function Boundaries({ room }: PropsWithRoom<GameSchema>) {
   const [width, setWidth] = useState<number>(0)
   const [height, setHeight] = useState<number>(0)
-  const [unit, setUnit] = useState<number>(0)
-  const [gap, setGap] = useState<number>(0)
 
   const wallHeight = 3
   const wallThickness = 0.1
@@ -23,20 +21,18 @@ export function Boundaries({ room }: PropsWithRoom<GameState>) {
 
     $(room.state).listen('width', setWidth)
     $(room.state).listen('height', setHeight)
-    $(room.state).listen('unit', setUnit)
-    $(room.state).listen('gap', setGap)
   }, [room])
 
   useEffect(() => {
-    const horizontalWallWidth = width * (unit + gap)
-    const verticalWallWidth = height * (unit + gap)
+    const horizontalWallWidth = width * (GRID_UNIT + GRID_GAP)
+    const verticalWallWidth = height * (GRID_UNIT + GRID_GAP)
 
     setHorizontalWallWidth(horizontalWallWidth)
     setVerticalWallWidth(verticalWallWidth)
 
     setVerticalWallPosition(horizontalWallWidth * 0.5 + wallThickness)
     setHorizontalWallPosition(verticalWallWidth * 0.5 + wallThickness)
-  }, [width, height, unit, gap])
+  }, [width, height])
 
   return (
     <>

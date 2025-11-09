@@ -1,6 +1,6 @@
 import { Client, Delayed, matchMaker, Room } from '@colyseus/core'
-import { GameLobbyState } from '@schema'
 import { ROOM_IDS_CHANNEL } from '../app.config'
+import { GameLobbyState } from './game-lobby.state'
 
 interface CreateGameLobbyOptions {
   id: string

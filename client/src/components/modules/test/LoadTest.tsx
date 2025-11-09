@@ -1,4 +1,4 @@
-import { GameLobbyState, GameState } from '@schema'
+import type { GameLobbySchema, GameSchema } from '@schema'
 import clsx from 'clsx'
 import { Client, Room } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
@@ -7,8 +7,8 @@ import { useLocation } from 'wouter'
 interface FakePlayer {
   id: string
   username: string
-  lobbyRoom?: Room<GameLobbyState>
-  gameRoom?: Room<GameState>
+  lobbyRoom?: Room<GameLobbySchema>
+  gameRoom?: Room<GameSchema>
   movementInterval?: NodeJS.Timeout
   position: [number, number, number]
   rotation: [number, number, number, number]
@@ -141,7 +141,7 @@ export function LoadTest() {
 
       if (isGameRoom) {
         // Connect directly to game room
-        const gameRoom = await clientRef.current.joinById<GameState>(roomId, {
+        const gameRoom = await clientRef.current.joinById<GameSchema>(roomId, {
           username: player.username,
         })
 
@@ -153,7 +153,7 @@ export function LoadTest() {
         console.log(`[LoadTest] Player ${player.username} connected directly to game room`)
       } else {
         // Connect to lobby
-        const lobbyRoom = await clientRef.current.joinById<GameLobbyState>(roomId, {
+        const lobbyRoom = await clientRef.current.joinById<GameLobbySchema>(roomId, {
           username: player.username,
         })
 
@@ -166,7 +166,7 @@ export function LoadTest() {
           // Leave lobby and join game room
           await lobbyRoom.leave()
 
-          const gameRoom = await clientRef.current!.consumeSeatReservation<GameState>(reservation)
+          const gameRoom = await clientRef.current!.consumeSeatReservation<GameSchema>(reservation)
           player.gameRoom = gameRoom
 
           // Start movement simulation

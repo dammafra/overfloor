@@ -1,4 +1,3 @@
-import { Schema } from '@colyseus/schema'
 import { Client, type Room, type SeatReservation } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 
@@ -16,9 +15,9 @@ interface UseColyseusParams {
 
 export function useColyseus(): Client
 export function useColyseus(serverUrl: string): Client
-export function useColyseus<T extends Schema>(params: UseColyseusParams): { room: Room<T> | undefined, error: Error | undefined } //prettier-ignore
+export function useColyseus<T>(params: UseColyseusParams): { room: Room<T> | undefined, error: Error | undefined } //prettier-ignore
 
-export function useColyseus<T extends Schema>(input?: string | UseColyseusParams) {
+export function useColyseus<T>(input?: string | UseColyseusParams) {
   const [client, setClient] = useState<Client>()
   const [room, setRoom] = useState<Room<T>>()
   const [error, setError] = useState<Error>()

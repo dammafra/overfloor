@@ -1,14 +1,13 @@
 import type { PropsWithRoom } from '@hooks'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import type { GameLobbyState } from '@schema'
+import type { GameLobbySchema } from '@schema'
 import { aspects, positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { MathUtils } from 'three'
 
-// TODO*: find a better way to implement CameraRig, I don't like using `aspects` utils
-export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
+export function CameraRig({ room }: PropsWithRoom<GameLobbySchema>) {
   const { controls, viewport } = useThree()
   const [playersCount, setPlayersCount] = useState(0)
 
@@ -24,6 +23,7 @@ export function CameraRig({ room }: PropsWithRoom<GameLobbyState>) {
     const cameraControls = controls as CameraControls
     if (!cameraControls) return
 
+    // TODO*: find a better way to implement CameraRig, I don't like using `aspects` utils
     const [, , z] = positions.lobby.player(playersCount)
     cameraControls.rotateAzimuthTo(0, true)
     cameraControls.rotatePolarTo(MathUtils.degToRad(90), true)

@@ -2,12 +2,12 @@ import { LetterTile } from '@components/modules/tiles'
 import type { PropsWithRoom } from '@hooks'
 import { useTransition } from '@react-spring/three'
 import { Billboard } from '@react-three/drei'
-import type { GameState } from '@schema'
+import type { GameSchema } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { MathUtils, type Vector3Tuple } from 'three'
 
-export function Countdown({ room }: PropsWithRoom<GameState>) {
+export function Countdown({ room }: PropsWithRoom<GameSchema>) {
   const [countdown, setCountdown] = useState<number>()
 
   // prettier-ignore

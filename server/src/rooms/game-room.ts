@@ -1,6 +1,7 @@
 import { Client, Delayed, Room } from '@colyseus/core'
-import { GameLoopPhase, GameState } from '@schema'
-import { gridConfig } from '../schema/grid-config'
+import { GameLoopPhase } from '@schema'
+import { gridConfig } from '../schema/grid.schema'
+import { GameState } from './game-room.state'
 
 interface CreateGameRoomOptions {
   id: string

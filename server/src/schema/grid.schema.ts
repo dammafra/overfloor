@@ -1,4 +1,5 @@
-import { GameState } from './game-room-state'
+// TODO improve
+export type GridDimension = 'large' | 'medium' | 'small'
 
 type Pattern = number[][]
 
@@ -207,26 +208,57 @@ const small: PatterConfig[] = [
   },
 ]
 
-export const patterns: Record<GameState['dimension'], PatterConfig[]> = { small, medium, large }
+interface GridConfig {
+  width: number
+  height: number
+  playersPerRow: number
+  maxPlayers: number
+  patterns: PatterConfig[]
+  shrinkPattern: Pattern
+}
 
-export const shrinkPatterns: Record<GameState['dimension'], Pattern> = {
-  large: [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  ],
-  medium: [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1],
-  ],
-  small: [],
+export const GRID_UNIT = 2.5
+export const GRID_GAP = 0.15
+
+export const gridConfig: Record<GridDimension, GridConfig> = {
+  large: {
+    width: 11,
+    height: 8,
+    playersPerRow: 11,
+    maxPlayers: 55,
+    patterns: large,
+    shrinkPattern: [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ],
+  },
+  medium: {
+    width: 9,
+    height: 6,
+    playersPerRow: 7,
+    maxPlayers: 21,
+    patterns: medium,
+    shrinkPattern: [
+      [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ],
+  },
+  small: {
+    width: 7,
+    height: 4,
+    playersPerRow: 5,
+    maxPlayers: 15,
+    patterns: small,
+    shrinkPattern: [],
+  },
 }

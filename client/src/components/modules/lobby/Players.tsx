@@ -2,14 +2,14 @@ import { Environment, Player } from '@components'
 import type { PropsWithRoom } from '@hooks'
 import { a, useTransition } from '@react-spring/three'
 import { Float, Hud } from '@react-three/drei'
-import type { GameLobbyState } from '@schema'
+import type { GameLobbySchema } from '@schema'
 import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 import { useParams } from 'wouter'
 
-export function Players({ room }: PropsWithRoom<GameLobbyState>) {
+export function Players({ room }: PropsWithRoom<GameLobbySchema>) {
   const { options } = useParams()
   const { training } = JSON.parse(atob(options!))
 

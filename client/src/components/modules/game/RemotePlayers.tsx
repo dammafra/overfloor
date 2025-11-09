@@ -1,13 +1,13 @@
 import type { PropsWithRoom } from '@hooks'
 import { useTransition } from '@react-spring/three'
-import type { GameState, PlayerState } from '@schema'
+import type { GameSchema, PlayerSchema } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 import { RemotePlayer } from './RemotePlayer'
 
-export function RemotePlayers({ room }: PropsWithRoom<GameState>) {
-  const [players, setPlayers] = useState<PlayerState[]>([])
+export function RemotePlayers({ room }: PropsWithRoom<GameSchema>) {
+  const [players, setPlayers] = useState<PlayerSchema[]>([])
 
   useEffect(() => {
     if (!room) return

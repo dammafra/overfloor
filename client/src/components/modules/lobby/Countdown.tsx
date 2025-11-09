@@ -3,13 +3,13 @@ import { ButtonTile } from '@components/modules/tiles'
 import { useIsTouch, type PropsWithRoom } from '@hooks'
 import { useSpring } from '@react-spring/three'
 import { Hud, PerspectiveCamera, Text, type TextProps } from '@react-three/drei'
-import type { GameLobbyState } from '@schema'
+import type { GameLobbySchema } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useMemo, useState } from 'react'
 import { MathUtils } from 'three'
 import { useParams } from 'wouter'
 
-export function Countdown({ room }: PropsWithRoom<GameLobbyState>) {
+export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
   const { options } = useParams()
   const { username } = JSON.parse(atob(options!))
   const isTouch = useIsTouch()

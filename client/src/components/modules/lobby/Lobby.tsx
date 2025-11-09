@@ -1,9 +1,8 @@
 import { useColyseus } from '@hooks'
-import { GameLobbyState } from '@schema'
+import { GameLobbySchema } from '@schema'
+import { useGame } from '@stores'
 import { useEffect } from 'react'
 import { useLocation, useParams } from 'wouter'
-
-import { useGame } from '@stores'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Players } from './Players'
@@ -15,7 +14,7 @@ export function Lobby() {
 
   const ready = useGame(s => s.ready)
 
-  const { room, error } = useColyseus<GameLobbyState>({
+  const { room, error } = useColyseus<GameLobbySchema>({
     roomId: from === 'new' ? undefined : id,
     roomName: 'game-lobby',
     options: { id, username, training, countdown },

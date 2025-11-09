@@ -1,20 +1,20 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema'
+import {
+  GameLoopPhase,
+  GameSchema,
+  getGridCoordinates,
+  getPlayerInitialPosition,
+  gridConfig,
+  GridDimension,
+  PlayerSchema,
+  TileSchema,
+} from '@schema'
 import { v4 as uuid } from 'uuid'
-import { gridConfig, type GridDimension } from './grid-config'
-import { patterns, shrinkPatterns } from './patterns'
 
 const oneOf = <T>(array: T[]) => array[Math.floor(Math.random() * array.length)]
 const maybe = () => Math.random() < 0.5
 
-export enum GameLoopPhase {
-  IDLE,
-  COUNTDOWN_3,
-  COUNTDOWN_2,
-  COUNTDOWN_1,
-  FALLING,
-}
-
-export class PlayerState extends Schema {
+export class PlayerState extends Schema implements PlayerSchema {
   @type('string') username: string
 
   @type('boolean') walking: boolean
@@ -26,37 +26,14 @@ export class PlayerState extends Schema {
 
     this.username = username
 
-    const [x, y, z] = this.getInitialPosition(index, dimension)
+    const [x, y, z] = getPlayerInitialPosition(index, dimension)
     this.position[0] = x
     this.position[1] = y
     this.position[2] = z
   }
-
-  getInitialPosition(index: number, dimension: GridDimension) {
-    const spacingX = 2
-    const spacingY = 1.5
-    const rowSize = gridConfig[dimension].playersPerRow
-    const row = Math.floor(index / rowSize)
-    const positionInRow = index % rowSize
-
-    // zig-zag placement in x
-    let x = 0
-    if (positionInRow > 0) {
-      const n = Math.ceil(positionInRow / 2)
-      x = n * spacingX * (positionInRow % 2 === 1 ? -1 : 1)
-    }
-
-    // alternate forward/backward along z
-    const direction = row % 2 === 0 ? 1 : -1
-    const offset = row % 2 === 0 ? 0 : 1
-    const z = (row + offset) * spacingY * direction
-
-    const y = 20
-    return [x, y, z]
-  }
 }
 
-export class TileState extends Schema {
+export class TileState extends Schema implements TileSchema {
   @type('string') id: string
 
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
@@ -75,15 +52,12 @@ export class TileState extends Schema {
   }
 }
 
-export class GameState extends Schema {
+export class GameState extends Schema implements GameSchema {
   @type('int16') countdown: number
   @type('int16') time: number = 0
 
   @type('int8') width: number
   @type('int8') height: number
-
-  @type('float32') unit: number = 2.5
-  @type('float32') gap: number = 0.15
 
   @type({ map: PlayerState }) players = new MapSchema<PlayerState>()
   @type({ array: 'string' }) leaderboard = new ArraySchema<string>()
@@ -97,25 +71,18 @@ export class GameState extends Schema {
     return this._dimension
   }
 
-  set dimension(value: typeof this._dimension) {
+  set dimension(value: GridDimension) {
     this._dimension = value
     this.width = gridConfig[this.dimension].width
     this.height = gridConfig[this.dimension].height
   }
 
-  init(dimension: typeof this._dimension) {
+  init(dimension: GridDimension) {
     this.dimension = dimension
 
-    const offsetX = (this.width - 1) * (this.unit + this.gap) * 0.5
-    const offsetZ = (this.height - 1) * (this.unit + this.gap) * 0.5
-
-    for (let j = 0; j < this.height; j++) {
-      for (let i = 0; i < this.width; i++) {
-        const x = i * (this.unit + this.gap) - offsetX
-        const z = j * (this.unit + this.gap) - offsetZ
-        this.tiles.push(new TileState(x, z))
-      }
-    }
+    getGridCoordinates(this.width, this.height).forEach(([x, z]) => {
+      this.tiles.push(new TileState(x, z))
+    })
   }
 
   addPlayer(key: string, username: string) {
@@ -123,7 +90,7 @@ export class GameState extends Schema {
   }
 
   randomPattern() {
-    const config = oneOf(patterns[this.dimension].filter(p => p.key !== this.#lastPattern))
+    const config = oneOf(gridConfig[this.dimension].patterns.filter(p => p.key !== this.#lastPattern)) // prettier-ignore
     this.#lastPattern = config.key
 
     let pattern = config.value
@@ -141,7 +108,7 @@ export class GameState extends Schema {
   }
 
   targetTiles(shrink?: boolean) {
-    const pattern = shrink ? shrinkPatterns[this.dimension].flat() : this.randomPattern()
+    const pattern = shrink ? gridConfig[this.dimension].shrinkPattern.flat() : this.randomPattern()
     if (shrink) this.dimension = this.dimension === 'large' ? 'medium' : 'small'
 
     this.tiles

@@ -1,5 +1,5 @@
 import { useColyseus, useDebug } from '@hooks'
-import type { GameState } from '@schema'
+import type { GameSchema } from '@schema'
 import { getStateCallbacks, type SeatReservation } from 'colyseus.js'
 import { useEffect } from 'react'
 import { useLocation, useParams } from 'wouter'
@@ -19,7 +19,7 @@ export function Game() {
   const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
   const [, navigate] = useLocation()
 
-  const { room, error } = useColyseus<GameState>({ roomName: 'game-room', reservation })
+  const { room, error } = useColyseus<GameSchema>({ roomName: 'game-room', reservation })
 
   const start = useGame(s => s.start)
   const end = useGame(s => s.end)

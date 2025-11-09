@@ -4,13 +4,13 @@ import { type PropsWithRoom } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
 import { Billboard, Float, Hud, PerspectiveCamera } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import type { GameState } from '@schema'
+import type { GameSchema } from '@schema'
 import { useGame } from '@stores'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
-export function Leaderboard({ room }: PropsWithRoom<GameState>) {
+export function Leaderboard({ room }: PropsWithRoom<GameSchema>) {
   const { viewport } = useThree()
 
   const leaderboard = useGame(s => s.leaderboard)

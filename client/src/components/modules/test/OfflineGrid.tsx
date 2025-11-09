@@ -1,106 +1,86 @@
+import { Player } from '@components'
 import { Tile } from '@components/modules/tiles'
 import { useTransition } from '@react-spring/three'
-import type { CameraControls } from '@react-three/drei'
+import { type CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { BallCollider, CuboidCollider, RigidBody } from '@react-three/rapier'
+import {
+  getGridCoordinates,
+  getPlayerInitialPosition,
+  GRID_UNIT,
+  gridConfig,
+  type GridDimension,
+} from '@schema'
+import { button, useControls } from 'leva'
 import { useEffect, useMemo, useState } from 'react'
-import { Box3, Vector3, type Vector3Tuple } from 'three'
-import { generateUUID } from 'three/src/math/MathUtils.js'
-import { Player } from '../../Player'
-
-type GridDimension = 'large' | 'medium' | 'small'
-
-interface OfflineTileState {
-  id: string
-  position: Vector3Tuple
-}
+import { type Vector3Tuple } from 'three'
+import { v4 as uuid } from 'uuid'
+import { useLocation } from 'wouter'
 
 export function OfflineGrid() {
-  const [dimension] = useState<GridDimension>('small')
-  const width = useMemo(
-    () => (dimension === 'large' ? 11 : dimension === 'medium' ? 8 : 6),
-    [dimension],
+  const [, navigate] = useLocation()
+
+  const { dimension, playersCount } = useControls(
+    'offline test',
+    {
+      dimension: {
+        value: 'medium' as GridDimension,
+        options: ['small', 'medium', 'large'] as GridDimension[],
+      },
+      playersCount: {
+        value: gridConfig.medium.maxPlayers,
+        min: 1,
+        max: gridConfig.large.maxPlayers,
+        step: 1,
+      },
+      EXIT: button(() => navigate('/')),
+    },
+    { order: 5 },
   )
-  const height = useMemo(
-    () => (dimension === 'large' ? 8 : dimension === 'medium' ? 6 : 4),
-    [dimension],
-  )
-  const [gap] = useState(0.15)
-  const [unit] = useState<number>(2.5)
-  const [tiles, setTiles] = useState<OfflineTileState[]>([])
-  const playersCount = useMemo(
-    () => (dimension === 'large' ? 55 : dimension === 'medium' ? 21 : 15),
-    [dimension],
-  )
+  const width = useMemo(() => gridConfig[dimension].width, [dimension])
+  const height = useMemo(() => gridConfig[dimension].height, [dimension])
+  const [tiles, setTiles] = useState<Vector3Tuple[]>([])
 
   const { controls, size } = useThree()
 
   useEffect(() => {
-    const offsetX = (width - 1) * (unit + gap) * 0.5
-    const offsetZ = (height - 1) * (unit + gap) * 0.5
-
-    const tiles: OfflineTileState[] = []
-    for (let j = 0; j < height; j++) {
-      for (let i = 0; i < width; i++) {
-        const x = i * (unit + gap) - offsetX
-        const z = j * (unit + gap) - offsetZ
-        tiles.push({
-          id: generateUUID(),
-          position: [x, 0, z] as Vector3Tuple,
-        })
-      }
-    }
-
-    setTiles(tiles)
-  }, [gap, height, unit, width])
+    setTiles(getGridCoordinates(width, height).map(([x, z]) => [x, 0, z] as Vector3Tuple))
+  }, [height, width])
 
   useEffect(() => {
     const cameraControls = controls as CameraControls
     if (!cameraControls) return
 
-    const center = new Vector3()
-
-    const padding = 1
-    const xDimension = width * (unit + gap) + padding
-    const zDimension = height * (unit + gap) + padding
-    const size = new Vector3(xDimension, 1, zDimension)
-
-    const boundingBox = new Box3().setFromCenterAndSize(center, size)
-
-    cameraControls.fitToBox(boundingBox, true)
     cameraControls.rotateAzimuthTo(0, true)
     cameraControls.rotatePolarTo(0, true)
-  }, [gap, height, unit, width, controls, size])
+    cameraControls.dollyTo(width * 3, true)
+  }, [width, controls, size])
 
   const transitions = useTransition(tiles, {
     from: tile => ({
       scale: 0,
-      position: tile.position as Vector3Tuple,
+      position: tile,
     }),
-    enter: { scale: unit },
+    enter: { scale: GRID_UNIT },
     leave: { scale: 0 },
     config: { mass: 1, tension: 120, friction: 15 },
   })
 
   return (
     <>
-      {/* meshes */}
+      {/* tile meshes */}
       {transitions(spring => (
         <Tile {...spring} receiveShadow />
       ))}
 
-      {/* bodies */}
+      {/* tile bodies */}
       {tiles.map(tile => (
-        <RigidBody
-          key={`body-${tile.id}`}
-          position={tile.position as Vector3Tuple}
-          type="fixed"
-          colliders={false}
-        >
-          <CuboidCollider args={[unit * 0.5, 0.3, unit * 0.5]} />
+        <RigidBody key={`body-${uuid()}`} position={tile} type="fixed" colliders={false}>
+          <CuboidCollider args={[GRID_UNIT * 0.5, 0.3, GRID_UNIT * 0.5]} />
         </RigidBody>
       ))}
 
+      {/* players */}
       {Array.from({ length: playersCount }, (_, i) => (
         <RigidBody
           key={`player-${i}`}
@@ -109,8 +89,7 @@ export function OfflineGrid() {
           friction={0.5}
           linearDamping={0.4}
           enabledRotations={[false, false, false]}
-          // TODO
-          // position={getPlayerInitialPosition(i, dimension)}
+          position={getPlayerInitialPosition(i, dimension)}
         >
           <BallCollider args={[0.6]} />
           <Player username={`player-${i}`} />
