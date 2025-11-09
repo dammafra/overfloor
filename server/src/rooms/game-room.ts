@@ -1,5 +1,6 @@
 import { Client, Delayed, Room } from '@colyseus/core'
-import { GameLoopPhase, GameState, PlayerState } from '@schema'
+import { GameLoopPhase, GameState } from '@schema'
+import { gridConfig } from '../schema/grid-config'
 
 interface CreateGameRoomOptions {
   id: string
@@ -34,7 +35,7 @@ export class GameRoom extends Room<GameState> {
     this.maxClients = options.playersCount
     this.#training = options.training
 
-    this.state.init(options.playersCount <= 20 ? 'medium' : 'large')
+    this.state.init(options.playersCount <= gridConfig.medium.maxPlayers ? 'medium' : 'large')
 
     this.clock.setTimeout(() => {
       this.state.countdown = this.#training ? -1 : 3
@@ -71,7 +72,7 @@ export class GameRoom extends Room<GameState> {
           this.#loopsCount = 0
           this.#phaseDuration = 800
           this.state.resetTiles()
-          this.state.players.set(client.sessionId, new PlayerState(player.username, this.state.players.size)) //prettier-ignore
+          this.state.addPlayer(client.sessionId, player.username)
         }
         return
       }
@@ -95,8 +96,7 @@ export class GameRoom extends Room<GameState> {
   }
 
   async onJoin(client: Client, options: JoinGameRoomOptions) {
-    const player = new PlayerState(options.username, this.state.players.size)
-    this.state.players.set(client.sessionId, player)
+    this.state.addPlayer(client.sessionId, options.username)
     console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
   }
 
@@ -170,9 +170,9 @@ export class GameRoom extends Room<GameState> {
   #shrinkCheck() {
     switch (this.state.dimension) {
       case 'large':
-        return this.state.players.size <= 20
+        return this.state.players.size <= gridConfig.medium.maxPlayers
       case 'medium':
-        return this.state.players.size <= 10 && this.#loopsCount > 4
+        return this.state.players.size <= gridConfig.small.maxPlayers && this.#loopsCount > 4
       case 'small':
         return false
     }

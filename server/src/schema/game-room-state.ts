@@ -1,5 +1,6 @@
 import { ArraySchema, MapSchema, Schema, type } from '@colyseus/schema'
 import { v4 as uuid } from 'uuid'
+import { gridConfig, type GridDimension } from './grid-config'
 import { patterns, shrinkPatterns } from './patterns'
 
 const oneOf = <T>(array: T[]) => array[Math.floor(Math.random() * array.length)]
@@ -15,17 +16,43 @@ export enum GameLoopPhase {
 
 export class PlayerState extends Schema {
   @type('string') username: string
-  @type('int16') index: number // TODO can I remove index as in TileState?
 
   @type('boolean') walking: boolean
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
   @type({ array: 'float64' }) rotation = new ArraySchema<number>(0, 0, 0, 0)
 
-  constructor(username: string, index: number) {
+  constructor(username: string, index: number, dimension: GridDimension) {
     super()
 
     this.username = username
-    this.index = index
+
+    const [x, y, z] = this.getInitialPosition(index, dimension)
+    this.position[0] = x
+    this.position[1] = y
+    this.position[2] = z
+  }
+
+  getInitialPosition(index: number, dimension: GridDimension) {
+    const spacingX = 2
+    const spacingY = 1.5
+    const rowSize = gridConfig[dimension].playersPerRow
+    const row = Math.floor(index / rowSize)
+    const positionInRow = index % rowSize
+
+    // zig-zag placement in x
+    let x = 0
+    if (positionInRow > 0) {
+      const n = Math.ceil(positionInRow / 2)
+      x = n * spacingX * (positionInRow % 2 === 1 ? -1 : 1)
+    }
+
+    // alternate forward/backward along z
+    const direction = row % 2 === 0 ? 1 : -1
+    const offset = row % 2 === 0 ? 0 : 1
+    const z = (row + offset) * spacingY * direction
+
+    const y = 20
+    return [x, y, z]
   }
 }
 
@@ -64,7 +91,7 @@ export class GameState extends Schema {
 
   #lastPattern: string
 
-  _dimension: 'small' | 'medium' | 'large'
+  _dimension: GridDimension
 
   get dimension() {
     return this._dimension
@@ -72,8 +99,8 @@ export class GameState extends Schema {
 
   set dimension(value: typeof this._dimension) {
     this._dimension = value
-    this.width = this.dimension === 'large' ? 11 : this.dimension === 'medium' ? 9 : 7
-    this.height = this.dimension === 'large' ? 8 : this.dimension === 'medium' ? 6 : 4
+    this.width = gridConfig[this.dimension].width
+    this.height = gridConfig[this.dimension].height
   }
 
   init(dimension: typeof this._dimension) {
@@ -89,6 +116,10 @@ export class GameState extends Schema {
         this.tiles.push(new TileState(x, z))
       }
     }
+  }
+
+  addPlayer(key: string, username: string) {
+    this.players.set(key, new PlayerState(username, this.players.size, this.dimension))
   }
 
   randomPattern() {

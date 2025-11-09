@@ -1,23 +1,24 @@
-import { Player } from '@components'
+import { Player, type PlayerProps } from '@components'
 import type { PropsWithRoom } from '@hooks'
+import { a } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import type { GameState } from '@schema'
-import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type QuaternionTuple, type Vector3Tuple } from 'three'
 import { PLAYERS_COLLISION_GROUP } from './LocalPlayer'
 
-interface RemotePlayerProps extends PropsWithRoom<GameState> {
-  username: string
-  index: number
-}
+type RemotePlayerProps = PropsWithRoom<GameState> &
+  PlayerProps & {
+    username: string
+    position: Vector3Tuple
+  }
 
-export function RemotePlayer({ room, username, index }: RemotePlayerProps) {
+export const RemotePlayer = a(({ room, username, position, ...props }: RemotePlayerProps) => {
   const bodyRef = useRef<RapierRigidBody>(null)
   const walkingRef = useRef<boolean>(false)
-  const positionRef = useRef<Vector3Tuple>(positions.game.player(index))
+  const positionRef = useRef<Vector3Tuple>(position)
   const rotationRef = useRef<QuaternionTuple>([0, 0, 0, 0])
 
   const [walking, setWalking] = useState(false)
@@ -63,7 +64,7 @@ export function RemotePlayer({ room, username, index }: RemotePlayerProps) {
       collisionGroups={PLAYERS_COLLISION_GROUP}
     >
       <BallCollider args={[0.6]} />
-      <Player username={username} animate={walking} />
+      <Player username={username} animate={walking} {...props} />
     </RigidBody>
   )
-}
+})

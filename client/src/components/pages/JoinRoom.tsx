@@ -1,4 +1,4 @@
-import { useColyseus, useSafeInput } from '@hooks'
+import { useColyseus, useIsTouch, useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -7,6 +7,7 @@ import { Link, useLocation, useParams } from 'wouter'
 export function JoinRoom() {
   const { id } = useParams()
   const [, navigate] = useLocation()
+  const isTouch = useIsTouch()
 
   const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
   const [loading, setLoading] = useState(false)
@@ -43,7 +44,7 @@ export function JoinRoom() {
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
-            autoFocus
+            autoFocus={!isTouch}
             className="input"
             placeholder="username"
             value={username}

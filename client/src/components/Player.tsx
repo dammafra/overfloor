@@ -1,4 +1,5 @@
 import { BlockCharacter, type BlockCharacterProps } from '@components/models'
+import { a } from '@react-spring/three'
 import { Billboard, Text } from '@react-three/drei'
 import { useMemo } from 'react'
 
@@ -9,35 +10,37 @@ function stringToHslColor(str: string) {
   return `hsl(${h}, ${70}%, ${50}%)`
 }
 
-interface PlayerProps extends BlockCharacterProps {
+export interface PlayerProps extends BlockCharacterProps {
   username?: string
   showIndicator?: boolean
   showUsername?: boolean
 }
 
-export function Player({ username, showIndicator, showUsername, animate, ...props }: PlayerProps) {
-  const color = useMemo(() => username && stringToHslColor(username), [username])
+export const Player = a(
+  ({ username, showIndicator, showUsername, animate, ...props }: PlayerProps) => {
+    const color = useMemo(() => username && stringToHslColor(username), [username])
 
-  return (
-    <>
-      <BlockCharacter color={color} animate={animate} {...props} />
-      {(showIndicator || showUsername) && (
-        <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>
-          <Text
-            font="/fonts/audiowide.ttf"
-            maxWidth={20}
-            textAlign="center"
-            fontSize={1.5}
-            outlineWidth={0.1}
-          >
-            {showUsername ? username : 'YOU'}
-          </Text>
-          <mesh scale={[showUsername ? username!.length : 4, 0.5, 1]} position-y={-1.3}>
-            <planeGeometry />
-            <meshBasicMaterial color={color} />
-          </mesh>
-        </Billboard>
-      )}
-    </>
-  )
-}
+    return (
+      <a.group {...props}>
+        <BlockCharacter color={color} animate={animate} />
+        {(showIndicator || showUsername) && (
+          <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>
+            <Text
+              font="/fonts/audiowide.ttf"
+              maxWidth={20}
+              textAlign="center"
+              fontSize={1.5}
+              outlineWidth={0.1}
+            >
+              {showUsername ? username : 'YOU'}
+            </Text>
+            <mesh scale={[showUsername ? username!.length : 4, 0.5, 1]} position-y={-1.3}>
+              <planeGeometry />
+              <meshBasicMaterial color={color} />
+            </mesh>
+          </Billboard>
+        )}
+      </a.group>
+    )
+  },
+)

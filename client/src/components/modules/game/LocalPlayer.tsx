@@ -4,7 +4,6 @@ import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import type { GameState } from '@schema'
 import { useController, useGame } from '@stores'
-import { positions } from '@utils'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3, type Vector3Tuple } from 'three'
@@ -20,11 +19,11 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
   const { up, down, left, right, strength } = useController()
 
   const bodyRef = useRef<RapierRigidBody>(null)
-
-  const [walking, setWalking] = useState(false)
-  const [username, setUsername] = useState<string>()
   const [bodyKey, setBodyKey] = useState<string>()
-  const [initialPosition, setInitialPosition] = useState<Vector3Tuple>([0, 0, 0])
+
+  const [username, setUsername] = useState<string>()
+  const [initialPosition, setInitialPosition] = useState<Vector3Tuple>()
+  const [walking, setWalking] = useState(false)
 
   const sendWalking = useThrottle((walking: boolean) => room?.send('set-walking', walking))
   const sendMovement = useThrottle(() => {
@@ -42,7 +41,7 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
 
       setUsername(player.username)
       setBodyKey(uuid())
-      setInitialPosition(positions.game.player(player.index))
+      setInitialPosition(player.position.toArray() as Vector3Tuple)
     })
   }, [room])
 
@@ -81,7 +80,8 @@ export function LocalPlayer({ room }: PropsWithRoom<GameState>) {
   })
 
   return (
-    username && (
+    username &&
+    initialPosition && (
       <Controller>
         <RigidBody
           key={bodyKey}

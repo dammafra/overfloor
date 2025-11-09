@@ -3,11 +3,12 @@ import { useTransition } from '@react-spring/three'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { BallCollider, CuboidCollider, RigidBody } from '@react-three/rapier'
-import { positions } from '@utils'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Box3, Vector3, type Vector3Tuple } from 'three'
 import { generateUUID } from 'three/src/math/MathUtils.js'
 import { Player } from '../../Player'
+
+type GridDimension = 'large' | 'medium' | 'small'
 
 interface OfflineTileState {
   id: string
@@ -15,12 +16,22 @@ interface OfflineTileState {
 }
 
 export function OfflineGrid() {
-  const [width] = useState(9)
-  const [height] = useState(6)
+  const [dimension] = useState<GridDimension>('small')
+  const width = useMemo(
+    () => (dimension === 'large' ? 11 : dimension === 'medium' ? 8 : 6),
+    [dimension],
+  )
+  const height = useMemo(
+    () => (dimension === 'large' ? 8 : dimension === 'medium' ? 6 : 4),
+    [dimension],
+  )
   const [gap] = useState(0.15)
   const [unit] = useState<number>(2.5)
   const [tiles, setTiles] = useState<OfflineTileState[]>([])
-  const [playersCount] = useState(50)
+  const playersCount = useMemo(
+    () => (dimension === 'large' ? 55 : dimension === 'medium' ? 21 : 15),
+    [dimension],
+  )
 
   const { controls, size } = useThree()
 
@@ -41,7 +52,7 @@ export function OfflineGrid() {
     }
 
     setTiles(tiles)
-  }, [])
+  }, [gap, height, unit, width])
 
   useEffect(() => {
     const cameraControls = controls as CameraControls
@@ -58,7 +69,7 @@ export function OfflineGrid() {
 
     cameraControls.fitToBox(boundingBox, true)
     cameraControls.rotateAzimuthTo(0, true)
-    cameraControls.rotatePolarTo(Math.PI * 0.25, true)
+    cameraControls.rotatePolarTo(0, true)
   }, [gap, height, unit, width, controls, size])
 
   const transitions = useTransition(tiles, {
@@ -98,7 +109,8 @@ export function OfflineGrid() {
           friction={0.5}
           linearDamping={0.4}
           enabledRotations={[false, false, false]}
-          position={positions.game.player(i)}
+          // TODO
+          // position={getPlayerInitialPosition(i, dimension)}
         >
           <BallCollider args={[0.6]} />
           <Player username={`player-${i}`} />

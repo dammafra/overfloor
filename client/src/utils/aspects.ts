@@ -1,3 +1,4 @@
+// TODO improve, I don't like having this file
 export const aspects = {
   ui: {
     camera: {

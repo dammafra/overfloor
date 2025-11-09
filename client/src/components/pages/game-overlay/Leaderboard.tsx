@@ -22,7 +22,7 @@ export function Leaderboard() {
     >
       <h1 className="text-4xl bg-white/40 py-2 px-4 rounded-xl">LEADERBOARD</h1>
 
-      <div className="flex justify-center items-center gap-4 relative">
+      <div className="flex justify-center items-center gap-4 relative z-10">
         <Link href="/" className="button danger icon">
           <span className="icon-[mdi--close]" />
         </Link>

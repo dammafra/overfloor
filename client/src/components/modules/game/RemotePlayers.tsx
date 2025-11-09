@@ -1,7 +1,9 @@
 import type { PropsWithRoom } from '@hooks'
+import { useTransition } from '@react-spring/three'
 import type { GameState, PlayerState } from '@schema'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
+import type { Vector3Tuple } from 'three'
 import { RemotePlayer } from './RemotePlayer'
 
 export function RemotePlayers({ room }: PropsWithRoom<GameState>) {
@@ -22,12 +24,20 @@ export function RemotePlayers({ room }: PropsWithRoom<GameState>) {
     })
   }, [room])
 
-  return players.map(player => (
+  const transition = useTransition(players, {
+    from: { scale: 0 },
+    enter: { scale: 1 },
+    leave: { scale: 0 },
+    config: { mass: 1, tension: 200, friction: 20 },
+  })
+
+  return transition((spring, player) => (
     <RemotePlayer
       key={player.username}
       username={player.username}
-      index={player.index}
+      position={player.position.toArray() as Vector3Tuple}
       room={room}
+      {...spring}
     />
   ))
 }

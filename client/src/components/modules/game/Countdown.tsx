@@ -27,7 +27,7 @@ export function Countdown({ room }: PropsWithRoom<GameState>) {
 
   const transitions = useTransition(countdown, {
     from: { scale: 5, position: [0, 0, 50] as Vector3Tuple, rotationX: 4 },
-    enter: { scale: 5, position: [0, 6, 5] as Vector3Tuple, rotationX: 0 },
+    enter: { scale: 5, position: [0, 5, 5] as Vector3Tuple, rotationX: 0 },
     leave: { scale: 0, position: [0, 0, -50] as Vector3Tuple, rotationX: -4 },
     config: { mass: 1, tension: 120, friction: 15 },
   })
