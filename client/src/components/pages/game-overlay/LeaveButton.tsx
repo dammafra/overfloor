@@ -24,7 +24,7 @@ export function LeaveButton() {
       </a.button>
     ) : (
       <a.button
-        className="button danger absolute left-8 bottom-8 icon large"
+        className="button danger absolute left-8 bottom-8 icon large p-1"
         style={spring}
         onClick={() => {
           setConfirm(true)

@@ -12,7 +12,7 @@ export function Lobby() {
   const { id, username, training, countdown } = JSON.parse(atob(options!))
   const [, navigate] = useLocation()
 
-  const ready = useGame(s => s.ready)
+  const lobby = useGame(s => s.lobby)
 
   const { room, error } = useColyseus<GameLobbySchema>({
     roomId: from === 'new' ? undefined : id,
@@ -28,10 +28,10 @@ export function Lobby() {
     }
 
     room.onMessage('start', reservation => {
-      ready()
+      lobby()
       navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })
     })
-  }, [from, room, options, ready, navigate])
+  }, [from, room, options, lobby, navigate])
 
   useEffect(() => {
     if (!error) return

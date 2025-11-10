@@ -21,25 +21,17 @@ export function Game() {
 
   const { room, error } = useColyseus<GameSchema>({ roomName: 'game-room', reservation })
 
-  const start = useGame(s => s.start)
   const end = useGame(s => s.end)
   const ended = useGame(s => s.phase === 'ended')
-
-  const incrementPlayersCount = useGame(s => s.incrementPlayersCount)
-  const decrementPlayersCount = useGame(s => s.decrementPlayersCount)
   const setTime = useGame(s => s.setTime)
 
   useEffect(() => {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('countdown', countdown => countdown < 0 && start())
     room.onMessage('end', end)
-
-    $(room.state).players.onAdd(incrementPlayersCount)
-    $(room.state).players.onRemove(decrementPlayersCount)
     $(room.state).listen('time', setTime)
-  }, [room, start, end, incrementPlayersCount, decrementPlayersCount, setTime])
+  }, [room, end, setTime])
 
   useEffect(() => {
     if (!error) return

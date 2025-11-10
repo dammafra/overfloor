@@ -3,11 +3,13 @@ import type { PropsWithRoom } from '@hooks'
 import { useTransition } from '@react-spring/three'
 import { Billboard } from '@react-three/drei'
 import type { GameSchema } from '@schema'
+import { useGame } from '@stores'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useState } from 'react'
 import { MathUtils, type Vector3Tuple } from 'three'
 
 export function Countdown({ room }: PropsWithRoom<GameSchema>) {
+  const start = useGame(s => s.start)
   const [countdown, setCountdown] = useState<number>()
 
   // prettier-ignore
@@ -22,8 +24,11 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
     if (!room) return
     const $ = getStateCallbacks(room)
 
-    $(room.state).listen('countdown', setCountdown)
-  }, [room])
+    $(room.state).listen('countdown', countdown => {
+      setCountdown(countdown)
+      if (countdown === 0) start()
+    })
+  }, [room, start])
 
   const transitions = useTransition(countdown, {
     from: { scale: 5, position: [0, 0, 50] as Vector3Tuple, rotationX: 4 },

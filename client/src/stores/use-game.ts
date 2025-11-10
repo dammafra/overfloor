@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 
-type GamePhase = 'ready' | 'started' | 'ended'
+type GamePhase = 'lobby' | 'ready' | 'started' | 'ended'
 
 type GameStore = {
   phase: GamePhase
+  lobby: () => void
   ready: () => void
   start: () => void
   end: () => void
@@ -22,7 +23,8 @@ type GameStore = {
 export const useGame = create<GameStore>()(set => ({
   phase: 'ready',
 
-  ready: () => set(() => ({ phase: 'ready', playersCount: 0, time: 0, leaderboard: [] })),
+  lobby: () => set(() => ({ phase: 'lobby', playersCount: 0, time: 0, leaderboard: [] })),
+  ready: () => set(() => ({ phase: 'ready' })),
   start: () => set(() => ({ phase: 'started' })),
   end: () => set(() => ({ phase: 'ended' })),
 

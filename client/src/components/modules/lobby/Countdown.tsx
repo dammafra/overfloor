@@ -4,6 +4,7 @@ import { useIsTouch, type PropsWithRoom } from '@hooks'
 import { useSpring } from '@react-spring/three'
 import { Hud, PerspectiveCamera, Text, type TextProps } from '@react-three/drei'
 import type { GameLobbySchema } from '@schema'
+import { useGame } from '@stores'
 import { getStateCallbacks } from 'colyseus.js'
 import { useEffect, useMemo, useState } from 'react'
 import { MathUtils } from 'three'
@@ -14,6 +15,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
   const { username } = JSON.parse(atob(options!))
   const isTouch = useIsTouch()
 
+  const ready = useGame(s => s.ready)
   const [canStart, setCanStart] = useState(false)
   const [countdown, setCountdown] = useState<number>()
   const [isOwner, setIsOwner] = useState(false)
@@ -37,7 +39,10 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
 
     $(room.state).listen('owner', owner => setIsOwner(owner === username))
     $(room.state).listen('canStart', setCanStart)
-    $(room.state).listen('countdown', setCountdown)
+    $(room.state).listen('countdown', countdown => {
+      setCountdown(countdown)
+      if (countdown === 10) ready()
+    })
   }, [room, username])
 
   const { scale, color } = useSpring({
