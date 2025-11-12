@@ -20,8 +20,6 @@ export class GameRoom extends Room<GameState> {
   COUNTDOWN: number //s
 
   #timer: Delayed
-  #interval: Delayed
-
   #loop: Delayed
   #loopsCount = 0
   #phase = GameLoopPhase.IDLE
@@ -91,7 +89,7 @@ export class GameRoom extends Room<GameState> {
 
     this.clock.setTimeout(() => {
       this.state.countdown = 3
-      this.#interval = this.clock.setInterval(async () => {
+      const interval = this.clock.setInterval(async () => {
         if (this.state.countdown >= 0) {
           this.state.countdown--
           return
@@ -99,7 +97,7 @@ export class GameRoom extends Room<GameState> {
 
         this.#resetLoop()
         this.#timer = this.clock.setInterval(() => this.state.time++, 1000)
-        this.#interval.clear()
+        interval.clear()
       }, 1000)
     }, this.IDLE)
   }
