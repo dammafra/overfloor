@@ -38,20 +38,6 @@ export class GameRoom extends Room<GameState> {
 
     this.state.init(options.playersCount <= gridConfig.medium.maxPlayers ? 'medium' : 'large')
 
-    this.clock.setTimeout(() => {
-      this.state.countdown = this.#training ? -1 : 3
-      this.#interval = this.clock.setInterval(async () => {
-        if (this.state.countdown >= 0) {
-          this.state.countdown--
-          return
-        }
-
-        this.#resetLoop()
-        this.#timer = this.clock.setInterval(() => this.state.time++, 1000)
-        this.#interval.clear()
-      }, 1000)
-    }, this.IDLE)
-
     this.onMessage('set-walking', (client, data) => {
       const player = this.state.players.get(client.sessionId)
       if (!player) return
@@ -99,6 +85,23 @@ export class GameRoom extends Room<GameState> {
   async onJoin(client: Client, options: JoinGameRoomOptions) {
     this.state.addPlayer(client.sessionId, options.username)
     console.log(`[${this.roomName}] ✅ [${client.sessionId}] ${options.username} joined`)
+
+    // TODO can this possibly always be false?
+    if (this.clients.length < this.maxClients) return
+
+    this.clock.setTimeout(() => {
+      this.state.countdown = 3
+      this.#interval = this.clock.setInterval(async () => {
+        if (this.state.countdown >= 0) {
+          this.state.countdown--
+          return
+        }
+
+        this.#resetLoop()
+        this.#timer = this.clock.setInterval(() => this.state.time++, 1000)
+        this.#interval.clear()
+      }, 1000)
+    }, this.IDLE)
   }
 
   async onLeave(client: Client) {

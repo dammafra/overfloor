@@ -1,8 +1,9 @@
 import { useTransition } from '@react-spring/three'
 import { Sparkles } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
+import { useGame } from '@stores'
 import { aspects, positions } from '@utils'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { type Vector3Tuple } from 'three'
 import { useRoute } from 'wouter'
 import { Backdrop } from './Backdrop'
@@ -22,7 +23,18 @@ export function UI() {
   const [matchGame] = useRoute('/game/:reservation')
   const [matchLobby] = useRoute('/:from/lobby/:options')
   const [matchTest] = useRoute('/test/*?')
-  const match = matchGame || matchLobby || matchTest
+
+  const match = useMemo(
+    () => matchGame || matchLobby || matchTest,
+    [matchGame, matchLobby, matchTest],
+  )
+
+  const setPhase = useGame(s => s.setPhase)
+
+  useEffect(() => {
+    if (!matchGame && !matchLobby) setPhase('ready')
+  }, [matchGame, matchLobby])
+
   const { viewport } = useThree()
 
   const size = useMemo(() => (matchGame || matchTest ? 0 : 11), [matchGame, matchTest])
@@ -47,14 +59,14 @@ export function UI() {
   // TODO improve
   const getTileType = useCallback(
     (index: number) =>
-      matchLobby
+      match
         ? 'base'
         : buttonIndices.includes(index)
           ? 'button'
           : lettersIndices.includes(index)
             ? 'letter'
             : 'base',
-    [buttonIndices, lettersIndices, matchLobby],
+    [buttonIndices, lettersIndices, match],
   )
 
   // TODO improve

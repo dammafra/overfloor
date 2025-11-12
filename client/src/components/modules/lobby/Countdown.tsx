@@ -15,7 +15,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
   const { username } = JSON.parse(atob(options!))
   const isTouch = useIsTouch()
 
-  const ready = useGame(s => s.ready)
+  const setPhase = useGame(s => s.setPhase)
   const [canStart, setCanStart] = useState(false)
   const [countdown, setCountdown] = useState<number>()
   const [isOwner, setIsOwner] = useState(false)
@@ -41,9 +41,9 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
     $(room.state).listen('canStart', setCanStart)
     $(room.state).listen('countdown', countdown => {
       setCountdown(countdown)
-      if (countdown === 10) ready()
+      if (countdown === 10) setPhase('countdown')
     })
-  }, [room, username])
+  }, [room, username, setPhase])
 
   const { scale, color } = useSpring({
     from: { scale: 0, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },

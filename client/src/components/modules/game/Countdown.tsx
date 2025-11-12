@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { MathUtils, type Vector3Tuple } from 'three'
 
 export function Countdown({ room }: PropsWithRoom<GameSchema>) {
-  const start = useGame(s => s.start)
+  const setPhase = useGame(s => s.setPhase)
   const [countdown, setCountdown] = useState<number>()
 
   // prettier-ignore
@@ -26,9 +26,9 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
 
     $(room.state).listen('countdown', countdown => {
       setCountdown(countdown)
-      if (countdown === 0) start()
+      if (countdown === 0) setPhase('started')
     })
-  }, [room, start])
+  }, [room, setPhase])
 
   const transitions = useTransition(countdown, {
     from: { scale: 5, position: [0, 0, 50] as Vector3Tuple, rotationX: 4 },

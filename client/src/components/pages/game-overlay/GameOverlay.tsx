@@ -10,7 +10,7 @@ export function GameOverlay() {
 
   return (
     <div className="page pointer-events-none">
-      {started && !ended && <LeaveButton />}
+      {!ended && <LeaveButton />}
       {started && !ended && <PlayersCount />}
       {started && !ended && <Time />}
       {ended && <Leaderboard />}

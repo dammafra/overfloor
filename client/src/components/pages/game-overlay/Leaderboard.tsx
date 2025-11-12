@@ -43,7 +43,7 @@ export function Leaderboard() {
       style={webSpring}
       className="page gap-4 relative text-white text-stroke-black pointer-events-auto"
     >
-      <h1 className="text-4xl bg-white/40 py-2 px-4 rounded-xl">LEADERBOARD</h1>
+      <h1 className="w-xs text-4xl text-center bg-white/40 py-2 px-4 rounded-xl">GAME OVER</h1>
 
       <div className="flex justify-center items-center gap-4 relative z-10">
         <Link href="/" className="button danger icon">

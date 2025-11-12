@@ -1,5 +1,4 @@
 import { a, useSpring, useTransition } from '@react-spring/web'
-import clsx from 'clsx'
 import { useState } from 'react'
 import { Link, useParams } from 'wouter'
 
@@ -34,6 +33,8 @@ export function LobbyOverlay() {
     onRest: () => setInfo(false),
   })
 
+  if (training) return <></>
+
   return (
     <a.div className="page pointer-events-none" style={spring}>
       <a.div className="absolute bottom-5 w-full text-white text-stroke-black text-center pointer-events-auto">
@@ -50,14 +51,12 @@ export function LobbyOverlay() {
             <span className="icon-[mdi--chevron-left]" />
           </Link>
           <p>leave / share</p>
-          <button className={clsx('button icon', { disabled: training })} onClick={() => share()}>
+          <button className="button icon" onClick={share}>
             <span className="icon-[mdi--share]" />
           </button>
         </div>
 
-        <h1 className="text-4xl md:text-5xl px-4 break-all line-clamp-1">
-          {training ? 'TRAINING' : id}
-        </h1>
+        <h1 className="text-4xl md:text-5xl px-4 break-all line-clamp-1">{id}</h1>
       </a.div>
     </a.div>
   )

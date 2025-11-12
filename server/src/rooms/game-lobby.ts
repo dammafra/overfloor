@@ -20,6 +20,7 @@ export class GameLobby extends Room<GameLobbyState> {
 
   MIN_PLAYERS = 2
   COUNTDOWN = 60
+  COUNTDOWN_END = 4
 
   state = new GameLobbyState()
   #interval: Delayed
@@ -35,7 +36,7 @@ export class GameLobby extends Room<GameLobbyState> {
       this.#training = true
       this.autoDispose = true
       this.MIN_PLAYERS = 1
-      this.COUNTDOWN = 3
+      this.COUNTDOWN = this.COUNTDOWN_END
     }
 
     this.#checkMatchCanStart()
@@ -43,7 +44,7 @@ export class GameLobby extends Room<GameLobbyState> {
     this.#interval = this.clock.setInterval(async () => {
       if (!this.state.canStart) return
 
-      if (this.state.countdown > 0) {
+      if (this.state.countdown > this.COUNTDOWN_END) {
         this.state.countdown--
         return
       }
