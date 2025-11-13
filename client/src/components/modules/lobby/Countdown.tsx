@@ -41,7 +41,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
     $(room.state).listen('canStart', setCanStart)
     $(room.state).listen('countdown', countdown => {
       setCountdown(countdown)
-      if (countdown === 10) setPhase('countdown')
+      if (countdown <= 10) setPhase('countdown')
     })
   }, [room, username, setPhase])
 

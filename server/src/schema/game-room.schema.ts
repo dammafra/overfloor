@@ -19,15 +19,14 @@ export interface PlayerSchema {
 export interface TileSchema {
   id: string
   position: ArraySchema<number>
-  phase: GameLoopPhase
   targeted: boolean
-  falling: boolean
   disabled: boolean
 }
 
 export class GameSchema {
   countdown: number
   time: number
+  phase: GameLoopPhase
 
   width: number
   height: number

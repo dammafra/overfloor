@@ -22,10 +22,8 @@ export class GameRoom extends Room<GameState> {
   #timer: Delayed
   #loop: Delayed
   #loopsCount = 0
-  #phase = GameLoopPhase.IDLE
   #phaseDuration = 800 // min 300ms
   #resetDuration = 700
-  #totalPhases = Object.keys(GameLoopPhase).filter(k => isNaN(Number(k))).length
 
   #training: boolean
 
@@ -111,23 +109,18 @@ export class GameRoom extends Room<GameState> {
     console.log(`[${this.roomName}] 🗑️ disposing room ${this.roomId}`)
   }
 
-  #tick() {
-    this.#phase = (this.#phase + 1) % this.#totalPhases
-  }
-
   #gameLoop(shrink?: boolean) {
     this.state.targetTiles(shrink)
     this.#loopsCount++
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
-      if (this.#phase === GameLoopPhase.FALLING) {
+      if (this.state.phase === GameLoopPhase.FALLING) {
         this.#resetLoop(shrink)
         return
       }
 
-      this.#tick()
-      this.state.setPhase(this.#phase)
+      this.state.tick()
     }, this.#phaseDuration)
   }
 
@@ -137,7 +130,7 @@ export class GameRoom extends Room<GameState> {
 
     this.#loop?.clear()
     this.#loop = this.clock.setInterval(() => {
-      if (this.#phase === GameLoopPhase.IDLE) {
+      if (this.state.phase === GameLoopPhase.IDLE) {
         if (this.#training || this.state.players.size > 1) {
           const shrink = this.#shrinkCheck()
           this.#gameLoop(shrink)
@@ -148,8 +141,7 @@ export class GameRoom extends Room<GameState> {
         return
       }
 
-      this.#tick()
-      this.state.setPhase(this.#phase)
+      this.state.tick()
     }, this.#resetDuration)
   }
 

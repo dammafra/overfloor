@@ -37,9 +37,7 @@ export class TileState extends Schema implements TileSchema {
   @type('string') id: string
 
   @type({ array: 'float64' }) position = new ArraySchema<number>(0, 0, 0)
-  @type('int8') phase = GameLoopPhase.IDLE
   @type('boolean') targeted: boolean
-  @type('boolean') falling: boolean
   @type('boolean') disabled: boolean
 
   constructor(x: number, z: number) {
@@ -55,6 +53,7 @@ export class TileState extends Schema implements TileSchema {
 export class GameState extends Schema implements GameSchema {
   @type('int16') countdown: number
   @type('int16') time: number = 0
+  @type('int8') phase = GameLoopPhase.IDLE
 
   @type('int8') width: number
   @type('int8') height: number
@@ -89,7 +88,7 @@ export class GameState extends Schema implements GameSchema {
     this.players.set(key, new PlayerState(username, this.players.size, this.dimension))
   }
 
-  randomPattern() {
+  #randomPattern() {
     const config = oneOf(gridConfig[this.dimension].patterns.filter(p => p.key !== this.#lastPattern)) // prettier-ignore
     this.#lastPattern = config.key
 
@@ -108,7 +107,7 @@ export class GameState extends Schema implements GameSchema {
   }
 
   targetTiles(shrink?: boolean) {
-    const pattern = shrink ? gridConfig[this.dimension].shrinkPattern.flat() : this.randomPattern()
+    const pattern = shrink ? gridConfig[this.dimension].shrinkPattern.flat() : this.#randomPattern()
     if (shrink) this.dimension = this.dimension === 'large' ? 'medium' : 'small'
 
     this.tiles
@@ -121,7 +120,6 @@ export class GameState extends Schema implements GameSchema {
   resetTiles() {
     this.tiles.forEach(tile => {
       tile.disabled = false
-      tile.falling = false
     })
   }
 
@@ -133,13 +131,8 @@ export class GameState extends Schema implements GameSchema {
       })
   }
 
-  setPhase(phase: GameLoopPhase) {
-    this.tiles
-      .filter(tile => !tile.disabled)
-      .forEach(tile => {
-        if (!tile.targeted) return
-        tile.phase = phase
-        tile.falling = tile.phase === GameLoopPhase.FALLING
-      })
+  tick() {
+    const phasesCount = GameLoopPhase.FALLING + 1
+    this.phase = (this.phase + 1) % phasesCount
   }
 }

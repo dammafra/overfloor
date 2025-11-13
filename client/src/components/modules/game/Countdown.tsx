@@ -21,6 +21,8 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
   ]
 
   useEffect(() => {
+    setPhase('countdown')
+
     if (!room) return
     const $ = getStateCallbacks(room)
 
