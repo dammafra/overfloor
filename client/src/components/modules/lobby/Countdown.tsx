@@ -52,6 +52,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
 
   const { rotationZ } = useSpring({
     rotationZ: MathUtils.degToRad(0 - clicked * 360),
+    config: { mass: 1, tension: 120, friction: 15 },
   })
 
   return (
