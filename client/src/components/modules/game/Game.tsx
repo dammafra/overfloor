@@ -4,7 +4,7 @@ import { getStateCallbacks, type SeatReservation } from 'colyseus.js'
 import { useEffect } from 'react'
 import { useLocation, useParams } from 'wouter'
 
-import { useGame } from '@stores'
+import { useGame, useNotification } from '@stores'
 import { Boundaries } from './Boundaries'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
@@ -15,6 +15,8 @@ import { RemotePlayers } from './RemotePlayers'
 
 export function Game() {
   const debug = useDebug()
+  const notify = useNotification(s => s.notify)
+
   const params = useParams()
   const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
   const [, navigate] = useLocation()
@@ -35,6 +37,7 @@ export function Game() {
 
   useEffect(() => {
     if (!error) return
+    if (error.notify) notify({ message: error.message, type: 'error' })
     navigate('/')
   }, [error, navigate])
 

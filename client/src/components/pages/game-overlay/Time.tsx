@@ -19,7 +19,7 @@ export function Time() {
   return (
     <a.span
       style={spring}
-      className="absolute top-4 right-4 bg-white/20 text-white text-stroke-black text-2xl py-2 px-4 pl-12 rounded-xl"
+      className="backdrop-blur-xs absolute top-4 right-4 bg-white/20 text-white text-stroke-black text-2xl py-2 px-4 pl-12 rounded-xl"
     >
       <span className="icon-[mdi--clock-time-four] absolute left-4 top-1/2 -translate-y-1/2"></span>
       <p className="w-24 text-center">{format(time)}</p>

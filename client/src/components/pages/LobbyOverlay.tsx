@@ -42,7 +42,10 @@ export function LobbyOverlay() {
           {transition(
             (spring, info) =>
               info && (
-                <a.p style={spring} className="absolute -top-12 bg-white/20 px-4 py-2 rounded-xl">
+                <a.p
+                  style={spring}
+                  className="backdrop-blur-xs absolute -top-12 bg-white/20 px-4 py-2 rounded-xl"
+                >
                   URL copied to clipboard
                 </a.p>
               ),

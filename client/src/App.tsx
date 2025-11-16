@@ -1,4 +1,4 @@
-import { Experience, GUI } from '@components'
+import { Experience, GUI, Notification } from '@components'
 import { DoubleTapPreventer, ErrorBoundary } from '@components/helpers'
 import { TestRoutes } from '@components/modules/test'
 import {
@@ -24,6 +24,7 @@ export default function App() {
       {/* <StrictMode> */}
       <ErrorBoundary>
         <Experience />
+        <Notification />
         <Switch>
           <Route path="/" />
           <Route path="/new" component={CreateRoom} />
