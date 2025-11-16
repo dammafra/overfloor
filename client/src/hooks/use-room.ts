@@ -35,7 +35,7 @@ export function useColyseus<T>(input?: string | UseColyseusParams) {
       ? client.joinById<T>(roomId, options)
       : reservation
         ? client.consumeSeatReservation<T>(reservation)
-        : client.create<T>(roomName, options)
+        : client.joinOrCreate<T>(roomName, options)
 
     roomRequest
       .then(room => {
