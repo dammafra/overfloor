@@ -89,7 +89,7 @@ export class GameState extends Schema implements GameSchema {
   }
 
   #randomPattern() {
-    const config = oneOf(gridConfig[this.dimension].patterns.filter(p => p.key !== this.#lastPattern)) // prettier-ignore
+    const config = oneOf(gridConfig[this.dimension].patterns.filter(p => p.key !== this.#lastPattern)) //prettier-ignore
     this.#lastPattern = config.key
 
     let pattern = config.value

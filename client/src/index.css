@@ -82,7 +82,7 @@ input * {
   }
 
   .button {
-    @apply relative flex items-center justify-center gap-1 bg-amber-400 text-white text-stroke-black font-bold px-4 py-2 rounded-xl shadow hover:bg-amber-300 active:bg-amber-300 cursor-pointer pointer-events-auto;
+    @apply flex items-center justify-center gap-1 bg-amber-400 text-white text-stroke-black font-bold px-4 py-2 rounded-xl shadow hover:bg-amber-300 active:bg-amber-300 cursor-pointer pointer-events-auto;
   }
   .button.success {
     @apply bg-green-500 hover:bg-green-400 active:bg-green-400;
@@ -103,7 +103,7 @@ input * {
     @apply -rotate-45;
   }
   .button:not(.icon):has(span[class^='icon-']) {
-    @apply pl-10;
+    @apply relative pl-10;
   }
   .button:not(.icon) span[class^='icon-'] {
     @apply text-lg left-3 absolute;

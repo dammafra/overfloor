@@ -22,7 +22,8 @@ export const useGame = create<GameStore>()(set => ({
 
   setPhase: phase => {
     set(() => {
-      if (phase === 'ready') return { phase, playersCount: 0, time: 0, leaderboard: [] }
+      //prettier-ignore
+      if (phase === 'ready' || phase === 'lobby') return { phase, playersCount: 0, time: 0, leaderboard: [] }
       else return { phase }
     })
   },

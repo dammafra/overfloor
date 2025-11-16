@@ -6,14 +6,21 @@ import { Billboard, Float, Hud, PerspectiveCamera } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import type { GameSchema } from '@schema'
 import { useGame } from '@stores'
-import { getStateCallbacks } from 'colyseus.js'
+import { getStateCallbacks, type SeatReservation } from 'colyseus.js'
 import { useEffect } from 'react'
 import { MathUtils } from 'three'
+import { useParams } from 'wouter'
 
 export function Leaderboard({ room }: PropsWithRoom<GameSchema>) {
   const { viewport } = useThree()
 
+  const params = useParams()
+  const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
+  // @ts-expect-error id and username are custom fields
+  const { username } = reservation
+
   const leaderboard = useGame(s => s.leaderboard)
+  const winner = leaderboard.at(0) === username
   const updateLeaderboard = useGame(s => s.updateLeaderboard)
 
   useEffect(() => {
@@ -48,10 +55,18 @@ export function Leaderboard({ room }: PropsWithRoom<GameSchema>) {
         rotation={[MathUtils.degToRad(90), MathUtils.degToRad(45), 0]}
       />
 
-      <a.group scale={playerSpring.scale} position={[0, -0.4, 0.5]}>
-        <Billboard>
-          <Float floatIntensity={10} speed={25} rotationIntensity={1}>
-            <Player username={leaderboard.at(0)} />
+      <a.group
+        scale={playerSpring.scale}
+        position={[0, winner ? -0.4 : -0.5, 0.5]}
+        rotation-y={winner ? 0 : -1}
+      >
+        <Billboard follow={winner}>
+          <Float
+            floatIntensity={winner ? 10 : 2}
+            speed={winner ? 25 : 2}
+            rotationIntensity={winner ? 1 : 0}
+          >
+            <Player username={username} />
           </Float>
         </Billboard>
       </a.group>

@@ -10,7 +10,7 @@ import type { Vector3Tuple } from 'three'
 export function Grid({ room }: PropsWithRoom<GameSchema>) {
   const defaultColor = 'dodgerblue'
 
-  // prettier-ignore
+  //prettier-ignore
   const phaseColors = [
     defaultColor,   // IDLE
     'limegreen',    // COUNTDOWN_3

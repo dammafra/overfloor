@@ -12,7 +12,7 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
   const setPhase = useGame(s => s.setPhase)
   const [countdown, setCountdown] = useState<number>()
 
-  // prettier-ignore
+  //prettier-ignore
   const colors = [
     'limegreen',  // GO!
     'orange',     // 1
