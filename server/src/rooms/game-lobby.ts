@@ -19,7 +19,7 @@ export class GameLobby extends Room<GameLobbyState> {
   maxClients = gridConfig.large.maxPlayers
 
   MIN_PLAYERS = 2
-  COUNTDOWN = 60
+  COUNTDOWN_START = 60
   COUNTDOWN_END = 4
 
   state = new GameLobbyState()
@@ -30,16 +30,16 @@ export class GameLobby extends Room<GameLobbyState> {
     await this.#checkPresence(ROOM_IDS_CHANNEL, options.id, 'Room ID already exists')
 
     this.roomId = options.id
-    this.COUNTDOWN = options.countdown || this.COUNTDOWN
+    this.COUNTDOWN_START = options.countdown || this.COUNTDOWN_START
 
     if (options.training) {
       this.#training = true
       this.autoDispose = true
       this.MIN_PLAYERS = 1
-      this.COUNTDOWN = this.COUNTDOWN_END
+      this.COUNTDOWN_START = this.COUNTDOWN_END
     }
 
-    this.#checkMatchCanStart()
+    this.state.countdown = this.COUNTDOWN_START
 
     this.#interval = this.clock.setInterval(async () => {
       if (!this.state.canStart) return
@@ -118,7 +118,7 @@ export class GameLobby extends Room<GameLobbyState> {
 
   #checkMatchCanStart() {
     this.state.canStart = this.state.players.size >= this.MIN_PLAYERS
-    if (!this.state.canStart) this.state.countdown = this.COUNTDOWN
+    if (!this.state.canStart) this.state.countdown = this.COUNTDOWN_START
   }
 
   async #checkPresence(channel: string, value: string, message: string) {
