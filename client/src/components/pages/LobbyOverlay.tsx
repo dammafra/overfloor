@@ -4,7 +4,7 @@ import { Link, useParams } from 'wouter'
 
 export function LobbyOverlay() {
   const { options } = useParams()
-  const { id, training } = JSON.parse(atob(options!))
+  const { id, training, rematch } = JSON.parse(atob(options!))
   const [info, setInfo] = useState(false)
 
   const share = async () => {
@@ -59,7 +59,9 @@ export function LobbyOverlay() {
           </button>
         </div>
 
-        <h1 className="text-4xl md:text-5xl px-4 break-all line-clamp-1">{id}</h1>
+        <h1 className="text-4xl md:text-5xl px-4 break-all line-clamp-1">
+          {rematch ? 'REMATCH' : id}
+        </h1>
       </a.div>
     </a.div>
   )

@@ -36,6 +36,6 @@ export default config({
   initializeGameServer: gameServer => {
     gameServer.define('lobby', LobbyRoom)
     gameServer.define('game-lobby', GameLobby).enableRealtimeListing()
-    gameServer.define('game-room', GameRoom).enableRealtimeListing()
+    gameServer.define('game-room', GameRoom)
   },
 })

@@ -1,5 +1,6 @@
 import { Client, Delayed, matchMaker, Room } from '@colyseus/core'
 import { gridConfig } from '@schema'
+import { v4 as uuid } from 'uuid'
 import { ROOM_IDS_CHANNEL } from '../app.config'
 import { GameLobbyState } from './game-lobby.state'
 
@@ -8,6 +9,7 @@ interface CreateGameLobbyOptions {
   username: string
   countdown?: number
   training?: boolean
+  unlisted?: boolean
 }
 
 interface JoinGameLobbyOptions {
@@ -27,6 +29,8 @@ export class GameLobby extends Room<GameLobbyState> {
   #training: boolean
 
   async onCreate(options: CreateGameLobbyOptions) {
+    if (options.unlisted) this.setPrivate()
+
     await this.#checkPresence(ROOM_IDS_CHANNEL, options.id, 'Room ID already exists')
 
     this.roomId = options.id
@@ -104,7 +108,7 @@ export class GameLobby extends Room<GameLobbyState> {
     this.autoDispose = true
 
     const room = await matchMaker.createRoom('game-room', {
-      id: `${this.roomId}-game`,
+      id: uuid(),
       playersCount: this.state.players.size,
       training: this.#training,
     })
@@ -112,7 +116,7 @@ export class GameLobby extends Room<GameLobbyState> {
     this.clients.forEach(async client => {
       const username = this.state.players.get(client.sessionId)
       const reservation = await matchMaker.reserveSeatFor(room, { username })
-      client.send('start', { ...reservation, id: this.roomId, username })
+      client.send('start', { ...reservation, username })
     })
   }
 

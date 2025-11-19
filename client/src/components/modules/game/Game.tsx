@@ -21,7 +21,7 @@ export function Game() {
   const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
   const [, navigate] = useLocation()
 
-  const { room, error } = useRoom<GameSchema>({ roomName: 'game-room', reservation })
+  const { room, error } = useRoom<GameSchema>({ reservation })
 
   const ended = useGame(s => s.phase === 'ended')
   const setPhase = useGame(s => s.setPhase)

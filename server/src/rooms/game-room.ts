@@ -1,4 +1,4 @@
-import { Client, Delayed, Room } from '@colyseus/core'
+import { Client, Delayed, matchMaker, Room } from '@colyseus/core'
 import { GameLoopPhase } from '@schema'
 import { gridConfig } from '../schema/grid.schema'
 import { GameState } from './game-room.state'
@@ -172,14 +172,13 @@ export class GameRoom extends Room<GameState> {
     }
   }
 
-  #end() {
+  async #end() {
     const winner = [...this.state.players.values()].at(0)
     if (winner) this.state.leaderboard.push(winner.username)
 
     this.#loop.clear()
     this.#timer.clear()
-    this.clients.forEach(async client => {
-      client.send('end')
-    })
+    await matchMaker.createRoom('game-lobby', { id: `${this.roomId}-rematch`, unlisted: true })
+    this.clients.forEach(client => client.send('end'))
   }
 }

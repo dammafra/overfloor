@@ -24,7 +24,7 @@ export interface PropsWithRoom<T> {
 
 interface UseColyseusParams {
   serverUrl?: string
-  roomName: string
+  roomName?: string
   roomId?: string
   options?: Record<string, unknown>
   reservation?: SeatReservation
@@ -52,7 +52,14 @@ export function useRoom<T>(input?: string | UseColyseusParams) {
       ? client.joinById<T>(roomId, options)
       : reservation
         ? client.consumeSeatReservation<T>(reservation)
-        : client.create<T>(roomName, options)
+        : roomName
+          ? client.create<T>(roomName, options)
+          : undefined
+
+    if (!roomRequest) {
+      console.warn('Invalid useRoom params provided:', input)
+      return
+    }
 
     let livenessProbe: number
     roomRequest
