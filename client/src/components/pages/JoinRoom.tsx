@@ -1,4 +1,4 @@
-import { useColyseus, useIsTouch, useSafeInput } from '@hooks'
+import { useIsTouch, useRoom, useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -12,7 +12,7 @@ export function JoinRoom() {
   const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
-  const client = useColyseus()
+  const client = useRoom()
 
   useEffect(() => localStorage.setItem('overfloor-username', username), [username])
 

@@ -1,4 +1,4 @@
-import { useColyseus } from '@hooks'
+import { useRoom } from '@hooks'
 import { GameLobbySchema } from '@schema'
 import { useGame } from '@stores'
 import { useEffect } from 'react'
@@ -14,7 +14,7 @@ export function Lobby() {
 
   const setPhase = useGame(s => s.setPhase)
 
-  const { room, error } = useColyseus<GameLobbySchema>({
+  const { room, error } = useRoom<GameLobbySchema>({
     roomId: from === 'new' ? undefined : id,
     roomName: 'game-lobby',
     options: { id, username, training, countdown },
@@ -39,12 +39,10 @@ export function Lobby() {
     navigate('/')
   }, [error, navigate])
 
-  if (training) return <></>
-
   return (
     <>
-      <Countdown room={room} />
-      <Players room={room} />
+      {!training && <Countdown room={room} />}
+      {!training && <Players room={room} />}
       <CameraRig room={room} />
     </>
   )

@@ -30,11 +30,11 @@ interface UseColyseusParams {
   reservation?: SeatReservation
 }
 
-export function useColyseus(): Client
-export function useColyseus(serverUrl: string): Client
-export function useColyseus<T>(params: UseColyseusParams): { room: Room<T> | undefined, error: ColyseusError | undefined } //prettier-ignore
+export function useRoom(): Client
+export function useRoom(serverUrl: string): Client
+export function useRoom<T>(params: UseColyseusParams): { room: Room<T> | undefined, error: ColyseusError | undefined } //prettier-ignore
 
-export function useColyseus<T>(input?: string | UseColyseusParams) {
+export function useRoom<T>(input?: string | UseColyseusParams) {
   const [client, setClient] = useState<Client>()
   const [room, setRoom] = useState<Room<T>>()
   const [error, setError] = useState<ColyseusError>()
@@ -52,7 +52,7 @@ export function useColyseus<T>(input?: string | UseColyseusParams) {
       ? client.joinById<T>(roomId, options)
       : reservation
         ? client.consumeSeatReservation<T>(reservation)
-        : client.joinOrCreate<T>(roomName, options)
+        : client.create<T>(roomName, options)
 
     let livenessProbe: number
     roomRequest

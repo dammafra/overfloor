@@ -1,4 +1,4 @@
-import { useColyseus, useConfetti } from '@hooks'
+import { useConfetti, useRoom } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { useGame } from '@stores'
 import clsx from 'clsx'
@@ -17,7 +17,7 @@ export function Leaderboard() {
   const winner = leaderboard.at(0) === username
   const [loading, setLoading] = useState(false)
 
-  const client = useColyseus()
+  const client = useRoom()
 
   const rematch = async () => {
     setLoading(true)

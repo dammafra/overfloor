@@ -33,7 +33,7 @@ export function UI() {
 
   useEffect(() => {
     if (!matchGame && !matchLobby) setPhase('ready')
-  }, [matchGame, matchLobby])
+  }, [matchGame, matchLobby, setPhase])
 
   const { viewport } = useThree()
 
