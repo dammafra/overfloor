@@ -21,7 +21,7 @@ export function ChooseRoom() {
   return (
     <a.div className="page" style={{ opacity }}>
       {rooms.length ? (
-        <div className="w-full max-w-110 max-h-80 overflow-scroll fade-vertical">
+        <div className="w-full max-w-110 h-80 overflow-scroll fade-vertical">
           <table className="w-full">
             <thead>
               <tr>
@@ -32,7 +32,7 @@ export function ChooseRoom() {
             </thead>
             <tbody>
               {rooms.map(room => (
-                <tr key={room.roomId}>
+                <tr key={room.roomId} onClick={() => navigate(`/join/${room.roomId}`)}>
                   <td className="max-w-1">
                     <p className="overflow-hidden text-ellipsis">{room.roomId}</p>
                     <p className="flex items-center gap-1 text-xs">
@@ -44,9 +44,9 @@ export function ChooseRoom() {
                   </td>
                   <td className="text-center text-xl w-30">{room.clients}</td>
                   <td className="w-1">
-                    <Link href={`/join/${room.roomId}`} className="button icon">
+                    <button className="button icon">
                       <span className="icon-[mdi--chevron-right]" />
-                    </Link>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -59,8 +59,8 @@ export function ChooseRoom() {
         </p>
       )}
 
-      <Link href="/" className="button icon danger mt-4">
-        <span className="icon-[mdi--chevron-left]" />
+      <Link href="/" className="button danger mt-4 z-10">
+        back
       </Link>
     </a.div>
   )

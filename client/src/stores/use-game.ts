@@ -36,5 +36,5 @@ export const useGame = create<GameStore>()(set => ({
   setTime: time => set(() => ({ time })),
 
   leaderboard: [],
-  updateLeaderboard: player => set(state => ({ leaderboard: [player, ...state.leaderboard] })),
+  updateLeaderboard: player => set(state => ({ leaderboard: [player, ...state.leaderboard.filter(p => p !== player)] })), //prettier-ignore
 }))

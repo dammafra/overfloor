@@ -37,7 +37,7 @@ export function Leaderboard() {
       </h1>
 
       <div className="flex justify-center items-center gap-4 relative z-10">
-        <Link href="/" className="button danger icon">
+        <Link href="/" className="button icon danger">
           <span className="icon-[mdi--close]" />
         </Link>
         <p className="">leave / rematch</p>

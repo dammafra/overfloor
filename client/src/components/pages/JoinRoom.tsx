@@ -41,11 +41,11 @@ export function JoinRoom() {
 
   return (
     <a.div className="page" style={{ opacity }}>
-      <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+      <form className="w-full max-w-110 flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
             autoFocus={!isTouch}
-            className="input"
+            className="input w-full"
             placeholder="username"
             value={username}
             onChange={e => {
@@ -56,8 +56,8 @@ export function JoinRoom() {
           <span className="icon-[mdi--user]" />
         </div>
         <div className="flex gap-2 items-center">
-          <Link href="/join" state="join" className="button danger icon">
-            <span className="icon-[mdi--chevron-left]" />
+          <Link href="/join" state="join" className="button danger">
+            back
           </Link>
           <button
             type="submit"

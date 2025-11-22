@@ -42,11 +42,11 @@ export function CreateRoom() {
 
   return (
     <a.div className="page" style={{ opacity }}>
-      <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+      <form className="w-full max-w-110 flex flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
             autoFocus={!isTouch}
-            className="input"
+            className="input w-full"
             placeholder="room ID"
             value={id}
             onChange={e => {
@@ -58,7 +58,7 @@ export function CreateRoom() {
         </div>
         <div>
           <input
-            className="input"
+            className="input w-full"
             placeholder="username"
             value={username}
             onChange={e => setUsername(e.target.value)}
@@ -66,8 +66,8 @@ export function CreateRoom() {
           <span className="icon-[mdi--user]" />
         </div>
         <div className="flex gap-2 items-center">
-          <Link href="/" className="button danger icon">
-            <span className="icon-[mdi--chevron-left]" />
+          <Link href="/" className="button danger">
+            back
           </Link>
           <button
             type="submit"
