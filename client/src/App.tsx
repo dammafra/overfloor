@@ -1,5 +1,5 @@
-import { Experience, GUI, Notification } from '@components'
-import { DoubleTapPreventer, ErrorBoundary } from '@components/helpers'
+import { Experience, Notification } from '@components'
+import { DoubleTapPreventer, ErrorBoundary, GUI } from '@components/helpers'
 import { TestRoutes } from '@components/modules/test'
 import {
   ChooseRoom,
