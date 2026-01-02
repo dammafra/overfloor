@@ -7,7 +7,7 @@
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-> Try it live here 👉 [overfloor.vercel.app](https://overfloor.vercel.app)
+> Try it live here 👉 [overfloor.dammafra.dev](https://overfloor.dammafra.dev)
 
 Watch the floor tiles, be careful where you stand, outlast your opponents and be the last one standing!
 
