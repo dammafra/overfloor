@@ -64,7 +64,8 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
           gameId: import.meta.env.VITE_PLAYROOM_GAME_ID,
           roomCode,
           skipLobby: true,
-          maxPlayersPerRoom: practice ? 1 : gridConfig.large.maxPlayers,
+          // practice: the player and the bot
+          maxPlayersPerRoom: practice ? 2 : gridConfig.large.maxPlayers,
         },
         undefined,
         error => fail(current, ERRORS[error.message] ?? error.message ?? 'Connection lost'),

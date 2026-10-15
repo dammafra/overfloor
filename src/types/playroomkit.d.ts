@@ -1,10 +1,14 @@
 import 'playroomkit'
+import type { PlayerState } from 'playroomkit'
 
 declare module 'playroomkit' {
   // Exported by playroomkit but missing from its typings
   export const Multiplayer: {
     (): {
-      connection?: unknown
+      connection?: {
+        // host only: a player run by this client, what `addBot` adds
+        addProxyPlayer(): PlayerState | undefined
+      }
       on(
         event: 'state',
         callback: (state: Record<string, unknown>, key: string) => void,
