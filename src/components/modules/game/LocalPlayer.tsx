@@ -1,10 +1,10 @@
 import { Player } from '@components'
-import { useThrottle } from '@hooks'
+import { useGamePhase, useThrottle } from '@hooks'
 import { notifyFell } from '@multiplayer'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
 import { PLAYER, type PlayerSchema } from '@schema'
-import { useController, useGame, useRoomState } from '@stores'
+import { useController, useRoomState } from '@stores'
 import { myPlayer } from 'playroomkit'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3 } from 'three'
@@ -17,7 +17,7 @@ export const PLAYERS_COLLISION_GROUP = (GROUP << 16) | MASK
 const FALL_LIMIT = -50
 
 export function LocalPlayer() {
-  const started = useGame(s => s.phase === 'started')
+  const started = useGamePhase() === 'started'
   const { up, down, left, right, strength } = useController()
 
   const bodyRef = useRef<RapierRigidBody>(null)

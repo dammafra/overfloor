@@ -1,9 +1,8 @@
-import { useDebug } from '@hooks'
+import { useDebug, useGamePhase } from '@hooks'
 import { hasSession } from '@multiplayer'
 import { useEffect } from 'react'
 import { useLocation } from 'wouter'
 
-import { useGame, useRoomState } from '@stores'
 import { Boundaries } from './Boundaries'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
@@ -16,18 +15,11 @@ export function Game() {
   const debug = useDebug()
   const [, navigate] = useLocation()
 
-  const stage = useRoomState(s => s.stage)
-
-  const ended = useGame(s => s.phase === 'ended')
-  const setPhase = useGame(s => s.setPhase)
+  const ended = useGamePhase() === 'ended'
 
   useEffect(() => {
     if (!hasSession()) navigate('/', { replace: true })
   }, [navigate])
-
-  useEffect(() => {
-    if (stage === 'ended') setPhase('ended')
-  }, [stage, setPhase])
 
   useEffect(() => {
     const handleVisibilityChange = () => navigate('/')

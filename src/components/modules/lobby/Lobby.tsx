@@ -1,6 +1,6 @@
 import { connect } from '@multiplayer'
 import { PLAYER } from '@schema'
-import { useGame, useRoomState } from '@stores'
+import { useRoomState } from '@stores'
 import { getRoomCode, myPlayer } from 'playroomkit'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'wouter'
@@ -13,7 +13,6 @@ export function Lobby() {
   const { id, username, training, countdown, rematch } = JSON.parse(atob(options!))
   const [, navigate] = useLocation()
 
-  const setPhase = useGame(s => s.setPhase)
   const [connected, setConnected] = useState(false)
 
   const stage = useRoomState(s => s.stage)
@@ -34,10 +33,9 @@ export function Lobby() {
     if (!connected) return
 
     myPlayer().setState(PLAYER.inLobby, true, true)
-    setPhase('lobby')
 
     return () => myPlayer()?.setState(PLAYER.inLobby, false, true)
-  }, [connected, setPhase])
+  }, [connected])
 
   useEffect(() => {
     if (!connected || stage !== 'game') return

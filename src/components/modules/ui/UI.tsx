@@ -1,9 +1,8 @@
 import { useTransition } from '@react-spring/three'
 import { Sparkles } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { useGame } from '@stores'
 import { aspects, positions } from '@utils'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { type Vector3Tuple } from 'three'
 import { useRoute } from 'wouter'
 import { Backdrop } from './Backdrop'
@@ -28,12 +27,6 @@ export function UI() {
     () => matchGame || matchLobby || matchTest,
     [matchGame, matchLobby, matchTest],
   )
-
-  const setPhase = useGame(s => s.setPhase)
-
-  useEffect(() => {
-    if (!matchGame && !matchLobby) setPhase('ready')
-  }, [matchGame, matchLobby, setPhase])
 
   const { viewport } = useThree()
 

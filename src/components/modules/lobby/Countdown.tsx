@@ -4,15 +4,14 @@ import { useIsTouch } from '@hooks'
 import { requestStart } from '@multiplayer'
 import { useSpring } from '@react-spring/three'
 import { Hud, PerspectiveCamera, Text, type TextProps } from '@react-three/drei'
-import { useGame, useRoomState } from '@stores'
+import { useRoomState } from '@stores'
 import { useIsHost } from 'playroomkit'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { MathUtils } from 'three'
 
 export function Countdown() {
   const isTouch = useIsTouch()
 
-  const setPhase = useGame(s => s.setPhase)
   const lobby = useRoomState(s => s.lobby)
   const canStart = !!lobby?.canStart
   const countdown = lobby?.countdown
@@ -30,10 +29,6 @@ export function Countdown() {
     }),
     [],
   )
-
-  useEffect(() => {
-    if (countdown !== undefined && countdown <= 10) setPhase('countdown')
-  }, [countdown, setPhase])
 
   const { scale, color } = useSpring({
     from: { scale: 0, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },

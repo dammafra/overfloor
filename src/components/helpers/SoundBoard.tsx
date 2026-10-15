@@ -1,11 +1,12 @@
-import { useGame, useSoundBoard } from '@stores'
+import { useGamePhase } from '@hooks'
+import { useSoundBoard } from '@stores'
 import { Howler } from 'howler'
 import { useEffect, useState } from 'react'
 
 // const parse = ([play, data]: ReturnedValue) => ({ play, ...data })
 
 export default function SoundBoard() {
-  const phase = useGame(state => state.phase)
+  const phase = useGamePhase()
 
   const setContext = useSoundBoard(state => state.setContext)
   const setSounds = useSoundBoard(state => state.setSounds)
