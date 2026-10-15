@@ -1,0 +1,38 @@
+import { a, useTransition } from '@react-spring/web'
+import { useState } from 'react'
+import { useLocation } from 'wouter'
+
+export function LeaveButton() {
+  const [, navigate] = useLocation()
+  const [confirm, setConfirm] = useState(false)
+
+  const transitions = useTransition(confirm, {
+    from: { scale: 0, opacity: 0 },
+    enter: { scale: 1, opacity: 1 },
+    leave: { scale: 0, opacity: 0 },
+    config: { tension: 300, friction: 20 },
+  })
+
+  return transitions((spring, confirm) =>
+    confirm ? (
+      <a.button
+        className="button danger absolute bottom-8 left-8"
+        style={spring}
+        onClick={() => navigate('/', { replace: true })}
+      >
+        leave the room?
+      </a.button>
+    ) : (
+      <a.button
+        className="button danger icon large absolute bottom-8 left-8 p-1"
+        style={spring}
+        onClick={() => {
+          setConfirm(true)
+          setTimeout(() => setConfirm(false), 3000)
+        }}
+      >
+        <span className="icon-[mdi--close]" />
+      </a.button>
+    ),
+  )
+}

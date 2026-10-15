@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+@plugin "@iconify/tailwind4";
+
+@font-face {
+  font-family: 'Audiowide';
+  src: url('/fonts/audiowide.ttf');
+}
+
+@utility font-audiowide {
+  font-family: 'Audiowide';
+}
+
+@utility cursor-auto {
+  cursor: url('/cursors/auto.png'), auto;
+}
+
+@utility cursor-pointer {
+  cursor: url('/cursors/pointer.png'), pointer;
+}
+
+@utility fade-vertical {
+  margin-block: calc(var(--spacing) * -10);
+  padding-block: calc(var(--spacing) * 10);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 20%,
+    black 80%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%);
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Prevent iOS text selection */
+body,
+* {
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  @apply cursor-auto;
+}
+
+*[style*='cursor: pointer'],
+*[style*='cursor: pointer'] * {
+  @apply cursor-pointer!;
+}
+
+a,
+button,
+a *,
+button *,
+input,
+input * {
+  @apply cursor-pointer;
+}
+
+@utility text-stroke-* {
+  text-shadow:
+    -1px -1px 0 --value(--color-*),
+    1px -1px 0 --value(--color-*),
+    -1px 1px 0 --value(--color-*),
+    1px 1px 0 --value(--color-*);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply fixed inset-0 touch-none overflow-hidden bg-slate-900 bg-radial from-cyan-500 to-slate-900 font-audiowide;
+  }
+}
+
+@layer components {
+  .page {
+    @apply fixed inset-0 flex flex-col items-center justify-center overflow-hidden p-4;
+  }
+
+  .button {
+    @apply pointer-events-auto flex cursor-pointer items-center justify-center gap-1 rounded-xl bg-amber-400 px-4 py-2 font-bold text-white shadow text-stroke-black hover:bg-amber-300 active:bg-amber-300;
+  }
+  .button.success {
+    @apply bg-green-500 hover:bg-green-400 active:bg-green-400;
+  }
+  .button.danger {
+    @apply bg-rose-700 hover:bg-rose-500 active:bg-rose-500;
+  }
+  .button.disabled {
+    @apply pointer-events-none opacity-50;
+  }
+  .button.icon {
+    @apply size-9 rotate-45 p-0 text-3xl;
+  }
+  .button.icon.large {
+    @apply size-12 rotate-45 p-0 text-5xl;
+  }
+  .button.icon span[class^='icon-'] {
+    @apply -rotate-45;
+  }
+  .button:not(.icon):has(span[class^='icon-']) {
+    @apply relative pl-10;
+  }
+  .button:not(.icon) span[class^='icon-'] {
+    @apply absolute left-3 text-lg;
+  }
+
+  a:not(.button) {
+    @apply underline hover:text-slate-300 active:text-slate-300;
+  }
+
+  .input {
+    @apply relative rounded-xl bg-white px-4 py-2 text-slate-500 ring-red-500 outline-slate-500;
+  }
+  div:has(> .input + span[class^='icon-']) {
+    @apply relative;
+  }
+  .input:has(+ span[class^='icon-']) {
+    @apply pl-10;
+  }
+  .input + span[class^='icon-'] {
+    @apply absolute top-2 left-2 text-2xl text-slate-500;
+  }
+
+  table {
+    @apply border-separate border-spacing-y-1 text-white text-stroke-black;
+  }
+  table thead {
+    @apply sticky top-0 z-10;
+  }
+  table thead th {
+    @apply bg-white/40 px-4 py-2 first:rounded-l-xl last:rounded-r-xl;
+  }
+  table tbody td {
+    @apply bg-white/10 px-4 py-2 first:rounded-l-xl last:rounded-r-xl;
+  }
+}

@@ -27,22 +27,14 @@ Watch the floor tiles, be careful where you stand, outlast your opponents and be
 
 ## Setup
 
-The repository contains two separate projects:
-
-- **client** - React application in Typescript
-- **server** - Colyseus application in Node
-
 ```bash
-# Create client and server .env files
-cp client/.env.example client/.env && cp server/.env.example server/.env
-
 # Install dependencies (only the first time)
 npm install
 
-# Run the local server at localhost:5173 and localhost:2567 for client and server respectively
+# Run the local server at localhost:5173
 npm run dev
 
-# Build for production in the client/dist and server/dist directories
+# Build for production in the dist
 npm run build
 ```
 
@@ -64,6 +56,6 @@ If you have any suggestions, feel free to reach out!
 
 ## License
 
-© 2025 Francesco Dammacco  
-This project is licensed under the GNU Affero General Public License v3.0.  
+© 2025 Francesco Dammacco
+This project is licensed under the GNU Affero General Public License v3.0.
 See the [LICENSE](./LICENSE) file for details.
