@@ -61,7 +61,9 @@ export class Host {
   }
 
   onPlayerFell(id: string) {
-    this.#game?.fell(id)
+    // practice: the fall of the player restarts the match, the bots are just eliminated
+    if (this.#practice && !this.#bots.some(bot => bot.id === id)) this.#startMatch(this.#players())
+    else this.#game?.fell(id)
   }
 
   start() {
@@ -79,7 +81,7 @@ export class Host {
     this.#botInterval = window.setInterval(() => {
       const taken = new Set<string>()
       this.#bots.forEach(bot => {
-        bot.think(taken)
+        bot.think(taken, this.#bots)
         if (bot.target) taken.add(bot.target)
       })
     }, BOT_THINK_INTERVAL)
@@ -109,14 +111,15 @@ export class Host {
     setState(STATE.lobby, lobby, true)
   }
 
-  #startMatch() {
-    const players = this.#lobbyPlayers().map(p => ({
+  // `players`: the lobby players by default, everyone in the room on a practice restart (the player is no longer in the lobby)
+  #startMatch(players = this.#lobbyPlayers()) {
+    const match = players.map(p => ({
       id: p.id,
       username: p.getState(PLAYER.username) as string,
     }))
 
     this.#game?.dispose()
-    this.#game = GameHost.start(players, this.#practice)
+    this.#game = GameHost.start(match, this.#practice)
 
     this.#setLobby(false, this.#countdownStart)
     setState(STATE.stage, 'game', true)

@@ -81,17 +81,6 @@ export class GameHost {
 
     this.#state.leaderboard.push(player.username)
 
-    if (this.#practice) {
-      // TODO improve
-      this.#state.dimension = 'medium'
-      this.#loopsCount = 0
-      this.#phaseDuration = INITIAL_PHASE_DURATION
-      this.#state.resetTiles()
-      this.#state.addPlayer(player.id, player.username)
-      this.#state.syncGrid()
-      this.#syncLoop()
-    }
-
     this.#state.syncPlayers()
     this.#state.syncLeaderboard()
   }
@@ -144,11 +133,11 @@ export class GameHost {
   }
 
   #resetLoop(shrink?: boolean) {
-    this.#decreasePhaseDuration()
     if (shrink) {
       this.#state.disableTiles()
       this.#state.syncGrid()
     }
+    this.#decreasePhaseDuration()
 
     clearInterval(this.#loop)
     this.#loop = window.setInterval(() => {

@@ -2,6 +2,9 @@
 
 export const BOUNCY_CONFIG = { mass: 1, tension: 120, friction: 15 }
 
+// fast enough to show every countdown color even at the shortest phase duration
+export const COLOR_CONFIG = { duration: 100 }
+
 export const POP_CONFIG = { tension: 300, friction: 20 }
 
 export const POP_TRANSITION = {

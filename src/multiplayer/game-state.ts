@@ -25,6 +25,8 @@ export class GameState {
   tiles: TileSchema[] = []
 
   #lastPattern?: string
+  // dimension applied once the shrink tiles fall, so the walls do not shrink before
+  #shrinkTo?: GridDimension
 
   // restore the state from the room, e.g. after host migration
   static hydrate() {
@@ -92,7 +94,7 @@ export class GameState {
   targetTiles(shrink?: boolean) {
     const shrinkConfig = shrink ? gridConfig[this.dimension].shrink : undefined
     const pattern = shrinkConfig ? shrinkConfig.pattern.flat() : this.#randomPattern()
-    if (shrinkConfig) this.dimension = shrinkConfig.to
+    this.#shrinkTo = shrinkConfig?.to
 
     this.tiles
       .filter(tile => !tile.disabled)
@@ -113,6 +115,9 @@ export class GameState {
       .forEach(tile => {
         tile.disabled = tile.targeted
       })
+
+    if (this.#shrinkTo) this.dimension = this.#shrinkTo
+    this.#shrinkTo = undefined
   }
 
   tick() {

@@ -3,7 +3,7 @@ import { useTransition } from '@react-spring/three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { GameLoopPhase, GRID_UNIT } from '@schema'
 import { useRoomState } from '@stores'
-import { BOUNCY_CONFIG, COLORS } from '@utils'
+import { BOUNCY_CONFIG, COLOR_CONFIG, COLORS } from '@utils'
 
 export function Grid() {
   const defaultColor = COLORS.tile
@@ -32,7 +32,10 @@ export function Grid() {
     }),
     enter: { scale: GRID_UNIT },
     leave: { scale: 0 },
-    update: tile => ({ color: tile.targeted ? phaseColors[phase] : defaultColor }),
+    update: tile => ({
+      color: tile.targeted ? phaseColors[phase] : defaultColor,
+      config: COLOR_CONFIG,
+    }),
     config: BOUNCY_CONFIG,
   })
 

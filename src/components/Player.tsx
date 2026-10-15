@@ -11,18 +11,17 @@ function stringToColor(str: string) {
     hash |= 0 // ensure 32-bit
   }
 
-  // golden ratio conjugate (spreads hues evenly)
-  const goldenRatio = 0.618033988749895
+  // avalanche (murmur3 finalizer): similar strings, e.g. "Bot 1" and "Bot 2", get distant hues
+  hash ^= hash >>> 16
+  hash = Math.imul(hash, 0x85ebca6b)
+  hash ^= hash >>> 13
+  hash = Math.imul(hash, 0xc2b2ae35)
+  hash ^= hash >>> 16
+  hash >>>= 0
 
-  // map hash to [0,1)
-  const normalized = (Math.abs(hash) % 1000) / 1000
-
-  // compute hue using golden ratio
-  const h = ((normalized + goldenRatio) % 1) * 360
-
-  // vary saturation and lightness based on hash
-  const s = 65 + (Math.abs(hash) % 20) // 65–84%
-  const l = 45 + ((Math.abs(hash) >> 8) % 15) // 45–59%
+  const h = (hash / 2 ** 32) * 360
+  const s = 65 + (hash % 20) // 65–84%
+  const l = 45 + ((hash >>> 8) % 15) // 45–59%
 
   return `hsl(${Math.round(h)}, ${s}%, ${l}%)`
 }
