@@ -13,14 +13,23 @@ import { Quaternion, Vector3, type Vector4Tuple } from 'three'
 import { PlayerBody } from './PlayerBody'
 
 const FALL_LIMIT = -50
-const STRENGTH = 30
+// walking: the horizontal velocity is steered toward the input, quickly so it doesn't feel like ice
+const SPEED = 8
+const ACCELERATION = 15
+const DECELERATION = 20
 const UP = new Vector3(0, 1, 0)
 const IDENTITY: Vector4Tuple = [0, 0, 0, 1]
 const PUBLISH_INTERVAL = 33 //ms
 const FOLLOW_RATE = 20
+// knockback on contact between players: a base bump plus the speed of the pusher toward the other
+const BUMP = 1
+const KNOCKBACK = 0.4
+// time without control after a bump, so the knockback isn't cancelled by the walking
+const STUN = 350 //ms
 
 // reused every frame
-const _impulse = new Vector3()
+const _velocity = new Vector3()
+const _bump = new Vector3()
 const _rotation = new Quaternion()
 const _targetPosition = new Vector3()
 const _targetRotation = new Quaternion()
@@ -93,11 +102,17 @@ function useWalking(state: PlayerState) {
 }
 
 // host side: dynamic body moved by the player input
+type SimulatedUserData = { player: true; stunnedUntil: number }
+
 function SimulatedPlayer(props: MatchPlayerProps) {
   const { player, state, ...playerProps } = props
 
   const bodyRef = useRef<RapierRigidBody>(null)
   const fellRef = useRef(false)
+  // velocity before the step: on contact the solver has already stopped the body
+  const velocityRef = useRef(new Vector3())
+  // read by the other bodies on contact
+  const [userData] = useState<SimulatedUserData>(() => ({ player: true, stunnedUntil: 0 }))
   const { started, walking } = useWalking(state)
   const initial = useInitialPosition(props)
 
@@ -124,19 +139,33 @@ function SimulatedPlayer(props: MatchPlayerProps) {
     }
 
     if (!body.isSleeping()) publish(false)
+    velocityRef.current.copy(body.linvel())
 
     const angle: number | null = state.getState(PLAYER.input)
-    if (!started || angle == null) return
-
-    _impulse.set(Math.sin(angle), 0, Math.cos(angle))
-
-    // rotation toward direction, with smooth interpolation
-    _rotation.setFromAxisAngle(UP, angle)
-    const rotation = quat(body.rotation()).slerp(_rotation, 5 * delta)
-
+    const moving = started && angle != null
     const safeDelta = Math.min(delta, 0.1)
-    body.applyImpulse(_impulse.multiplyScalar(STRENGTH * safeDelta), true)
-    body.setRotation(rotation, true)
+
+    if (moving) {
+      // rotation toward direction, with smooth interpolation
+      _rotation.setFromAxisAngle(UP, angle)
+      body.setRotation(quat(body.rotation()).slerp(_rotation, 5 * delta), true)
+    }
+
+    if (performance.now() < userData.stunnedUntil) return
+
+    const velocity = body.linvel()
+    if (moving) _velocity.set(Math.sin(angle) * SPEED, 0, Math.cos(angle) * SPEED)
+    else if (Math.hypot(velocity.x, velocity.z) < 0.01) return // already still: let it sleep
+    else _velocity.set(0, 0, 0)
+
+    // horizontal only, gravity keeps the vertical
+    const t = Math.min(1, (moving ? ACCELERATION : DECELERATION) * safeDelta)
+    _velocity.set(
+      velocity.x + (_velocity.x - velocity.x) * t,
+      velocity.y,
+      velocity.z + (_velocity.z - velocity.z) * t,
+    )
+    body.setLinvel(_velocity, true)
   })
 
   return (
@@ -146,6 +175,21 @@ function SimulatedPlayer(props: MatchPlayerProps) {
       friction={0.5}
       linearDamping={0.4}
       position={initial}
+      userData={userData}
+      onCollisionEnter={({ other }) => {
+        const body = bodyRef.current
+        const otherData = other.rigidBody?.userData as SimulatedUserData | undefined
+        if (!body || !other.rigidBody || !otherData?.player) return
+
+        // horizontal direction from this player to the other
+        _bump.copy(other.rigidBody.translation()).sub(body.translation()).setY(0)
+        if (_bump.lengthSq() === 0) return
+        _bump.normalize()
+
+        const speed = Math.max(0, velocityRef.current.dot(_bump))
+        other.rigidBody.applyImpulse(_bump.multiplyScalar(BUMP + KNOCKBACK * speed), true)
+        otherData.stunnedUntil = performance.now() + STUN
+      }}
     >
       <Player {...playerProps} animate={walking} />
     </PlayerBody>
