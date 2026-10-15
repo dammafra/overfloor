@@ -1,29 +1,49 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
-import { IDLE_DIRECTION, useController, type Direction } from '@stores'
+import { PLAYER } from '@schema'
 import clsx from 'clsx'
-import { useEffect, useState, type PropsWithChildren } from 'react'
+import { myPlayer } from 'playroomkit'
+import { useEffect, useRef, useState } from 'react'
 import { Nipple } from 'react-nipplejs'
 
 const OCTANT = Math.PI / 4
 
-export function Controller({ children }: PropsWithChildren) {
+type Key = 'up' | 'down' | 'left' | 'right'
+
+const IDLE_KEYS: Record<Key, boolean> = { up: false, down: false, left: false, right: false }
+
+/**
+ * The input is the direction as a y-axis angle, 0 toward the camera (+z) and π/2 to the right (+x),
+ * snapped to one of the 8 directions, or `null` when idle.
+ * It's sent to the host, which moves the players (see `Players`).
+ */
+function sendInput(x: number, z: number) {
+  const angle = x || z ? Math.round(Math.atan2(x, z) / OCTANT) * OCTANT : null
+  myPlayer()?.setState(PLAYER.input, angle, true)
+}
+
+export function Controller() {
   const isTouch = useIsTouch()
-  const setDirection = useController(state => state.setDirection)
+  const keysRef = useRef({ ...IDLE_KEYS })
 
   const [nippleHelper, setNippleHelper] = useState(true)
 
-  // keyup/touchend are lost when the page loses focus, leaving the direction stuck: stop
   useEffect(() => {
-    const stop = () => setDirection(IDLE_DIRECTION)
+    // keyup/touchend are lost when the page loses focus, leaving the input stuck: stop
+    const stop = () => {
+      keysRef.current = { ...IDLE_KEYS }
+      sendInput(0, 0)
+    }
     const handleVisibilityChange = () => document.hidden && stop()
+
     window.addEventListener('blur', stop)
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => {
       window.removeEventListener('blur', stop)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      stop()
     }
-  }, [setDirection])
+  }, [])
 
   return (
     <KeyboardControls
@@ -34,7 +54,11 @@ export function Controller({ children }: PropsWithChildren) {
         { name: 'right', keys: ['ArrowRight', 'KeyD'] },
       ]}
       // only the changed key: drei's state keeps keys whose keyup was lost
-      onChange={(name, pressed) => setDirection({ [name as keyof Direction]: pressed })}
+      onChange={(name, pressed) => {
+        const keys = keysRef.current
+        keys[name as Key] = pressed
+        sendInput(Number(keys.right) - Number(keys.left), Number(keys.down) - Number(keys.up))
+      }}
     >
       {isTouch && (
         <Html center wrapperClass="fixed inset-0 -z-0!" className="h-[100dvh] w-screen">
@@ -52,19 +76,14 @@ export function Controller({ children }: PropsWithChildren) {
 
               if (data.force < 0.2) return
 
-              // snap the angle to one of the 8 directions
-              const angle = Math.round(data.angle.radian / OCTANT) * OCTANT
-              const x = Math.cos(angle)
-              const y = Math.sin(angle)
-
-              setDirection({ up: y > 0.5, down: y < -0.5, left: x < -0.5, right: x > 0.5 })
+              // screen angle, 0 to the right and π/2 up (away from the camera, -z)
+              const angle = data.angle.radian
+              sendInput(Math.cos(angle), -Math.sin(angle))
             }}
-            onEnd={() => setDirection(IDLE_DIRECTION)}
+            onEnd={() => sendInput(0, 0)}
           />
         </Html>
       )}
-
-      {children}
     </KeyboardControls>
   )
 }

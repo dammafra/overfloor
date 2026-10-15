@@ -1,12 +1,5 @@
 import { gridConfig, PLAYER, RPC_EVENTS, STATE, type GameConfigSchema } from '@schema'
-import {
-  IDLE_DIRECTION,
-  initialRoomState,
-  useController,
-  useNotification,
-  useRoomState,
-  type RoomState,
-} from '@stores'
+import { initialRoomState, useNotification, useRoomState, type RoomState } from '@stores'
 import {
   getState,
   insertCoin,
@@ -18,6 +11,7 @@ import {
   setState,
   type PlayerState,
 } from 'playroomkit'
+import { useSyncExternalStore } from 'react'
 import { navigate } from 'wouter/use-browser-location'
 import { Host } from './host'
 
@@ -104,7 +98,6 @@ export function connect({ roomCode, username, training, countdown }: ConnectOpti
       })
 
       RPC.register(RPC_EVENTS.start, async () => current.host?.start())
-      RPC.register(RPC_EVENTS.fell, async (_, sender) => current.host?.onPlayerFell(sender))
 
       electHost(current)
       current.electInterval = window.setInterval(() => electHost(current), 250)
@@ -132,8 +125,23 @@ export function requestStart() {
   RPC.call(RPC_EVENTS.start, null, RPC.Mode.HOST)
 }
 
-export function notifyFell() {
-  RPC.call(RPC_EVENTS.fell, null, RPC.Mode.HOST)
+// host only: the host simulates every player and detects their falls
+export function reportFell(id: string) {
+  session?.host?.onPlayerFell(id)
+}
+
+const hostListeners = new Set<() => void>()
+const notifyHostChange = () => hostListeners.forEach(listener => listener())
+
+// whether this client is the host, i.e. simulates the players
+export function useIsHost() {
+  return useSyncExternalStore(
+    listener => {
+      hostListeners.add(listener)
+      return () => hostListeners.delete(listener)
+    },
+    () => !!session?.host,
+  )
 }
 
 function fail(current: Session, message: string) {
@@ -153,6 +161,7 @@ function teardown(current: Session) {
   current.host?.dispose()
   current.host = undefined
   current.players.clear()
+  notifyHostChange()
 
   const client = Multiplayer()
   if (client.connection) client.leaveRoom()
@@ -167,7 +176,6 @@ function teardown(current: Session) {
   clearRoomHash()
 
   useRoomState.setState(initialRoomState, true)
-  useController.setState(IDLE_DIRECTION)
 }
 
 // Playroom stores the room code in the URL hash and prefers it over `roomCode` when joining
@@ -200,5 +208,7 @@ function electHost(current: Session) {
   } else if (!isHost() && current.host) {
     current.host.dispose()
     current.host = undefined
-  }
+  } else return
+
+  notifyHostChange()
 }

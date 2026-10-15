@@ -20,7 +20,7 @@ export function JoinRoom() {
     navigate(lobbyPath('join', { id: id.toUpperCase(), username }))
   }
 
-  const { opacity } = useFadeIn()
+  const { opacity } = useFadeIn(500)
 
   return (
     <a.div className="page" style={{ opacity }}>

@@ -13,16 +13,14 @@ export const STATE = {
   loop: 'loop',
 } as const
 
-// Per-player state, written by each player on its own state
+// Per-player state, written by each player on its own state (except `body`, written by the host)
 export const PLAYER = {
   username: 'username',
   inLobby: 'inLobby',
-  walking: 'walking',
-  position: 'position',
-  rotation: 'rotation',
+  input: 'input',
+  body: 'body',
 } as const
 
 export const RPC_EVENTS = {
   start: 'start',
-  fell: 'fell',
 } as const

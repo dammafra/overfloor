@@ -1,4 +1,4 @@
-import type { Vector3Tuple } from 'three'
+import type { Vector3Tuple, Vector4Tuple } from 'three'
 
 export const GameLoopPhase = {
   IDLE: 0,
@@ -27,6 +27,13 @@ export interface PlayerSchema {
   username: string
   position: Vector3Tuple
   spawn: string
+}
+
+// player body simulated by the host
+export interface PlayerBodySchema {
+  spawn: string
+  position: Vector3Tuple
+  rotation: Vector4Tuple
 }
 
 export interface TileSchema {

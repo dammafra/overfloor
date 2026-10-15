@@ -57,7 +57,7 @@ export function LobbyOverlay() {
         </div>
 
         <h1 className="line-clamp-1 px-4 text-4xl break-all md:text-5xl">
-          {rematch ? 'REMATCH' : id}
+          {rematch ? 'REMATCH' : id || 'Loading...'}
         </h1>
       </a.div>
     </a.div>

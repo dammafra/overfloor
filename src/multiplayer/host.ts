@@ -51,8 +51,8 @@ export class Host {
     this.#game?.quit(player.id)
   }
 
-  onPlayerFell(player: PlayerState) {
-    this.#game?.fell(player.id)
+  onPlayerFell(id: string) {
+    this.#game?.fell(id)
   }
 
   start() {
