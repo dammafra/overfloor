@@ -6,18 +6,40 @@ export function Credits() {
   const { opacity } = useFadeIn(500)
 
   return (
-    <a.div className="page text-center text-white text-stroke-black" style={{ opacity }}>
-      {/* oxfmt-ignore */}
-      <p className="text-2xl mb-4">Made with ♥︎ by <a className="underline" href="https://github.com/dammafra" target="_blank">@dammafra</a></p>
-      {/* oxfmt-ignore */}
-      <p className="text-lg mb-4">
-        <a className="uppercase" href="https://poly.pizza/m/ozSIyRIcIj" target="_blank">Block Character</a> by <span className="uppercase">J-Toastie</span>
-        <br /> via Poly Pizza [<a className="underline" href="https://creativecommons.org/licenses/by/3.0/" target="_blank">CC-BY</a>]
+    <a.div
+      className="page flex flex-col gap-4 text-center text-white text-stroke-black"
+      style={{ opacity }}
+    >
+      <p className="text-2xl">
+        Made with ♥︎ by <br />
+        <a className="underline" href="https://dammafra.dev" target="_blank">
+          @dammafra
+        </a>
       </p>
-      {/* oxfmt-ignore */}
-      <p><a href="https://kenney.nl/assets/cursor-pack" target="_blank" className="uppercase">Cursor Pack</a> by <span className="uppercase">Kenney</span></p>
+      <hr className="w-50 border-white/40" />
+      <p>
+        <a href="https://poly.pizza/m/ozSIyRIcIj" target="_blank">
+          Block Character
+        </a>
+        <br />
+        by J-Toastie
+        <br />
+        <a
+          className="text-xs underline"
+          href="https://creativecommons.org/licenses/by/3.0/"
+          target="_blank"
+        >
+          [CC-BY]
+        </a>
+      </p>
+      <p>
+        <a href="https://kenney.nl/assets/cursor-pack" target="_blank">
+          Cursor Pack
+        </a>
+        <br /> by Kenney
+      </p>
       <Link href="/" className="button danger mt-4">
-        back
+        go back
       </Link>
     </a.div>
   )

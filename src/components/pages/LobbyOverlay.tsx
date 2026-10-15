@@ -51,7 +51,7 @@ export function LobbyOverlay() {
             <span className="icon-[mdi--chevron-left]" />
           </Link>
           <p>leave / share</p>
-          <button className="button icon" onClick={share}>
+          <button className="button accent icon" onClick={share}>
             <span className="icon-[mdi--share]" />
           </button>
         </div>

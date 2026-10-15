@@ -6,10 +6,9 @@ const USERNAME_MAX_LENGTH = 12
 
 // sanitized username input, persisted across sessions (a longer stored one is truncated)
 export function useStoredUsername() {
-  const [username, setUsername] = useSafeInput(
-    localStorage.getItem(USERNAME_KEY) ?? '',
-    USERNAME_MAX_LENGTH,
-  )
+  const [username, setUsername] = useSafeInput(localStorage.getItem(USERNAME_KEY) ?? '', {
+    maxLength: USERNAME_MAX_LENGTH,
+  })
 
   useEffect(() => localStorage.setItem(USERNAME_KEY, username), [username])
 

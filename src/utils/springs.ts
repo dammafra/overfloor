@@ -1,3 +1,5 @@
+import type { SpringValue } from '@react-spring/web'
+
 // Spring presets shared by the 3D scene and the HTML overlays
 
 export const BOUNCY_CONFIG = { mass: 1, tension: 120, friction: 15 }
@@ -13,3 +15,6 @@ export const POP_TRANSITION = {
   leave: { scale: 0, opacity: 0 },
   config: POP_CONFIG,
 }
+
+// animated style of the elements of a `POP_TRANSITION`
+export type PopStyle = { scale: SpringValue<number>; opacity: SpringValue<number> }

@@ -1,6 +1,7 @@
 // Lobby options travel base64-encoded in the lobby route (`/lobby/:options`)
 export interface LobbyOptions {
-  id: string
+  // none to create a new room, set once connected (see `Lobby`)
+  id?: string
   username: string
   practice?: boolean
   countdown?: number

@@ -22,7 +22,7 @@ export class ErrorBoundary extends React.Component<PropsWithChildren, State> {
             This wasn’t supposed to fall apart...
           </p>
           <button
-            className="button"
+            className="button accent"
             onClick={() => {
               window.location.href = window.location.origin
             }}

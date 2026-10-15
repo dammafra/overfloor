@@ -35,7 +35,7 @@ export function Leaderboard() {
           <span className="icon-[mdi--close]" />
         </Link>
         <p className="">leave / rematch</p>
-        <button className="button icon" onClick={rematch}>
+        <button className="button accent icon" onClick={rematch}>
           <span className="icon-[mdi--reload]" />
         </button>
       </div>

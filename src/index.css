@@ -81,8 +81,15 @@ input * {
     @apply fixed inset-0 flex flex-col items-center justify-center overflow-hidden p-4;
   }
 
+  /* same colors as the inputs, the variants are colored */
   .button {
-    @apply pointer-events-auto flex cursor-pointer items-center justify-center gap-1 rounded-xl bg-amber-400 px-4 py-2 font-bold text-white shadow text-stroke-black hover:bg-amber-300 active:bg-amber-300;
+    @apply pointer-events-auto flex cursor-pointer items-center justify-center gap-1 rounded-xl bg-white px-4 py-2 font-bold text-slate-500 shadow hover:bg-slate-200 active:bg-slate-200;
+  }
+  .button:is(.accent, .success, .danger) {
+    @apply text-white text-stroke-black;
+  }
+  .button.accent {
+    @apply bg-amber-400 hover:bg-amber-300 active:bg-amber-300;
   }
   .button.success {
     @apply bg-green-500 hover:bg-green-400 active:bg-green-400;
@@ -124,6 +131,13 @@ input * {
   }
   .input + span[class^='icon-'] {
     @apply absolute top-2 left-2 text-2xl text-slate-500;
+  }
+  /* label inside the input, on its right */
+  .input:has(~ .input-label) {
+    @apply pr-28;
+  }
+  .input ~ .input-label {
+    @apply pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm text-slate-400;
   }
 
   table {

@@ -17,8 +17,14 @@ function PlayButton(props: ButtonTileProps) {
   const [, navigate] = useLocation()
 
   return (
-    <ModalTile {...props} color={COLORS.button} open={match} onClick={() => navigate('/room')}>
-      play
+    <ModalTile
+      {...props}
+      labelProps={{ lineHeight: 1.1 }}
+      color={COLORS.button}
+      open={match}
+      onClick={() => navigate('/room')}
+    >
+      ▶️ start
     </ModalTile>
   )
 }
@@ -34,7 +40,7 @@ function CreditsButton(props: ButtonTileProps) {
       onClick={() => navigate('/credits')}
       labelProps={{
         fontSize: 0.13,
-        lineHeight: 1.2,
+        lineHeight: 1.1,
         textAlign: 'left',
         visible: !match,
       }}
