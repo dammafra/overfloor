@@ -1,37 +1,25 @@
-import { useIsTouch, useRoom, useSafeInput } from '@hooks'
+import { useIsTouch, useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import clsx from 'clsx'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, type SubmitEventHandler } from 'react'
 import { Link, useLocation, useParams } from 'wouter'
 
 export function JoinRoom() {
-  const { id } = useParams()
   const [, navigate] = useLocation()
   const isTouch = useIsTouch()
 
+  const params = useParams()
+  const [id, setId] = useSafeInput(params.id ?? '')
   const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const client = useRoom()
 
   useEffect(() => localStorage.setItem('overfloor-username', username), [username])
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit: SubmitEventHandler = e => {
     e.preventDefault()
-    if (!username || error) return
+    if (!id || !username) return
 
-    setLoading(true)
-    client.http
-      .get(`/username-exists/${id}/${username}`)
-      .then(res => {
-        const exists = res.data
-        if (exists) setError(true)
-        else {
-          const options = btoa(JSON.stringify({ id, username }))
-          navigate(`/join/lobby/${options}`)
-        }
-      })
-      .finally(() => setLoading(false))
+    const options = btoa(JSON.stringify({ id: id.toUpperCase(), username }))
+    navigate(`/join/lobby/${options}`)
   }
 
   const { opacity } = useSpring({
@@ -44,30 +32,33 @@ export function JoinRoom() {
       <form className="flex w-full max-w-110 flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
-            autoFocus={!isTouch}
+            autoFocus={!isTouch && !id}
+            className="input w-full"
+            placeholder="room code"
+            value={id}
+            onChange={e => setId(e.target.value)}
+          />
+          <span className="icon-[mdi--gamepad-variant]" />
+        </div>
+        <div>
+          <input
+            autoFocus={!isTouch && !!id}
             className="input w-full"
             placeholder="username"
             value={username}
-            onChange={e => {
-              setError(false)
-              setUsername(e.target.value)
-            }}
+            onChange={e => setUsername(e.target.value)}
           />
           <span className="icon-[mdi--user]" />
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/join" state="join" className="button danger">
+          <Link href="/" className="button danger">
             back
           </Link>
           <button
             type="submit"
-            className={clsx('button h-10 flex-1', {
-              disabled: !id || !username || loading,
-              danger: error,
-              'text-sm': error,
-            })}
+            className={clsx('button h-10 flex-1', { disabled: !id || !username })}
           >
-            {loading ? 'loading... ' : error ? 'Username already exists' : 'join room'}
+            join room
           </button>
         </div>
       </form>

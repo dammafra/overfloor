@@ -1,12 +1,12 @@
-import type { PropsWithRoom } from '@hooks'
+import { useRoomState } from '@stores'
 import { CuboidCollider } from '@react-three/rapier'
-import { getStateCallbacks } from 'colyseus.js'
+import { GRID_GAP, GRID_UNIT, gridConfig } from '@schema'
 import { useEffect, useState } from 'react'
-import { GRID_GAP, GRID_UNIT, type GameSchema } from '../../../schema'
 
-export function Boundaries({ room }: PropsWithRoom<GameSchema>) {
-  const [width, setWidth] = useState<number>(0)
-  const [height, setHeight] = useState<number>(0)
+export function Boundaries() {
+  const dimension = useRoomState(s => s.dimension)
+  const width = dimension ? gridConfig[dimension].width : 0
+  const height = dimension ? gridConfig[dimension].height : 0
 
   const wallHeight = 3
   const wallThickness = 0.1
@@ -14,14 +14,6 @@ export function Boundaries({ room }: PropsWithRoom<GameSchema>) {
   const [verticalWallPosition, setVerticalWallPosition] = useState(0)
   const [horizontalWallWidth, setHorizontalWallWidth] = useState(0)
   const [horizontalWallPosition, setHorizontalWallPosition] = useState(0)
-
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).listen('width', setWidth)
-    $(room.state).listen('height', setHeight)
-  }, [room])
 
   useEffect(() => {
     const horizontalWallWidth = width * (GRID_UNIT + GRID_GAP)

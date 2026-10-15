@@ -12,11 +12,23 @@ export const GameLoopPhase = {
 
 export type GameLoopPhase = (typeof GameLoopPhase)[keyof typeof GameLoopPhase]
 
+export type GameStage = 'lobby' | 'game' | 'ended'
+
+export interface GameConfigSchema {
+  training?: boolean
+  countdown?: number
+}
+
+export interface LobbySchema {
+  canStart: boolean
+  countdown: number
+}
+
 export interface PlayerSchema {
+  id: string
   username: string
-  walking: boolean
   position: Vector3Tuple
-  rotation: Vector3Tuple
+  spawn: string
 }
 
 export interface TileSchema {
@@ -26,17 +38,9 @@ export interface TileSchema {
   disabled: boolean
 }
 
-export interface GameSchema {
-  countdown: number
-  time: number
-  phase: GameLoopPhase
-
-  width: number
-  height: number
-
-  players: Map<string, PlayerSchema>
-  leaderboard: string[]
-  tiles: Array<TileSchema>
+export interface GameLoopSchema {
+  loopsCount: number
+  phaseDuration: number
 }
 
 export function getGridCoordinates(width: number, height: number): [number, number][] {

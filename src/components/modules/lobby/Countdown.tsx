@@ -1,24 +1,22 @@
 import { Environment } from '@components'
 import { ButtonTile } from '@components/modules/tiles'
-import { useIsTouch, type PropsWithRoom } from '@hooks'
+import { useIsTouch } from '@hooks'
+import { requestStart } from '@multiplayer'
 import { useSpring } from '@react-spring/three'
 import { Hud, PerspectiveCamera, Text, type TextProps } from '@react-three/drei'
-import type { GameLobbySchema } from '@schema'
-import { useGame } from '@stores'
-import { getStateCallbacks } from 'colyseus.js'
+import { useGame, useRoomState } from '@stores'
+import { useIsHost } from 'playroomkit'
 import { useEffect, useMemo, useState } from 'react'
 import { MathUtils } from 'three'
-import { useParams } from 'wouter'
 
-export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
-  const { options } = useParams()
-  const { username } = JSON.parse(atob(options!))
+export function Countdown() {
   const isTouch = useIsTouch()
 
   const setPhase = useGame(s => s.setPhase)
-  const [canStart, setCanStart] = useState(false)
-  const [countdown, setCountdown] = useState<number>()
-  const [isOwner, setIsOwner] = useState(false)
+  const lobby = useRoomState(s => s.lobby)
+  const canStart = !!lobby?.canStart
+  const countdown = lobby?.countdown
+  const isOwner = useIsHost()
 
   const [clicked, setClicked] = useState(0)
 
@@ -34,16 +32,8 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
   )
 
   useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).listen('owner', owner => setIsOwner(owner === username))
-    $(room.state).listen('canStart', setCanStart)
-    $(room.state).listen('countdown', countdown => {
-      setCountdown(countdown)
-      if (countdown <= 10) setPhase('countdown')
-    })
-  }, [room, username, setPhase])
+    if (countdown !== undefined && countdown <= 10) setPhase('countdown')
+  }, [countdown, setPhase])
 
   const { scale, color } = useSpring({
     from: { scale: 0, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },
@@ -65,7 +55,7 @@ export function Countdown({ room }: PropsWithRoom<GameLobbySchema>) {
         rotation={[MathUtils.degToRad(90), MathUtils.degToRad(45), 0]}
         rotation-z={rotationZ}
         onClick={() => {
-          if (isOwner && canStart) room?.send('start')
+          if (isOwner && canStart) requestStart()
           else setClicked(c => c + 1)
         }}
       >

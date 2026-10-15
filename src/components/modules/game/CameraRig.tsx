@@ -1,24 +1,16 @@
-import type { PropsWithRoom } from '@hooks'
+import { useRoomState } from '@stores'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { GRID_GAP, GRID_UNIT, type GameSchema } from '@schema'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useState } from 'react'
+import { GRID_GAP, GRID_UNIT, gridConfig } from '@schema'
+import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
-export function CameraRig({ room }: PropsWithRoom<GameSchema>) {
+export function CameraRig() {
   const { controls, size } = useThree()
 
-  const [width, setWidth] = useState<number>(0)
-  const [height, setHeight] = useState<number>(0)
-
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).listen('width', setWidth)
-    $(room.state).listen('height', setHeight)
-  }, [room])
+  const dimension = useRoomState(s => s.dimension)
+  const width = dimension ? gridConfig[dimension].width : 0
+  const height = dimension ? gridConfig[dimension].height : 0
 
   useEffect(() => {
     const cameraControls = controls as CameraControls

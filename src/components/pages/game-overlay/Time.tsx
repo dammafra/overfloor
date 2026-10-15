@@ -1,8 +1,8 @@
+import { useRoomState } from '@stores'
 import { a, useSpring } from '@react-spring/web'
-import { useGame } from '@stores'
 
 export function Time() {
-  const time = useGame(s => s.time)
+  const time = useRoomState(s => s.time)
 
   const format = (seconds: number) => {
     const mins = Math.floor(seconds / 60)

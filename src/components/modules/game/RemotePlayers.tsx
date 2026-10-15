@@ -1,34 +1,17 @@
-import type { PropsWithRoom } from '@hooks'
+import { useRoomState } from '@stores'
 import { useTransition } from '@react-spring/three'
-import type { GameSchema, PlayerSchema } from '@schema'
-import { useGame } from '@stores'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useState } from 'react'
+import { myPlayer, usePlayersList } from 'playroomkit'
+import { useMemo } from 'react'
 import { RemotePlayer } from './RemotePlayer'
 
-export function RemotePlayers({ room }: PropsWithRoom<GameSchema>) {
-  const incrementPlayersCount = useGame(s => s.incrementPlayersCount)
-  const decrementPlayersCount = useGame(s => s.decrementPlayersCount)
-  const [players, setPlayers] = useState<PlayerSchema[]>([])
+export function RemotePlayers() {
+  const players = useRoomState(s => s.players)
+  const participants = usePlayersList()
 
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
+  const remotePlayers = useMemo(() => players.filter(p => p.id !== myPlayer()?.id), [players])
 
-    $(room.state).players.onAdd((player, sessionId) => {
-      incrementPlayersCount()
-      if (room.sessionId === sessionId) return
-      setPlayers(players => [player, ...players.filter(p => p.username !== player.username)])
-    })
-
-    $(room.state).players.onRemove((player, sessionId) => {
-      decrementPlayersCount()
-      if (room.sessionId === sessionId) return
-      setPlayers(players => players.filter(p => p.username !== player.username))
-    })
-  }, [room, incrementPlayersCount, decrementPlayersCount])
-
-  const transition = useTransition(players, {
+  const transition = useTransition(remotePlayers, {
+    keys: player => player.id,
     from: { scale: 0 },
     enter: { scale: 1 },
     leave: { scale: 0 },
@@ -37,10 +20,10 @@ export function RemotePlayers({ room }: PropsWithRoom<GameSchema>) {
 
   return transition((spring, player) => (
     <RemotePlayer
-      key={player.username}
+      key={player.id}
       username={player.username}
       position={player.position}
-      room={room}
+      state={participants.find(p => p.id === player.id)}
       {...spring}
     />
   ))

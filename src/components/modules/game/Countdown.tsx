@@ -1,16 +1,13 @@
 import { LetterTile } from '@components/modules/tiles'
-import type { PropsWithRoom } from '@hooks'
 import { useTransition } from '@react-spring/three'
 import { Billboard } from '@react-three/drei'
-import type { GameSchema } from '@schema'
-import { useGame } from '@stores'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useState } from 'react'
+import { useGame, useRoomState } from '@stores'
+import { useEffect } from 'react'
 import { MathUtils, type Vector3Tuple } from 'three'
 
-export function Countdown({ room }: PropsWithRoom<GameSchema>) {
+export function Countdown() {
   const setPhase = useGame(s => s.setPhase)
-  const [countdown, setCountdown] = useState<number>()
+  const countdown = useRoomState(s => s.countdown)
 
   //oxfmt-ignore
   const colors = [
@@ -20,17 +17,11 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
     'brown',      // 3
   ]
 
+  useEffect(() => setPhase('countdown'), [setPhase])
+
   useEffect(() => {
-    setPhase('countdown')
-
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).listen('countdown', countdown => {
-      setCountdown(countdown)
-      if (countdown === 0) setPhase('started')
-    })
-  }, [room, setPhase])
+    if (countdown !== null && countdown <= 0) setPhase('started')
+  }, [countdown, setPhase])
 
   const transitions = useTransition(countdown, {
     from: { scale: 5, position: [0, 0, 50] as Vector3Tuple, rotationX: 4 },
@@ -41,7 +32,7 @@ export function Countdown({ room }: PropsWithRoom<GameSchema>) {
 
   return transitions(
     (spring, countdown) =>
-      typeof countdown !== 'undefined' &&
+      typeof countdown === 'number' &&
       countdown >= 0 && (
         <Billboard>
           {/* @ts-ignore */}

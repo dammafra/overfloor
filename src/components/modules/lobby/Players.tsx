@@ -1,27 +1,16 @@
 import { Environment, Player } from '@components'
-import type { PropsWithRoom } from '@hooks'
+import { useLobbyPlayers } from '@multiplayer'
 import { a, useTransition } from '@react-spring/three'
 import { Float, Hud } from '@react-three/drei'
-import type { GameLobbySchema } from '@schema'
 import { positions } from '@utils'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useState } from 'react'
 import type { Vector3Tuple } from 'three'
 import { useParams } from 'wouter'
 
-export function Players({ room }: PropsWithRoom<GameLobbySchema>) {
+export function Players() {
   const { options } = useParams()
   const { training } = JSON.parse(atob(options!))
 
-  const [players, setPlayers] = useState<string[]>([])
-
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).players.onAdd(player => setPlayers(players => [player, ...players.filter(p => p !== player)])) //oxfmt-ignore
-    $(room.state).players.onRemove(player => setPlayers(players => players.filter(p => p !== player))) //oxfmt-ignore
-  }, [room])
+  const players = useLobbyPlayers()
 
   const transitions = useTransition(players, {
     from: { scale: 0, position: [0, 0, 0] as Vector3Tuple },

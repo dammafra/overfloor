@@ -1,8 +1,9 @@
+import { useRoomState } from '@stores'
 import { a, useSpring } from '@react-spring/web'
-import { useGame } from '@stores'
 
 export function PlayersCount() {
-  const playersCount = useGame(s => s.playersCount)
+  const players = useRoomState(s => s.players)
+  const playersCount = players.length
 
   const spring = useSpring({
     from: { scale: 0, opacity: 0 },

@@ -1,7 +1,8 @@
-import { useRoom } from '@hooks'
-import type { GameLobbySchema } from '@schema'
-import { useGame } from '@stores'
-import { useEffect } from 'react'
+import { connect } from '@multiplayer'
+import { PLAYER } from '@schema'
+import { useGame, useRoomState } from '@stores'
+import { getRoomCode, myPlayer } from 'playroomkit'
+import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'wouter'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
@@ -9,41 +10,45 @@ import { Players } from './Players'
 
 export function Lobby() {
   const { from, options } = useParams()
-  const { id, username, training, countdown } = JSON.parse(atob(options!))
+  const { id, username, training, countdown, rematch } = JSON.parse(atob(options!))
   const [, navigate] = useLocation()
 
   const setPhase = useGame(s => s.setPhase)
+  const [connected, setConnected] = useState(false)
 
-  const { room, error } = useRoom<GameLobbySchema>({
-    roomId: from === 'new' ? undefined : id,
-    roomName: 'game-lobby',
-    options: { id, username, training, countdown },
-  })
+  const stage = useRoomState(s => s.stage)
+  const players = useRoomState(s => s.players)
 
   useEffect(() => {
-    if (!room) return
+    connect({ roomCode: id, username, training, countdown }).then(() => {
+      setConnected(true)
 
-    if (from === 'new') {
-      navigate(`/join/lobby/${options}`)
-    }
-
-    room.onMessage('start', reservation => {
-      navigate(`/game/${btoa(JSON.stringify(reservation))}`, { replace: true })
+      if (from === 'new') {
+        const options = btoa(JSON.stringify({ id: getRoomCode(), username, training, rematch }))
+        navigate(`/join/lobby/${options}`, { replace: true })
+      }
     })
-
-    setPhase('lobby')
-  }, [from, room, options, setPhase, navigate])
+  }, [from, id, username, training, countdown, rematch, navigate])
 
   useEffect(() => {
-    if (!error) return
-    navigate('/')
-  }, [error, navigate])
+    if (!connected) return
+
+    myPlayer().setState(PLAYER.inLobby, true, true)
+    setPhase('lobby')
+
+    return () => myPlayer()?.setState(PLAYER.inLobby, false, true)
+  }, [connected, setPhase])
+
+  useEffect(() => {
+    if (!connected || stage !== 'game') return
+    if (players.some(p => p.id === myPlayer().id)) navigate('/game', { replace: true })
+  }, [connected, stage, players, navigate])
 
   return (
     <>
-      {!training && <Countdown room={room} />}
-      {!training && <Players room={room} />}
-      <CameraRig room={room} />
+      {!training && <Countdown />}
+      {!training && <Players />}
+      <CameraRig />
     </>
   )
 }

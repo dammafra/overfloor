@@ -1,22 +1,22 @@
+import { useRoomState } from '@stores'
 import { useConfetti } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
-import { useGame } from '@stores'
+import { PLAYER } from '@schema'
 import clsx from 'clsx'
-import type { SeatReservation } from 'colyseus.js'
-import { Link, useLocation, useParams } from 'wouter'
+import { getRoomCode, myPlayer } from 'playroomkit'
+import { useMemo } from 'react'
+import { Link, useLocation } from 'wouter'
 
 export function Leaderboard() {
-  const params = useParams()
-  const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
-  // @ts-expect-error id and username are custom fields
-  const { room: { roomId: id }, username } = reservation //oxfmt-ignore
   const [, navigate] = useLocation()
 
-  const leaderboard = useGame(s => s.leaderboard)
+  const username: string | undefined = myPlayer()?.getState(PLAYER.username)
+  const ranking = useRoomState(s => s.leaderboard)
+  const leaderboard = useMemo(() => [...ranking].reverse(), [ranking])
   const winner = leaderboard.at(0) === username
 
   const rematch = async () => {
-    const options = btoa(JSON.stringify({ id: `${id}-rematch`, username, rematch: true }))
+    const options = btoa(JSON.stringify({ id: getRoomCode(), username, rematch: true }))
     navigate(`/join/lobby/${options}`)
   }
 

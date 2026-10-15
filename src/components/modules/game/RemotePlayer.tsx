@@ -1,47 +1,30 @@
 import { Player, type PlayerProps } from '@components'
-import type { PropsWithRoom } from '@hooks'
 import { a } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
-import type { GameSchema } from '@schema'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useRef, useState } from 'react'
-import { Quaternion, Vector3, type QuaternionTuple, type Vector3Tuple } from 'three'
+import { PLAYER } from '@schema'
+import type { PlayerState } from 'playroomkit'
+import { useRef, useState } from 'react'
+import { Quaternion, Vector3, type Vector3Tuple } from 'three'
 import { PLAYERS_COLLISION_GROUP } from './LocalPlayer'
 
-type RemotePlayerProps = PropsWithRoom<GameSchema> &
-  PlayerProps & {
-    username: string
-    position: Vector3Tuple
-  }
+type RemotePlayerProps = PlayerProps & {
+  username: string
+  position: Vector3Tuple
+  state?: PlayerState
+}
 
-export const RemotePlayer = a(({ room, username, position, ...props }: RemotePlayerProps) => {
+export const RemotePlayer = a(({ username, position, state, ...props }: RemotePlayerProps) => {
   const bodyRef = useRef<RapierRigidBody>(null)
-  const walkingRef = useRef<boolean>(false)
-  const positionRef = useRef<Vector3Tuple>(position)
-  const rotationRef = useRef<QuaternionTuple>([0, 0, 0, 0])
-
   const [walking, setWalking] = useState(false)
-
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).players.onAdd(player => {
-      if (player.username !== username) return
-
-      // TODO why bindTo doesn't work?
-      $(player).listen('walking', walking => (walkingRef.current = walking))
-      $(player).position.onChange((position, index) => (positionRef.current[index] = position))
-      $(player).rotation.onChange((rotation, index) => (rotationRef.current[index] = rotation))
-    })
-  }, [room, username])
 
   useFrame((_, delta) => {
     if (!bodyRef.current) return
 
-    const targetPosition = new Vector3().fromArray(positionRef.current)
-    const targetRotation = new Quaternion().fromArray(rotationRef.current)
+    const targetPosition = new Vector3().fromArray(state?.getState(PLAYER.position) ?? position)
+    const targetRotation = new Quaternion().fromArray(
+      state?.getState(PLAYER.rotation) ?? [0, 0, 0, 1],
+    )
     const currentPosition = vec3(bodyRef.current.translation())
     const currentRotation = quat(bodyRef.current.rotation())
 
@@ -52,7 +35,7 @@ export const RemotePlayer = a(({ room, username, position, ...props }: RemotePla
     bodyRef.current.setNextKinematicTranslation(currentPosition)
     bodyRef.current.setNextKinematicRotation(currentRotation)
 
-    setWalking(walkingRef.current)
+    setWalking(!!state?.getState(PLAYER.walking))
   })
 
   return (

@@ -27,6 +27,7 @@
       "@components": ["./src/components/index.ts"],
       "@components/*": ["./src/components/*"],
       "@hooks": ["./src/hooks/index.ts"],
+      "@multiplayer": ["./src/multiplayer/index.ts"],
       "@schema": ["./src/schema/index.ts"],
       "@stores": ["./src/stores/index.ts"],
       "@utils": ["./src/utils/index.ts"]

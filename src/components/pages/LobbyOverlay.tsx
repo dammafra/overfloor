@@ -8,6 +8,7 @@ export function LobbyOverlay() {
   const [info, setInfo] = useState(false)
 
   const share = async () => {
+    if (!id) return
     const url = `${location.protocol}//${location.host}/join/${id}`
     const toShare = { text: url }
 

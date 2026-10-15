@@ -1,55 +1,60 @@
 import { Player } from '@components'
-import { useThrottle, type PropsWithRoom } from '@hooks'
+import { useThrottle } from '@hooks'
+import { notifyFell } from '@multiplayer'
 import { useFrame } from '@react-three/fiber'
 import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
-import type { GameSchema } from '@schema'
-import { useController, useGame } from '@stores'
-import { getStateCallbacks } from 'colyseus.js'
+import { PLAYER, type PlayerSchema } from '@schema'
+import { useController, useGame, useRoomState } from '@stores'
+import { myPlayer } from 'playroomkit'
 import { useEffect, useRef, useState } from 'react'
-import { Quaternion, Vector3, type Vector3Tuple } from 'three'
-import { v4 as uuid } from 'uuid'
+import { Quaternion, Vector3 } from 'three'
 import { Controller } from './Controller'
 
 const GROUP = 0x0001 // category bit 1
 const MASK = 0xffff ^ GROUP // collide with everything except itself
 export const PLAYERS_COLLISION_GROUP = (GROUP << 16) | MASK
 
-export function LocalPlayer({ room }: PropsWithRoom<GameSchema>) {
+const FALL_LIMIT = -50
+
+export function LocalPlayer() {
   const started = useGame(s => s.phase === 'started')
   const { up, down, left, right, strength } = useController()
 
   const bodyRef = useRef<RapierRigidBody>(null)
-  const [bodyKey, setBodyKey] = useState<string>()
+  const fellRef = useRef(false)
 
-  const [username, setUsername] = useState<string>()
-  const [initialPosition, setInitialPosition] = useState<Vector3Tuple>()
+  const players = useRoomState(s => s.players)
+  const [player, setPlayer] = useState<PlayerSchema>()
   const [walking, setWalking] = useState(false)
 
-  const sendWalking = useThrottle((walking: boolean) => room?.send('set-walking', walking))
+  const sendWalking = useThrottle((walking: boolean) => myPlayer()?.setState(PLAYER.walking, walking, true)) //oxfmt-ignore
   const sendMovement = useThrottle(() => {
-    if (bodyRef.current?.isSleeping()) return
-    room?.send('set-position', vec3(bodyRef.current?.translation()).toArray())
-    room?.send('set-rotation', quat(bodyRef.current?.rotation()).toArray())
-  })
+    if (!bodyRef.current || bodyRef.current.isSleeping()) return
+    myPlayer()?.setState(PLAYER.position, vec3(bodyRef.current.translation()).toArray(), false)
+    myPlayer()?.setState(PLAYER.rotation, quat(bodyRef.current.rotation()).toArray(), false)
+  }, 50)
 
+  // (re)spawn when the host adds this player to the match
   useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
+    const me = players.find(p => p.id === myPlayer()?.id)
+    if (!me || me.spawn === player?.spawn) return
 
-    $(room.state).players.onAdd((player, sessionId) => {
-      if (room.sessionId !== sessionId) return
-
-      setUsername(player.username)
-      setBodyKey(uuid())
-      setInitialPosition(player.position)
-    })
-  }, [room])
+    fellRef.current = false
+    myPlayer().setState(PLAYER.position, me.position, true)
+    setPlayer(me)
+  }, [players, player])
 
   useEffect(() => sendWalking(walking), [walking, sendWalking])
 
   useFrame((_, delta) => {
     if (!bodyRef.current) return
-    sendMovement()
+
+    if (!fellRef.current && bodyRef.current.translation().y < FALL_LIMIT) {
+      fellRef.current = true
+      notifyFell()
+    }
+
+    if (!fellRef.current) sendMovement()
 
     if (!started) return
     setWalking(up || down || left || right)
@@ -80,22 +85,21 @@ export function LocalPlayer({ room }: PropsWithRoom<GameSchema>) {
   })
 
   return (
-    username &&
-    initialPosition && (
+    player && (
       <Controller>
         <RigidBody
-          key={bodyKey}
+          key={player.spawn}
           ref={bodyRef}
           colliders={false}
           gravityScale={5}
           friction={0.5}
           linearDamping={0.4}
           enabledRotations={[false, false, false]}
-          position={initialPosition}
+          position={player.position}
           collisionGroups={PLAYERS_COLLISION_GROUP}
         >
           <BallCollider args={[0.6]} />
-          <Player username={username} animate={walking} showIndicator />
+          <Player username={player.username} animate={walking} showIndicator />
         </RigidBody>
       </Controller>
     )

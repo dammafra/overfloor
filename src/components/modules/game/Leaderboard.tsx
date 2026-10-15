@@ -1,34 +1,19 @@
+import { useRoomState } from '@stores'
 import { Environment, Player } from '@components'
 import { Tile } from '@components/modules/tiles'
-import { type PropsWithRoom } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
 import { Billboard, Float, Hud, PerspectiveCamera } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import type { GameSchema } from '@schema'
-import { useGame } from '@stores'
-import { getStateCallbacks, type SeatReservation } from 'colyseus.js'
-import { useEffect } from 'react'
+import { PLAYER } from '@schema'
+import { myPlayer } from 'playroomkit'
 import { MathUtils } from 'three'
-import { useParams } from 'wouter'
 
-export function Leaderboard({ room }: PropsWithRoom<GameSchema>) {
+export function Leaderboard() {
   const { viewport } = useThree()
 
-  const params = useParams()
-  const reservation: SeatReservation = JSON.parse(atob(params.reservation!))
-  // @ts-expect-error id and username are custom fields
-  const { username } = reservation
-
-  const leaderboard = useGame(s => s.leaderboard)
-  const winner = leaderboard.at(0) === username
-  const updateLeaderboard = useGame(s => s.updateLeaderboard)
-
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).leaderboard.onAdd(updateLeaderboard)
-  }, [room, updateLeaderboard])
+  const username: string | undefined = myPlayer()?.getState(PLAYER.username)
+  const leaderboard = useRoomState(s => s.leaderboard)
+  const winner = leaderboard.at(-1) === username
 
   const tileSpring = useSpring({
     from: { scale: 0, opacity: 0 },

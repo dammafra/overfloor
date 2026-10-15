@@ -18,7 +18,7 @@ export class ErrorBoundary extends React.Component<PropsWithChildren, State> {
     if (this.state.hasError)
       return (
         <div className="page">
-          <p className="mb-5 text-center text-4xl text-white text-stroke-black">
+          <p className="mb-5 text-center text-4xl text-balance text-white text-stroke-black">
             This wasn’t supposed to fall apart...
           </p>
           <button

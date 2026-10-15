@@ -1,37 +1,21 @@
-import { useIsTouch, useRoom, useSafeInput } from '@hooks'
+import { useSafeInput } from '@hooks'
 import { a, useSpring } from '@react-spring/web'
 import { clsx } from 'clsx'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, type SubmitEventHandler } from 'react'
 import { Link, useLocation } from 'wouter'
 
 export function CreateRoom() {
   const [, navigate] = useLocation()
-  const isTouch = useIsTouch()
-
-  const [id, setId] = useSafeInput()
   const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const client = useRoom()
 
   useEffect(() => localStorage.setItem('overfloor-username', username), [username])
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit: SubmitEventHandler = e => {
     e.preventDefault()
-    if (!id || error) return
+    if (!username) return
 
-    setLoading(true)
-    client.http
-      .get(`/room-exists/${id}`)
-      .then(res => {
-        const exists = res.data
-        if (exists) setError(true)
-        else {
-          const options = btoa(JSON.stringify({ id, username }))
-          navigate(`/new/lobby/${options}`)
-        }
-      })
-      .finally(() => setLoading(false))
+    const options = btoa(JSON.stringify({ username }))
+    navigate(`/new/lobby/${options}`)
   }
 
   const { opacity } = useSpring({
@@ -45,19 +29,6 @@ export function CreateRoom() {
       <form className="flex w-full max-w-110 flex-col gap-4" onSubmit={onSubmit}>
         <div>
           <input
-            autoFocus={!isTouch}
-            className="input w-full"
-            placeholder="room ID"
-            value={id}
-            onChange={e => {
-              setError(false)
-              setId(e.target.value)
-            }}
-          />
-          <span className="icon-[mdi--gamepad-variant]" />
-        </div>
-        <div>
-          <input
             className="input w-full"
             placeholder="username"
             value={username}
@@ -69,15 +40,8 @@ export function CreateRoom() {
           <Link href="/" className="button danger">
             back
           </Link>
-          <button
-            type="submit"
-            className={clsx('button h-10 flex-1', {
-              disabled: !id || !username || loading,
-              danger: error,
-              'text-sm': error,
-            })}
-          >
-            {loading ? 'loading... ' : error ? 'Room already exists' : 'create room'}
+          <button type="submit" className={clsx('button h-10 flex-1', { disabled: !username })}>
+            create room
           </button>
         </div>
       </form>

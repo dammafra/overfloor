@@ -1,12 +1,11 @@
+import { useRoomState } from '@stores'
 import { Tile } from '@components/modules/tiles'
-import { type PropsWithRoom } from '@hooks'
 import { useTransition } from '@react-spring/three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
-import { GameLoopPhase, GRID_UNIT, type GameSchema, type TileSchema } from '@schema'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useMemo, useState } from 'react'
+import { GameLoopPhase, GRID_UNIT } from '@schema'
+import { useMemo } from 'react'
 
-export function Grid({ room }: PropsWithRoom<GameSchema>) {
+export function Grid() {
   const defaultColor = 'dodgerblue'
 
   //oxfmt-ignore
@@ -18,42 +17,15 @@ export function Grid({ room }: PropsWithRoom<GameSchema>) {
     defaultColor,   // FALLING
   ]
 
-  const [phase, setPhase] = useState<GameLoopPhase>(GameLoopPhase.IDLE)
-  const [tiles, setTiles] = useState<TileSchema[]>([])
+  const phase = useRoomState(s => s.phase)
+  const tiles = useRoomState(s => s.tiles)
   const safeTiles = useMemo(
-    () => tiles.filter(t => phase !== GameLoopPhase.FALLING || !t.targeted),
+    () => tiles.filter(t => !t.disabled && (phase !== GameLoopPhase.FALLING || !t.targeted)),
     [tiles, phase],
   )
 
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).listen('phase', setPhase)
-
-    $(room.state).tiles.onAdd(tile => {
-      setTiles(tiles => [tile, ...tiles.filter(t => t.id !== tile.id)])
-
-      $(tile).listen('targeted', targeted => {
-        setTiles(tiles =>
-          tiles.map(t => {
-            if (t.id === tile.id) t.targeted = targeted
-            return t
-          }),
-        )
-      })
-
-      $(tile).listen('disabled', disabled => {
-        setTiles(tiles =>
-          disabled
-            ? tiles.filter(t => t.id !== tile.id)
-            : [tile, ...tiles.filter(t => t.id !== tile.id)],
-        )
-      })
-    })
-  }, [room])
-
   const transitions = useTransition(safeTiles, {
+    keys: tile => tile.id,
     from: tile => ({
       scale: 0,
       color: defaultColor,

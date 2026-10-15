@@ -45,7 +45,7 @@ function TrainingRoomButton(props: ButtonTileProps) {
       {...props}
       color="orange"
       onClick={() => {
-        const options = { id: uuid(), username: uuid(), training: true, countdown: 3 }
+        const options = { username: uuid(), training: true, countdown: 3 }
         navigate(`/new/lobby/${btoa(JSON.stringify(options))}`)
       }}
     >

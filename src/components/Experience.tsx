@@ -42,7 +42,7 @@ export function Experience() {
       <Physics {...physicsControls}>
         <Route path="/" nest component={UI} />
         <Route path="/:from/lobby/:options" component={Lobby} />
-        <Route path="/game/:reservation" component={Game} />
+        <Route path="/game" component={Game} />
         <Helpers />
       </Physics>
 

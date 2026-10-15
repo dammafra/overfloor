@@ -1,23 +1,13 @@
-import type { PropsWithRoom } from '@hooks'
+import { useLobbyPlayers } from '@multiplayer'
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import type { GameLobbySchema } from '@schema'
 import { aspects, positions } from '@utils'
-import { getStateCallbacks } from 'colyseus.js'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { MathUtils } from 'three'
 
-export function CameraRig({ room }: PropsWithRoom<GameLobbySchema>) {
+export function CameraRig() {
   const { controls, viewport } = useThree()
-  const [playersCount, setPlayersCount] = useState(0)
-
-  useEffect(() => {
-    if (!room) return
-    const $ = getStateCallbacks(room)
-
-    $(room.state).players.onAdd(() => setPlayersCount(count => count + 1))
-    $(room.state).players.onRemove(() => setPlayersCount(count => count - 1))
-  }, [room])
+  const playersCount = useLobbyPlayers().length
 
   useEffect(() => {
     const cameraControls = controls as CameraControls
