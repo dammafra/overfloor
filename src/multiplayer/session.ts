@@ -13,7 +13,7 @@ import {
 } from 'playroomkit'
 import { useSyncExternalStore } from 'react'
 import { navigate } from 'wouter/use-browser-location'
-import { Host } from './host'
+import { Host, PRACTICE_BOTS } from './host'
 
 interface ConnectOptions extends GameConfigSchema {
   roomCode?: string
@@ -64,8 +64,8 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
           gameId: import.meta.env.VITE_PLAYROOM_GAME_ID,
           roomCode,
           skipLobby: true,
-          // practice: the player and the bot
-          maxPlayersPerRoom: practice ? 2 : gridConfig.large.maxPlayers,
+          // practice: the player and the bots
+          maxPlayersPerRoom: practice ? 1 + PRACTICE_BOTS : gridConfig.large.maxPlayers,
         },
         undefined,
         error => fail(current, ERRORS[error.message] ?? error.message ?? 'Connection lost'),

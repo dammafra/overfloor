@@ -25,18 +25,23 @@ export class PracticeBot extends Bot {
   #reactAt = 0
   #target?: string
 
-  static add() {
+  static add(username: string) {
     const player = Multiplayer().connection?.addProxyPlayer()
-    return player && new PracticeBot({ player })
+    return player && new PracticeBot({ player, username })
   }
 
-  constructor(params: { player: PlayerState }) {
+  constructor({ username, ...params }: { player: PlayerState; username: string }) {
     super(params)
-    this.setState(PLAYER.username, 'Bot', true)
+    this.setState(PLAYER.username, username, true)
     this.setState(PLAYER.inLobby, true, true)
   }
 
-  think() {
+  get target() {
+    return this.#target
+  }
+
+  // `taken`: tiles targeted by the other bots, avoided to not crowd the same one
+  think(taken: Set<string>) {
     const position = this.#position()
     if (!position) return this.#move(null)
 
@@ -52,7 +57,8 @@ export class PracticeBot extends Bot {
     const safe = tiles.filter(t => !t.disabled && !(isWarning(phase) && t.targeted))
     const reacting = Date.now() >= this.#reactAt
     if (reacting && !safe.some(t => t.id === this.#target)) {
-      this.#target = nearest(safe, position)?.id
+      const free = safe.filter(t => !taken.has(t.id))
+      this.#target = nearest(free.length ? free : safe, position)?.id
     }
 
     const target = tiles.find(t => t.id === this.#target)

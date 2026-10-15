@@ -16,6 +16,8 @@ const FALL_LIMIT = -50
 const STRENGTH = 30
 const UP = new Vector3(0, 1, 0)
 const IDENTITY: Vector4Tuple = [0, 0, 0, 1]
+const PUBLISH_INTERVAL = 33 //ms
+const FOLLOW_RATE = 20
 
 // reused every frame
 const _impulse = new Vector3()
@@ -107,7 +109,7 @@ function SimulatedPlayer(props: MatchPlayerProps) {
       rotation: quat(bodyRef.current.rotation()).toArray() as Vector4Tuple,
     }
     state.setState(PLAYER.body, body, reliable)
-  }, 50)
+  }, PUBLISH_INTERVAL)
 
   useEffect(() => publish(true), [publish])
 
@@ -150,11 +152,13 @@ function SimulatedPlayer(props: MatchPlayerProps) {
   )
 }
 
-// other clients: kinematic body following the published one
+// other clients: kinematic body following the published one.
+// The own player turns toward the local input right away, without waiting for the host
 function SyncedPlayer(props: MatchPlayerProps) {
   const { player, state, ...playerProps } = props
 
   const bodyRef = useRef<RapierRigidBody>(null)
+  const angleRef = useRef<number>(undefined)
   const { walking } = useWalking(state)
   const initial = useInitialPosition(props)
 
@@ -166,9 +170,16 @@ function SyncedPlayer(props: MatchPlayerProps) {
     _targetPosition.fromArray(published?.position ?? player.position)
     _targetRotation.fromArray(published?.rotation ?? IDENTITY)
 
+    if (player.id === myPlayer()?.id) {
+      // the last direction is kept when idle, while the host is still turning toward it
+      const angle: number | null = state.getState(PLAYER.input)
+      if (angle != null) angleRef.current = angle
+      if (angleRef.current != null) _targetRotation.setFromAxisAngle(UP, angleRef.current)
+    }
+
     const safeDelta = Math.min(delta, 0.1)
-    const position = vec3(body.translation()).lerp(_targetPosition, 15 * safeDelta)
-    const rotation = quat(body.rotation()).slerp(_targetRotation, 15 * safeDelta)
+    const position = vec3(body.translation()).lerp(_targetPosition, FOLLOW_RATE * safeDelta)
+    const rotation = quat(body.rotation()).slerp(_targetRotation, FOLLOW_RATE * safeDelta)
 
     body.setNextKinematicTranslation(position)
     body.setNextKinematicRotation(rotation)
