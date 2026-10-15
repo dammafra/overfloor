@@ -1,9 +1,9 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
-import { IDLE_DIRECTION, useController } from '@stores'
+import { IDLE_DIRECTION, useController, type Direction } from '@stores'
 import clsx from 'clsx'
-import { useState, type PropsWithChildren } from 'react'
-import ReactNipple from 'react-nipplejs'
+import { useEffect, useState, type PropsWithChildren } from 'react'
+import { Nipple } from 'react-nipplejs'
 
 const OCTANT = Math.PI / 4
 
@@ -13,6 +13,18 @@ export function Controller({ children }: PropsWithChildren) {
 
   const [nippleHelper, setNippleHelper] = useState(true)
 
+  // keyup/touchend are lost when the page loses focus, leaving the direction stuck: stop
+  useEffect(() => {
+    const stop = () => setDirection(IDLE_DIRECTION)
+    const handleVisibilityChange = () => document.hidden && stop()
+    window.addEventListener('blur', stop)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      window.removeEventListener('blur', stop)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [setDirection])
+
   return (
     <KeyboardControls
       map={[
@@ -21,19 +33,18 @@ export function Controller({ children }: PropsWithChildren) {
         { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
         { name: 'right', keys: ['ArrowRight', 'KeyD'] },
       ]}
-      onChange={(_name, _pressed, { up, down, left, right }) =>
-        setDirection({ up, down, left, right })
-      }
+      // only the changed key: drei's state keeps keys whose keyup was lost
+      onChange={(name, pressed) => setDirection({ [name as keyof Direction]: pressed })}
     >
       {isTouch && (
         <Html center wrapperClass="fixed inset-0 -z-0!" className="h-[100dvh] w-screen">
-          <ReactNipple
+          <Nipple
             options={{ mode: 'static', size: 120 }}
             className={clsx('pointer-events-none absolute! right-8 bottom-8 h-30! w-30!', {
               hidden: !nippleHelper,
             })}
           />
-          <ReactNipple
+          <Nipple
             className="fixed inset-0 h-full! w-full!"
             options={{ mode: 'semi', size: 120, catchDistance: 0 }}
             onMove={(_, data) => {

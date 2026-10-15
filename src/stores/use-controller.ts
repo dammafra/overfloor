@@ -12,7 +12,7 @@ export const IDLE_DIRECTION: Direction = { up: false, down: false, left: false, 
 type ControllerStore = Direction & {
   strength: number
 
-  setDirection: (direction: Direction) => void
+  setDirection: (direction: Partial<Direction>) => void
   setStrength: (strength: number) => void
 }
 
