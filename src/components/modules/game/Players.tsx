@@ -1,15 +1,15 @@
 import { Player, type PlayerProps } from '@components'
 import { useGamePhase, useThrottle } from '@hooks'
-import { ackInput, getRtt, reportFell, useIsHost } from '@multiplayer'
+import { reportFell, useIsHost } from '@multiplayer'
 import { useTransition } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
-import { quat, vec3, type CollisionEnterPayload, type RapierRigidBody } from '@react-three/rapier'
+import { quat, vec3, type RapierRigidBody } from '@react-three/rapier'
 import { PLAYER, type PlayerBodySchema, type PlayerSchema } from '@schema'
 import { useRoomState } from '@stores'
 import { animatable } from '@utils'
 import { myPlayer, usePlayersList, type PlayerState } from 'playroomkit'
 import { useEffect, useRef, useState } from 'react'
-import { Quaternion, Vector3, type Vector3Tuple, type Vector4Tuple } from 'three'
+import { Quaternion, Vector3, type Vector4Tuple } from 'three'
 import { PlayerBody } from './PlayerBody'
 
 const FALL_LIMIT = -50
@@ -19,15 +19,8 @@ const ACCELERATION = 15
 const DECELERATION = 20
 const UP = new Vector3(0, 1, 0)
 const IDENTITY: Vector4Tuple = [0, 0, 0, 1]
-const ZERO: Vector3Tuple = [0, 0, 0]
 const PUBLISH_INTERVAL = 33 //ms
 const FOLLOW_RATE = 20
-// the others are shown where they likely are now: published body moved along its velocity, up to a limit
-const MAX_EXTRAPOLATION = 150 //ms
-// own player prediction: the error from the host is recovered smoothly, at once when too large
-const CORRECTION_RATE = 10
-const SNAP_DISTANCE = 2
-const HISTORY_DURATION = 1000 //ms
 // knockback on contact between players: a base bump plus the speed of the pusher toward the other
 const BUMP = 1.5
 const KNOCKBACK = 0.6
@@ -40,12 +33,10 @@ const _bump = new Vector3()
 const _rotation = new Quaternion()
 const _targetPosition = new Vector3()
 const _targetRotation = new Quaternion()
-const _correction = new Vector3()
 
 /**
  * Players of the match. The host simulates them all from their input (see `Controller`) and
- * publishes their bodies. The other clients predict their own player from the local input,
- * corrected toward the published body, and follow the others.
+ * publishes their bodies, the other clients interpolate toward the published bodies.
  */
 export function Players() {
   const players = useRoomState(s => s.players)
@@ -84,12 +75,9 @@ type MatchPlayerProps = PlayerProps & {
 
 // the transition overrides the key of the elements it renders: the body is keyed here instead
 const MatchPlayer = animatable(({ host, ...props }: MatchPlayerProps & { host: boolean }) => {
-  const mode = host ? 'simulated' : props.player.id === myPlayer()?.id ? 'predicted' : 'synced'
-  // a new body on (re)spawn, and when the mode changes (e.g. host migration)
-  const key = `${props.player.spawn}-${mode}`
-  if (mode === 'simulated') return <SimulatedPlayer key={key} {...props} />
-  if (mode === 'predicted') return <PredictedPlayer key={key} {...props} />
-  return <SyncedPlayer key={key} {...props} />
+  // a new body on (re)spawn, and when switching between simulating and following
+  const key = `${props.player.spawn}-${host}`
+  return host ? <SimulatedPlayer key={key} {...props} /> : <SyncedPlayer key={key} {...props} />
 })
 
 // last published body of the player, if it belongs to the current spawn
@@ -113,76 +101,18 @@ function useWalking(state: PlayerState) {
   return { started, walking }
 }
 
-// read by the other bodies on contact
-type PlayerUserData = { player: true; stunnedUntil: number; velocity: Vector3 }
-
-function usePlayerUserData() {
-  const [userData] = useState<PlayerUserData>(() => ({
-    player: true,
-    stunnedUntil: 0,
-    velocity: new Vector3(),
-  }))
-  return userData
-}
-
-// turns and walks the body toward the input, the same on the host and in the prediction
-function steer(body: RapierRigidBody, angle: number | null, stunned: boolean, delta: number) {
-  const safeDelta = Math.min(delta, 0.1)
-
-  if (angle != null) {
-    // rotation toward direction, with smooth interpolation
-    _rotation.setFromAxisAngle(UP, angle)
-    body.setRotation(quat(body.rotation()).slerp(_rotation, 5 * safeDelta), true)
-  }
-
-  if (stunned) return
-
-  const velocity = body.linvel()
-  if (angle != null) _velocity.set(Math.sin(angle) * SPEED, 0, Math.cos(angle) * SPEED)
-  else if (Math.hypot(velocity.x, velocity.z) < 0.01) return // already still: let it sleep
-  else _velocity.set(0, 0, 0)
-
-  // horizontal only, gravity keeps the vertical
-  const t = Math.min(1, (angle != null ? ACCELERATION : DECELERATION) * safeDelta)
-  _velocity.set(
-    velocity.x + (_velocity.x - velocity.x) * t,
-    velocity.y,
-    velocity.z + (_velocity.z - velocity.z) * t,
-  )
-  body.setLinvel(_velocity, true)
-}
-
-// knockback of `target` pushed by `pusher` moving at `velocity`
-function bump(
-  pusher: RapierRigidBody,
-  target: RapierRigidBody,
-  data: PlayerUserData,
-  velocity: Vector3,
-) {
-  // horizontal direction from the pusher to the target
-  _bump.copy(target.translation()).sub(pusher.translation()).setY(0)
-  if (_bump.lengthSq() === 0) return
-  _bump.normalize()
-
-  const speed = Math.max(0, velocity.dot(_bump))
-  target.applyImpulse(_bump.multiplyScalar(BUMP + KNOCKBACK * speed), true)
-  data.stunnedUntil = performance.now() + STUN
-}
-
-function otherPlayer({ other }: CollisionEnterPayload) {
-  const data = other.rigidBody?.userData as PlayerUserData | undefined
-  return other.rigidBody && data?.player ? { body: other.rigidBody, data } : undefined
-}
-
-const physicsProps = { gravityScale: 5, friction: 0.5, linearDamping: 0.4 }
-
 // host side: dynamic body moved by the player input
+type SimulatedUserData = { player: true; stunnedUntil: number }
+
 function SimulatedPlayer(props: MatchPlayerProps) {
   const { player, state, ...playerProps } = props
 
   const bodyRef = useRef<RapierRigidBody>(null)
   const fellRef = useRef(false)
-  const userData = usePlayerUserData()
+  // velocity before the step: on contact the solver has already stopped the body
+  const velocityRef = useRef(new Vector3())
+  // read by the other bodies on contact
+  const [userData] = useState<SimulatedUserData>(() => ({ player: true, stunnedUntil: 0 }))
   const { started, walking } = useWalking(state)
   const initial = useInitialPosition(props)
 
@@ -192,8 +122,6 @@ function SimulatedPlayer(props: MatchPlayerProps) {
       spawn: player.spawn,
       position: vec3(bodyRef.current.translation()).toArray(),
       rotation: quat(bodyRef.current.rotation()).toArray() as Vector4Tuple,
-      velocity: vec3(bodyRef.current.linvel()).toArray(),
-      ack: state.getState(PLAYER.inputSeq),
     }
     state.setState(PLAYER.body, body, reliable)
   }, PUBLISH_INTERVAL)
@@ -211,23 +139,56 @@ function SimulatedPlayer(props: MatchPlayerProps) {
     }
 
     if (!body.isSleeping()) publish(false)
-    // velocity before the step: on contact the solver has already stopped the body
-    userData.velocity.copy(body.linvel())
+    velocityRef.current.copy(body.linvel())
 
     const angle: number | null = state.getState(PLAYER.input)
-    steer(body, started ? angle : null, performance.now() < userData.stunnedUntil, delta)
+    const moving = started && angle != null
+    const safeDelta = Math.min(delta, 0.1)
+
+    if (moving) {
+      // rotation toward direction, with smooth interpolation
+      _rotation.setFromAxisAngle(UP, angle)
+      body.setRotation(quat(body.rotation()).slerp(_rotation, 5 * delta), true)
+    }
+
+    if (performance.now() < userData.stunnedUntil) return
+
+    const velocity = body.linvel()
+    if (moving) _velocity.set(Math.sin(angle) * SPEED, 0, Math.cos(angle) * SPEED)
+    else if (Math.hypot(velocity.x, velocity.z) < 0.01) return // already still: let it sleep
+    else _velocity.set(0, 0, 0)
+
+    // horizontal only, gravity keeps the vertical
+    const t = Math.min(1, (moving ? ACCELERATION : DECELERATION) * safeDelta)
+    _velocity.set(
+      velocity.x + (_velocity.x - velocity.x) * t,
+      velocity.y,
+      velocity.z + (_velocity.z - velocity.z) * t,
+    )
+    body.setLinvel(_velocity, true)
   })
 
   return (
     <PlayerBody
       ref={bodyRef}
-      {...physicsProps}
+      gravityScale={5}
+      friction={0.5}
+      linearDamping={0.4}
       position={initial}
       userData={userData}
-      onCollisionEnter={payload => {
-        const other = otherPlayer(payload)
-        if (bodyRef.current && other)
-          bump(bodyRef.current, other.body, other.data, userData.velocity)
+      onCollisionEnter={({ other }) => {
+        const body = bodyRef.current
+        const otherData = other.rigidBody?.userData as SimulatedUserData | undefined
+        if (!body || !other.rigidBody || !otherData?.player) return
+
+        // horizontal direction from this player to the other
+        _bump.copy(other.rigidBody.translation()).sub(body.translation()).setY(0)
+        if (_bump.lengthSq() === 0) return
+        _bump.normalize()
+
+        const speed = Math.max(0, velocityRef.current.dot(_bump))
+        other.rigidBody.applyImpulse(_bump.multiplyScalar(BUMP + KNOCKBACK * speed), true)
+        otherData.stunnedUntil = performance.now() + STUN
       }}
     >
       <Player {...playerProps} animate={walking} />
@@ -235,96 +196,13 @@ function SimulatedPlayer(props: MatchPlayerProps) {
   )
 }
 
-type HistoryEntry = { time: number; position: Vector3 }
-
-// predicted position at `time`, interpolated between the recorded frames
-function positionAt(history: HistoryEntry[], time: number, target: Vector3) {
-  const next = history.findIndex(entry => entry.time >= time)
-  if (next === -1) return target.copy(history[history.length - 1].position)
-  if (next === 0) return target.copy(history[0].position)
-
-  const a = history[next - 1]
-  const b = history[next]
-  return target.lerpVectors(a.position, b.position, (time - a.time) / (b.time - a.time))
-}
-
-// non-host own player: dynamic body moved by the local input right away. The published body
-// shows where the host had the player about a round trip ago: compared with the predicted
-// position back then, the difference (e.g. a bump missed locally) is recovered over time
-function PredictedPlayer(props: MatchPlayerProps) {
-  const { state, ...rest } = props
-  const { player: _, ...playerProps } = rest
-
-  const bodyRef = useRef<RapierRigidBody>(null)
-  const historyRef = useRef<HistoryEntry[]>([])
-  const publishedRef = useRef<PlayerBodySchema>(undefined)
-  const errorRef = useRef(new Vector3())
-  const userData = usePlayerUserData()
-  const { started, walking } = useWalking(state)
-  const initial = useInitialPosition(props)
-
-  useFrame((_, delta) => {
-    const body = bodyRef.current
-    if (!body) return
-
-    const now = performance.now()
-    const history = historyRef.current
-    const published = publishedBody(props)
-
-    if (published && published !== publishedRef.current && history.length) {
-      publishedRef.current = published
-      ackInput(published.ack)
-      // the host publishes on average half an interval after applying the input
-      positionAt(history, now - getRtt() + PUBLISH_INTERVAL / 2, _correction)
-      errorRef.current.fromArray(published.position).sub(_correction)
-    }
-
-    const error = errorRef.current
-    if (error.lengthSq() > 0) {
-      const t =
-        error.length() > SNAP_DISTANCE ? 1 : Math.min(1, CORRECTION_RATE * Math.min(delta, 0.1))
-      _correction.copy(error).multiplyScalar(t)
-      error.sub(_correction)
-      body.setTranslation(vec3(body.translation()).add(_correction), true)
-      // the past predictions are corrected too, or the next comparison would count it again
-      history.forEach(entry => entry.position.add(_correction))
-    }
-
-    userData.velocity.copy(body.linvel())
-
-    const angle: number | null = state.getState(PLAYER.input)
-    steer(body, started ? angle : null, now < userData.stunnedUntil, delta)
-
-    history.push({ time: now, position: vec3(body.translation()) })
-    while (history[0].time < now - HISTORY_DURATION) history.shift()
-  })
-
-  return (
-    <PlayerBody
-      ref={bodyRef}
-      {...physicsProps}
-      position={initial}
-      userData={userData}
-      onCollisionEnter={payload => {
-        // the bump received by the host, predicted: the other one is bumped by the host only
-        const other = otherPlayer(payload)
-        if (bodyRef.current && other)
-          bump(other.body, bodyRef.current, userData, other.data.velocity)
-      }}
-    >
-      <Player {...playerProps} animate={walking} />
-    </PlayerBody>
-  )
-}
-
-// other clients: kinematic body following the published one, moved along its velocity
+// other clients: kinematic body following the published one.
+// The own player turns toward the local input right away, without waiting for the host
 function SyncedPlayer(props: MatchPlayerProps) {
   const { player, state, ...playerProps } = props
 
   const bodyRef = useRef<RapierRigidBody>(null)
-  const publishedRef = useRef<PlayerBodySchema>(undefined)
-  const receivedAtRef = useRef(0)
-  const userData = usePlayerUserData()
+  const angleRef = useRef<number>(undefined)
   const { walking } = useWalking(state)
   const initial = useInitialPosition(props)
 
@@ -332,20 +210,16 @@ function SyncedPlayer(props: MatchPlayerProps) {
     const body = bodyRef.current
     if (!body) return
 
-    const now = performance.now()
     const published = publishedBody(props)
-    if (published !== publishedRef.current) {
-      publishedRef.current = published
-      receivedAtRef.current = now
-    }
-
-    // published about half a round trip ago, plus the time since it arrived
-    const extrapolation = Math.min(MAX_EXTRAPOLATION, getRtt() / 2 + now - receivedAtRef.current)
-    userData.velocity.fromArray(published?.velocity ?? ZERO)
-    _targetPosition
-      .fromArray(published?.position ?? player.position)
-      .addScaledVector(userData.velocity, extrapolation / 1000)
+    _targetPosition.fromArray(published?.position ?? player.position)
     _targetRotation.fromArray(published?.rotation ?? IDENTITY)
+
+    if (player.id === myPlayer()?.id) {
+      // the last direction is kept when idle, while the host is still turning toward it
+      const angle: number | null = state.getState(PLAYER.input)
+      if (angle != null) angleRef.current = angle
+      if (angleRef.current != null) _targetRotation.setFromAxisAngle(UP, angleRef.current)
+    }
 
     const safeDelta = Math.min(delta, 0.1)
     const position = vec3(body.translation()).lerp(_targetPosition, FOLLOW_RATE * safeDelta)
@@ -356,7 +230,7 @@ function SyncedPlayer(props: MatchPlayerProps) {
   })
 
   return (
-    <PlayerBody ref={bodyRef} type="kinematicPosition" position={initial} userData={userData}>
+    <PlayerBody ref={bodyRef} type="kinematicPosition" position={initial}>
       <Player {...playerProps} animate={walking} />
     </PlayerBody>
   )

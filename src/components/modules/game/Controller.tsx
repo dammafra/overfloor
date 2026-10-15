@@ -1,7 +1,8 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
-import { sendInput as send } from '@multiplayer'
+import { PLAYER } from '@schema'
 import clsx from 'clsx'
+import { myPlayer } from 'playroomkit'
 import { useEffect, useRef, useState } from 'react'
 import { Nipple } from 'react-nipplejs'
 
@@ -18,7 +19,7 @@ const IDLE_KEYS: Record<Key, boolean> = { up: false, down: false, left: false, r
  */
 function sendInput(x: number, z: number) {
   const angle = x || z ? Math.round(Math.atan2(x, z) / OCTANT) * OCTANT : null
-  send(angle)
+  myPlayer()?.setState(PLAYER.input, angle, true)
 }
 
 export function Controller() {

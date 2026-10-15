@@ -20,7 +20,6 @@ export const PLAYER = {
   // page hidden: not picked as the next host
   away: 'away',
   input: 'input',
-  inputSeq: 'inputSeq',
   body: 'body',
 } as const
 
