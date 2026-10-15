@@ -7,6 +7,7 @@ import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { CAMERA_FOV, ROUTES } from '@utils'
 import { useControls } from 'leva'
+import { PCFShadowMap } from 'three'
 import { Route } from 'wouter'
 import { Environment } from './Environment'
 
@@ -29,7 +30,7 @@ export function Experience() {
           diagnostics: { keywords: true },
         },
       }}
-      shadows
+      shadows={{ type: PCFShadowMap }}
       camera={{
         position: [0, 0, 0],
         fov: CAMERA_FOV,
