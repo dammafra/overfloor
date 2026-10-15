@@ -1,3 +1,4 @@
+import { animatable } from '@utils'
 import { BlockCharacter, type BlockCharacterProps } from '@components/models'
 import { a } from '@react-spring/three'
 import { Billboard, Text } from '@react-three/drei'
@@ -33,7 +34,7 @@ export interface PlayerProps extends BlockCharacterProps {
   showUsername?: boolean
 }
 
-export const Player = a(
+export const Player = animatable(
   ({ username, showIndicator, showUsername, animate, ...props }: PlayerProps) => {
     const color = useMemo(() => username && stringToColor(username), [username])
 

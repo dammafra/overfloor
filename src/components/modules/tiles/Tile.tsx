@@ -1,3 +1,4 @@
+import { animatable } from '@utils'
 import { a } from '@react-spring/three'
 import { Float, RoundedBoxGeometry } from '@react-three/drei'
 import type { JSX } from 'react'
@@ -33,4 +34,4 @@ function _Tile({
   )
 }
 
-export const Tile = a(_Tile)
+export const Tile = animatable(_Tile)

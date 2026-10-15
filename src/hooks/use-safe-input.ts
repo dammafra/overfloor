@@ -1,14 +1,14 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useCallback, useState, type Dispatch, type SetStateAction } from 'react'
+
+const sanitize = (value: string) => value.replace(/[^a-zA-Z0-9-_]/g, '').substring(0, 20)
 
 export function useSafeInput(initialValue?: string): [string, Dispatch<SetStateAction<string>>] {
-  const [value, setValue] = useState(initialValue || '')
+  const [value, setValue] = useState(() => sanitize(initialValue || ''))
 
-  useEffect(() => {
-    {
-      const safeValue = value.replace(/[^a-zA-Z0-9-_]/g, '').substring(0, 20)
-      setValue(safeValue)
-    }
-  }, [value])
+  const setSafeValue = useCallback<Dispatch<SetStateAction<string>>>(
+    action => setValue(prev => sanitize(typeof action === 'function' ? action(prev) : action)),
+    [],
+  )
 
-  return [value, setValue]
+  return [value, setSafeValue]
 }

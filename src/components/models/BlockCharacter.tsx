@@ -9,15 +9,8 @@
 
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph, type ObjectMap } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
-import type {
-  Bone,
-  ColorRepresentation,
-  Group,
-  Material,
-  MeshStandardMaterial,
-  SkinnedMesh,
-} from 'three'
+import { useEffect, useMemo, useRef, type JSX } from 'react'
+import type { Bone, ColorRepresentation, Group, MeshStandardMaterial, SkinnedMesh } from 'three'
 import type { GLTF } from 'three-stdlib'
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js'
 
@@ -54,13 +47,13 @@ export function BlockCharacter({
   const { nodes } = useGraph(clone) as GLTFResult
   const { actions } = useAnimations(animations, groupRef)
 
-  const [bodyMaterial, setBodyMaterial] = useState<Material>()
-
-  useEffect(() => {
+  const bodyMaterial = useMemo(() => {
     const bodyMaterial = materials.body.clone()
     bodyMaterial.color.set(color)
-    setBodyMaterial(bodyMaterial)
+    return bodyMaterial
   }, [materials, color])
+
+  useEffect(() => () => bodyMaterial.dispose(), [bodyMaterial])
 
   useEffect(() => {
     if (animate) actions[action]?.reset().fadeIn(0.5).play()

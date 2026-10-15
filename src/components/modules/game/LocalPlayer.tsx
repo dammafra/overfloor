@@ -24,6 +24,7 @@ export function LocalPlayer() {
   const fellRef = useRef(false)
 
   const players = useRoomState(s => s.players)
+  const me = players.find(p => p.id === myPlayer()?.id)
   const [player, setPlayer] = useState<PlayerSchema>()
   const [walking, setWalking] = useState(false)
 
@@ -35,14 +36,13 @@ export function LocalPlayer() {
   }, 50)
 
   // (re)spawn when the host adds this player to the match
-  useEffect(() => {
-    const me = players.find(p => p.id === myPlayer()?.id)
-    if (!me || me.spawn === player?.spawn) return
+  if (me && me.spawn !== player?.spawn) setPlayer(me)
 
+  useEffect(() => {
+    if (!player) return
     fellRef.current = false
-    myPlayer().setState(PLAYER.position, me.position, true)
-    setPlayer(me)
-  }, [players, player])
+    myPlayer().setState(PLAYER.position, player.position, true)
+  }, [player])
 
   useEffect(() => sendWalking(walking), [walking, sendWalking])
 

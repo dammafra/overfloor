@@ -1,7 +1,6 @@
 import { useRoomState } from '@stores'
 import { CuboidCollider } from '@react-three/rapier'
 import { GRID_GAP, GRID_UNIT, gridConfig } from '@schema'
-import { useEffect, useState } from 'react'
 
 export function Boundaries() {
   const dimension = useRoomState(s => s.dimension)
@@ -10,21 +9,10 @@ export function Boundaries() {
 
   const wallHeight = 3
   const wallThickness = 0.1
-  const [verticalWallWidth, setVerticalWallWidth] = useState(0)
-  const [verticalWallPosition, setVerticalWallPosition] = useState(0)
-  const [horizontalWallWidth, setHorizontalWallWidth] = useState(0)
-  const [horizontalWallPosition, setHorizontalWallPosition] = useState(0)
-
-  useEffect(() => {
-    const horizontalWallWidth = width * (GRID_UNIT + GRID_GAP)
-    const verticalWallWidth = height * (GRID_UNIT + GRID_GAP)
-
-    setHorizontalWallWidth(horizontalWallWidth)
-    setVerticalWallWidth(verticalWallWidth)
-
-    setVerticalWallPosition(horizontalWallWidth * 0.5 + wallThickness)
-    setHorizontalWallPosition(verticalWallWidth * 0.5 + wallThickness)
-  }, [width, height])
+  const horizontalWallWidth = width * (GRID_UNIT + GRID_GAP)
+  const verticalWallWidth = height * (GRID_UNIT + GRID_GAP)
+  const verticalWallPosition = horizontalWallWidth * 0.5 + wallThickness
+  const horizontalWallPosition = verticalWallWidth * 0.5 + wallThickness
 
   return (
     <>

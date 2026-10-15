@@ -1,17 +1,17 @@
 import { ButtonTile, ModalTile, type ButtonTileProps } from '@components/modules/tiles'
-import { a } from '@react-spring/three'
+import { animatable } from '@utils'
 import { v4 as uuid } from 'uuid'
 import { useLocation, useRoute } from 'wouter'
 import type { MenuTileProps } from './MenuTile'
 
 type MenuButtonTileProps = Omit<MenuTileProps, 'type'>
 
-export const MenuButtonTile = a(({ index, ...props }: MenuButtonTileProps) => {
+export const MenuButtonTile = animatable(({ index, ...props }: MenuButtonTileProps) => {
   return [
-    <JoinRoomButton {...props} />,
-    <CreateRoomButton {...props} />,
-    <TrainingRoomButton {...props} />,
-    <CreditsButton {...props} />,
+    <JoinRoomButton key="JoinRoomButton" {...props} />,
+    <CreateRoomButton key="CreateRoomButton" {...props} />,
+    <TrainingRoomButton key="TrainingRoomButton" {...props} />,
+    <CreditsButton key="CreditsButton" {...props} />,
   ].at(index!)
 })
 

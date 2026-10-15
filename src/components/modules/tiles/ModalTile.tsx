@@ -45,7 +45,6 @@ export function ModalTile({
     <ButtonTile
       {...props}
       disabled={open}
-      // @ts-ignore
       position={spring.position}
       rotation-x={spring.rotationX}
       color={spring.color}

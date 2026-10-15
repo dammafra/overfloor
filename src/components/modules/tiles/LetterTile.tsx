@@ -1,10 +1,11 @@
 import { a, useSpring } from '@react-spring/three'
+import { animatable } from '@utils'
 import { Center, Float, Text3D, useCursor } from '@react-three/drei'
 import { useState } from 'react'
 import { MathUtils } from 'three'
 import type { TileProps } from './Tile'
 
-export const LetterTile = a(({ children, color, ...props }: TileProps) => {
+export const LetterTile = animatable(({ children, color, ...props }: TileProps) => {
   const [hovered, setHovered] = useState(false)
   const [clicked, setClicked] = useState(0)
   useCursor(hovered)

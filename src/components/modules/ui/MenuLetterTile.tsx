@@ -1,10 +1,10 @@
 import { LetterTile } from '@components/modules/tiles'
-import { a } from '@react-spring/three'
+import { animatable } from '@utils'
 import type { MenuTileProps } from './MenuTile'
 
 type MenuLetterTileProps = Omit<MenuTileProps, 'type'>
 
-export const MenuLetterTile = a(({ index, ...props }: MenuLetterTileProps) => {
+export const MenuLetterTile = animatable(({ index, ...props }: MenuLetterTileProps) => {
   if (typeof index === 'undefined') return <></>
 
   return (

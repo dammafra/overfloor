@@ -35,7 +35,6 @@ export function Countdown() {
       typeof countdown === 'number' &&
       countdown >= 0 && (
         <Billboard>
-          {/* @ts-ignore */}
           <LetterTile
             {...spring}
             rotation-x={spring.rotationX}

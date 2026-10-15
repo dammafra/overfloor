@@ -1,6 +1,6 @@
 import { Dynamic } from '@components/helpers'
 import { Tile, type TileProps } from '@components/modules/tiles'
-import { a } from '@react-spring/three'
+import { animatable } from '@utils'
 import { MenuButtonTile } from './MenuButtonTile'
 import { MenuLetterTile } from './MenuLetterTile'
 
@@ -9,7 +9,7 @@ export type MenuTileProps = TileProps & {
   index?: number
 }
 
-export const MenuTile = a(({ type, index, ...props }: MenuTileProps) => {
+export const MenuTile = animatable(({ type, index, ...props }: MenuTileProps) => {
   const a = type !== 'base' ? { index } : undefined
   return (
     <Dynamic

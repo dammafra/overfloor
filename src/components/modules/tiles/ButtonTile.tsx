@@ -1,4 +1,5 @@
-import { a, useSpring } from '@react-spring/three'
+import { useSpring } from '@react-spring/three'
+import { animatable } from '@utils'
 import { Text, useCursor, type TextProps } from '@react-three/drei'
 import { useState } from 'react'
 import { MathUtils } from 'three'
@@ -9,7 +10,7 @@ export type ButtonTileProps = TileProps & {
   labelProps?: Partial<TextProps>
 }
 
-export const ButtonTile = a(
+export const ButtonTile = animatable(
   ({ disabled, children, labelProps, onClick, ...props }: ButtonTileProps) => {
     const [hovered, setHovered] = useState(false)
     useCursor(hovered)

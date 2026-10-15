@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
+
+const QUERY = '(pointer: coarse)'
+
+function subscribe(callback: () => void) {
+  const mediaQuery = window.matchMedia(QUERY)
+  mediaQuery.addEventListener('change', callback)
+  return () => mediaQuery.removeEventListener('change', callback)
+}
+
+const getSnapshot = () => window.matchMedia(QUERY).matches
+const getServerSnapshot = () => false
 
 export function useIsTouch() {
-  const [isTouch, setIsTouch] = useState(false)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(pointer: coarse)')
-    setIsTouch(mediaQuery.matches)
-
-    function handleChange(e: MediaQueryListEvent) {
-      setIsTouch(e.matches)
-    }
-
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [])
-
-  return isTouch
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }

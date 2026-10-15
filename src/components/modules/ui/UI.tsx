@@ -107,7 +107,6 @@ export function UI() {
   return (
     <>
       {transitions((spring, index) => (
-        // @ts-ignore
         <MenuTile
           {...spring}
           type={getTileType(index)}
