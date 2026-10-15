@@ -17,7 +17,10 @@ export const STATE = {
 export const PLAYER = {
   username: 'username',
   inLobby: 'inLobby',
+  // page hidden: not picked as the next host
+  away: 'away',
   input: 'input',
+  inputSeq: 'inputSeq',
   body: 'body',
 } as const
 

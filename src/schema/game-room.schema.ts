@@ -34,6 +34,9 @@ export interface PlayerBodySchema {
   spawn: string
   position: Vector3Tuple
   rotation: Vector4Tuple
+  velocity: Vector3Tuple
+  // last input sequence applied (see `sendInput`)
+  ack?: number
 }
 
 export interface TileSchema {

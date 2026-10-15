@@ -2,6 +2,11 @@ import 'playroomkit'
 import type { PlayerState } from 'playroomkit'
 
 declare module 'playroomkit' {
+  // Missing from the typings
+  interface PlayerState {
+    on(event: 'state', callback: (key: string, value: unknown) => void): () => void
+  }
+
   // Exported by playroomkit but missing from its typings
   export const Multiplayer: {
     (): {

@@ -9,6 +9,7 @@ import {
   onPlayerJoin,
   RPC,
   setState,
+  transferHost,
   type PlayerState,
 } from 'playroomkit'
 import { useSyncExternalStore } from 'react'
@@ -25,6 +26,12 @@ interface Session {
   connected: boolean
   host?: Host
   players: Map<string, PlayerState>
+  // own player state, set again when a host sync overwrites it (e.g. the host lost it on a reconnection)
+  myState: Record<string, unknown>
+  // usernames of the players waiting in the lobby, latest first
+  lobbyPlayers: string[]
+  // Playroom listeners outlive `Multiplayer.reset`: they subscribe again on every `insertCoin`
+  unsubscribes: (() => void)[]
   electInterval?: number
   // Playroom mounts its own (hidden, with `skipLobby`) React root in the body
   playroomRoot?: Element
@@ -32,6 +39,7 @@ interface Session {
 
 const PLAYROOM_PLAYER_ID_KEY = 'myId'
 const PLAYROOM_ROOM_HASH_KEY = 'r'
+const NO_PLAYERS: string[] = []
 
 const ERRORS: Record<string, string> = {
   ROOM_LIMIT_EXCEEDED: 'Room is full',
@@ -53,6 +61,9 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
     connection: Promise.resolve(),
     connected: false,
     players: new Map(),
+    myState: {},
+    lobbyPlayers: NO_PLAYERS,
+    unsubscribes: [],
   }
   session = current
 
@@ -79,8 +90,9 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
       // left while connecting
       if (session !== current) return teardown(current)
 
-      syncRoomState()
-      myPlayer().setState(PLAYER.username, username, true)
+      syncRoomState(current)
+      setMyState(PLAYER.username, username)
+      setMyState(PLAYER.away, document.hidden)
 
       if (isHost() && !getState(STATE.stage)) {
         const config: GameConfigSchema = { practice, countdown }
@@ -88,17 +100,36 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
         setState(STATE.stage, 'lobby', true)
       }
 
-      onPlayerJoin(player => {
+      const unsubscribeJoin = onPlayerJoin(player => {
         current.players.set(player.id, player)
         current.host?.onPlayerJoin(player)
+        updateLobbyPlayers(current)
+
+        const unsubscribeState = player.on('state', (key, value) => {
+          if (player.id === myPlayer()?.id) restoreMyState(current, key, value)
+          if (key === PLAYER.username || key === PLAYER.inLobby) updateLobbyPlayers(current)
+        })
 
         player.onQuit(() => {
-          current.players.delete(player.id)
+          unsubscribeState()
+          // a player reconnecting with the same id may have joined again already
+          if (current.players.get(player.id) === player) current.players.delete(player.id)
           current.host?.onPlayerQuit(player)
+          updateLobbyPlayers(current)
         })
       })
 
-      RPC.register(RPC_EVENTS.start, async () => current.host?.start())
+      const unsubscribeStart = RPC.register(RPC_EVENTS.start, async () => current.host?.start())
+
+      const onVisibilityChange = () => {
+        setMyState(PLAYER.away, document.hidden)
+        if (document.hidden) handOverHost(current)
+      }
+      document.addEventListener('visibilitychange', onVisibilityChange)
+
+      current.unsubscribes.push(unsubscribeJoin, unsubscribeStart, () =>
+        document.removeEventListener('visibilitychange', onVisibilityChange),
+      )
 
       electHost(current)
       current.electInterval = window.setInterval(() => electHost(current), 250)
@@ -122,6 +153,13 @@ export function leave() {
   teardown(current)
 }
 
+// own player state: kept in the session so a host sync cannot lose it
+export function setMyState(key: string, value: unknown) {
+  if (!session?.connected) return
+  session.myState[key] = value
+  myPlayer().setState(key, value, true)
+}
+
 export function requestStart() {
   RPC.call(RPC_EVENTS.start, null, RPC.Mode.HOST)
 }
@@ -131,18 +169,21 @@ export function reportFell(id: string) {
   session?.host?.onPlayerFell(id)
 }
 
-const hostListeners = new Set<() => void>()
-const notifyHostChange = () => hostListeners.forEach(listener => listener())
+const listeners = new Set<() => void>()
+const notify = () => listeners.forEach(listener => listener())
+const subscribe = (listener: () => void) => {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
 
 // whether this client is the host, i.e. simulates the players
 export function useIsHost() {
-  return useSyncExternalStore(
-    listener => {
-      hostListeners.add(listener)
-      return () => hostListeners.delete(listener)
-    },
-    () => !!session?.host,
-  )
+  return useSyncExternalStore(subscribe, () => !!session?.host)
+}
+
+// usernames of the players waiting in the lobby, latest first
+export function useLobbyPlayers() {
+  return useSyncExternalStore(subscribe, () => session?.lobbyPlayers ?? NO_PLAYERS)
 }
 
 function fail(current: Session, message: string) {
@@ -159,10 +200,13 @@ function fail(current: Session, message: string) {
  */
 function teardown(current: Session) {
   clearInterval(current.electInterval)
+  current.unsubscribes.forEach(unsubscribe => unsubscribe())
+  current.unsubscribes = []
   current.host?.dispose()
   current.host = undefined
   current.players.clear()
-  notifyHostChange()
+  current.lobbyPlayers = NO_PLAYERS
+  notify()
 
   const client = Multiplayer()
   if (client.connection) client.leaveRoom()
@@ -191,15 +235,51 @@ function clearRoomHash() {
 }
 
 // A single room state listener: Playroom's `useMultiplayerState` adds one emitter listener per hook
-function syncRoomState() {
+function syncRoomState(current: Session) {
   const keys = Object.keys(initialRoomState) as (keyof RoomState)[]
   const read = (key: keyof RoomState) => getState(key) ?? initialRoomState[key]
 
   useRoomState.setState(Object.fromEntries(keys.map(key => [key, read(key)])))
 
-  Multiplayer().on('state', (_, key) => {
+  const unsubscribe = Multiplayer().on('state', (_, key) => {
     if (key in initialRoomState) useRoomState.setState({ [key]: read(key as keyof RoomState) })
   })
+  current.unsubscribes.push(unsubscribe)
+}
+
+function updateLobbyPlayers(current: Session) {
+  const usernames = [...current.players.values()]
+    .filter(p => p.getState(PLAYER.inLobby))
+    .map(p => p.getState(PLAYER.username) as string | undefined)
+    .filter(username => !!username)
+    .reverse() as string[]
+
+  const previous = current.lobbyPlayers
+  if (usernames.length === previous.length && usernames.every((u, i) => u === previous[i])) return
+
+  current.lobbyPlayers = usernames
+  notify()
+}
+
+function restoreMyState(current: Session, key: string, value: unknown) {
+  if (!(key in current.myState) || value === current.myState[key]) return
+  queueMicrotask(() => {
+    if (session === current) myPlayer()?.setState(key, current.myState[key], true)
+  })
+}
+
+// A hidden page throttles its timers (on mobile it is suspended): the host hands the room over to a visible player
+function handOverHost(current: Session) {
+  if (!current.host) return
+
+  // the bots never set `away`
+  const me = myPlayer()?.id
+  const next = [...current.players.values()].find(p => p.id !== me && p.getState(PLAYER.away) === false) //oxfmt-ignore
+  if (!next) return
+
+  transferHost(next.id)
+    .then(() => session === current && electHost(current))
+    .catch(() => {})
 }
 
 // Playroom migrates the host when it leaves, the new one takes over the room logic
@@ -211,5 +291,5 @@ function electHost(current: Session) {
     current.host = undefined
   } else return
 
-  notifyHostChange()
+  notify()
 }

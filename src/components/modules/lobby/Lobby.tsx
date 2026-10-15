@@ -1,5 +1,5 @@
 import { useLobbyOptions } from '@hooks'
-import { connect } from '@multiplayer'
+import { connect, setMyState } from '@multiplayer'
 import { PLAYER } from '@schema'
 import { useRoomState } from '@stores'
 import { type LobbyOptions } from '@utils'
@@ -30,9 +30,9 @@ function LobbyRoom({ id, username, practice, countdown }: LobbyOptions) {
   useEffect(() => {
     if (!connected) return
 
-    myPlayer().setState(PLAYER.inLobby, true, true)
+    setMyState(PLAYER.inLobby, true)
 
-    return () => myPlayer()?.setState(PLAYER.inLobby, false, true)
+    return () => setMyState(PLAYER.inLobby, false)
   }, [connected])
 
   useEffect(() => {

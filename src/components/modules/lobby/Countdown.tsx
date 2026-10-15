@@ -19,6 +19,8 @@ export function Countdown() {
   const isTouch = useIsTouch()
 
   const lobby = useRoomState(s => s.lobby)
+  // players joining or coming back while a match is running wait for it to end
+  const playing = useRoomState(s => s.stage === 'game')
   const canStart = !!lobby?.canStart
   const countdown = lobby?.countdown
   const isOwner = useIsHost()
@@ -63,7 +65,7 @@ export function Countdown() {
           </>
         ) : (
           <TileLabel fontSize={0.13} maxWidth={1} rotation={LABEL_ROTATION}>
-            Waiting for opponents
+            {playing ? 'Match in progress' : 'Waiting for opponents'}
           </TileLabel>
         )}
       </ButtonTile>
