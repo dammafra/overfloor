@@ -19,7 +19,9 @@ export const PLAYER = {
   inLobby: 'inLobby',
   // page hidden: not picked as the next host
   away: 'away',
-  input: 'input',
+  // written by Playroom's `Joystick`
+  joystick: 'ctr-joystick',
+  angle: 'ctr-angle',
   body: 'body',
 } as const
 

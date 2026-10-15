@@ -16,23 +16,28 @@ export function LeaveButton() {
 
   const transitions = useTransition(confirm, POP_TRANSITION)
 
-  return transitions((spring, confirm) =>
-    confirm ? (
-      <a.button
-        className="button danger absolute bottom-8 left-8"
-        style={spring}
-        onClick={() => navigate('/', { replace: true })}
-      >
-        leave the room?
-      </a.button>
-    ) : (
-      <a.button
-        className="button danger icon large absolute bottom-8 left-8 p-1"
-        style={spring}
-        onClick={() => setConfirm(true)}
-      >
-        <span className="icon-[mdi--close]" />
-      </a.button>
-    ),
+  // sized as the icon button, the confirmation overflows to the left
+  return (
+    <div className="relative ml-auto size-12">
+      {transitions((spring, confirm) =>
+        confirm ? (
+          <a.button
+            className="button danger absolute top-1/2 right-0 -translate-y-1/2 whitespace-nowrap"
+            style={spring}
+            onClick={() => navigate('/', { replace: true })}
+          >
+            leave the room?
+          </a.button>
+        ) : (
+          <a.button
+            className="button danger icon large absolute top-0 right-0 p-1"
+            style={spring}
+            onClick={() => setConfirm(true)}
+          >
+            <span className="icon-[mdi--close]" />
+          </a.button>
+        ),
+      )}
+    </div>
   )
 }

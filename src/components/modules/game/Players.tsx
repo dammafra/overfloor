@@ -1,42 +1,34 @@
 import { Player, type PlayerProps } from '@components'
-import { useGamePhase, useThrottle } from '@hooks'
+import { useGamePhase } from '@hooks'
 import { reportFell, useIsHost } from '@multiplayer'
 import { useTransition } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
-import { quat, vec3, type RapierRigidBody } from '@react-three/rapier'
+import { vec3, type RapierRigidBody } from '@react-three/rapier'
 import { PLAYER, type PlayerBodySchema, type PlayerSchema } from '@schema'
 import { useRoomState } from '@stores'
 import { animatable } from '@utils'
 import { myPlayer, usePlayersList, type PlayerState } from 'playroomkit'
-import { useEffect, useRef, useState } from 'react'
-import { Quaternion, Vector3, type Vector4Tuple } from 'three'
+import { useRef, useState } from 'react'
+import { Quaternion, Vector3, type Group } from 'three'
 import { PlayerBody } from './PlayerBody'
 
 const FALL_LIMIT = -50
-// walking: the horizontal velocity is steered toward the input, quickly so it doesn't feel like ice
+// walking: an impulse toward the joystick every frame, against a strong damping.
+// The players push each other through the physics contacts alone
 const SPEED = 7
-const ACCELERATION = 15
-const DECELERATION = 20
+// horizontal only, so the falls keep the speed of gravity
+const DAMPING = 12
+// turning toward the joystick, smooth also when it snaps (keyboard)
+const TURN_RATE = 5
 const UP = new Vector3(0, 1, 0)
-const IDENTITY: Vector4Tuple = [0, 0, 0, 1]
-const PUBLISH_INTERVAL = 33 //ms
-const FOLLOW_RATE = 20
-// knockback on contact between players: a base bump plus the speed of the pusher toward the other
-const BUMP = 1.5
-const KNOCKBACK = 0.6
-// time without control after a bump, so the knockback isn't cancelled by the walking
-const STUN = 350 //ms
 
 // reused every frame
-const _velocity = new Vector3()
-const _bump = new Vector3()
 const _rotation = new Quaternion()
-const _targetPosition = new Vector3()
-const _targetRotation = new Quaternion()
 
 /**
- * Players of the match. The host simulates them all from their input (see `Controller`) and
- * publishes their bodies, the other clients interpolate toward the published bodies.
+ * Players of the match. The host simulates them all from their joystick (see `Controller`) and
+ * publishes their positions every frame, the other clients set them as they are.
+ * Every client turns the players toward their joystick angle.
  */
 export function Players() {
   const players = useRoomState(s => s.players)
@@ -92,41 +84,38 @@ function useInitialPosition(props: MatchPlayerProps) {
   return initial
 }
 
-function useWalking(state: PlayerState) {
+// joystick angle while it's pressed, synced by Playroom
+function joystickAngle(state: PlayerState): number | null {
+  return state.getState(PLAYER.joystick) ? (state.getState(PLAYER.angle) ?? 0) : null
+}
+
+// walking animation, and the character turned toward the joystick
+function useJoystick(state: PlayerState) {
   const started = useGamePhase() === 'started'
+  const characterRef = useRef<Group>(null)
   const [walking, setWalking] = useState(false)
 
-  useFrame(() => setWalking(started && state.getState(PLAYER.input) != null))
+  useFrame((_, delta) => {
+    const angle = started ? joystickAngle(state) : null
+    setWalking(angle != null)
 
-  return { started, walking }
+    const character = characterRef.current
+    if (angle == null || !character) return
+    _rotation.setFromAxisAngle(UP, angle)
+    character.quaternion.slerp(_rotation, Math.min(1, TURN_RATE * delta))
+  })
+
+  return { started, walking, characterRef }
 }
 
 // host side: dynamic body moved by the player input
-type SimulatedUserData = { player: true; stunnedUntil: number }
-
 function SimulatedPlayer(props: MatchPlayerProps) {
   const { player, state, ...playerProps } = props
 
   const bodyRef = useRef<RapierRigidBody>(null)
   const fellRef = useRef(false)
-  // velocity before the step: on contact the solver has already stopped the body
-  const velocityRef = useRef(new Vector3())
-  // read by the other bodies on contact
-  const [userData] = useState<SimulatedUserData>(() => ({ player: true, stunnedUntil: 0 }))
-  const { started, walking } = useWalking(state)
+  const { started, walking, characterRef } = useJoystick(state)
   const initial = useInitialPosition(props)
-
-  const publish = useThrottle((reliable: boolean) => {
-    if (!bodyRef.current) return
-    const body: PlayerBodySchema = {
-      spawn: player.spawn,
-      position: vec3(bodyRef.current.translation()).toArray(),
-      rotation: quat(bodyRef.current.rotation()).toArray() as Vector4Tuple,
-    }
-    state.setState(PLAYER.body, body, reliable)
-  }, PUBLISH_INTERVAL)
-
-  useEffect(() => publish(true), [publish])
 
   useFrame((_, delta) => {
     const body = bodyRef.current
@@ -138,100 +127,57 @@ function SimulatedPlayer(props: MatchPlayerProps) {
       return
     }
 
-    if (!body.isSleeping()) publish(false)
-    velocityRef.current.copy(body.linvel())
+    const published: PlayerBodySchema = {
+      spawn: player.spawn,
+      position: vec3(body.translation()).toArray(),
+    }
+    state.setState(PLAYER.body, published)
 
-    const angle: number | null = state.getState(PLAYER.input)
-    const moving = started && angle != null
     const safeDelta = Math.min(delta, 0.1)
-
-    if (moving) {
-      // rotation toward direction, with smooth interpolation
-      _rotation.setFromAxisAngle(UP, angle)
-      body.setRotation(quat(body.rotation()).slerp(_rotation, 5 * delta), true)
+    const velocity = body.linvel()
+    // already still: let it sleep
+    if (Math.hypot(velocity.x, velocity.z) > 0.01) {
+      const damping = Math.exp(-DAMPING * safeDelta)
+      body.setLinvel({ x: velocity.x * damping, y: velocity.y, z: velocity.z * damping }, true)
     }
 
-    if (performance.now() < userData.stunnedUntil) return
+    const angle = started ? joystickAngle(state) : null
+    if (angle == null) return
 
-    const velocity = body.linvel()
-    if (moving) _velocity.set(Math.sin(angle) * SPEED, 0, Math.cos(angle) * SPEED)
-    else if (Math.hypot(velocity.x, velocity.z) < 0.01) return // already still: let it sleep
-    else _velocity.set(0, 0, 0)
-
-    // horizontal only, gravity keeps the vertical
-    const t = Math.min(1, (moving ? ACCELERATION : DECELERATION) * safeDelta)
-    _velocity.set(
-      velocity.x + (_velocity.x - velocity.x) * t,
-      velocity.y,
-      velocity.z + (_velocity.z - velocity.z) * t,
-    )
-    body.setLinvel(_velocity, true)
+    // scaled by the mass so the top speed is `SPEED`, whatever the collider
+    const impulse = SPEED * DAMPING * body.mass() * safeDelta
+    body.applyImpulse({ x: Math.sin(angle) * impulse, y: 0, z: Math.cos(angle) * impulse }, true)
   })
 
   return (
-    <PlayerBody
-      ref={bodyRef}
-      gravityScale={5}
-      friction={0.5}
-      linearDamping={0.4}
-      position={initial}
-      userData={userData}
-      onCollisionEnter={({ other }) => {
-        const body = bodyRef.current
-        const otherData = other.rigidBody?.userData as SimulatedUserData | undefined
-        if (!body || !other.rigidBody || !otherData?.player) return
-
-        // horizontal direction from this player to the other
-        _bump.copy(other.rigidBody.translation()).sub(body.translation()).setY(0)
-        if (_bump.lengthSq() === 0) return
-        _bump.normalize()
-
-        const speed = Math.max(0, velocityRef.current.dot(_bump))
-        other.rigidBody.applyImpulse(_bump.multiplyScalar(BUMP + KNOCKBACK * speed), true)
-        otherData.stunnedUntil = performance.now() + STUN
-      }}
-    >
-      <Player {...playerProps} animate={walking} />
+    <PlayerBody ref={bodyRef} gravityScale={5} position={initial}>
+      <group ref={characterRef}>
+        <Player {...playerProps} animate={walking} />
+      </group>
     </PlayerBody>
   )
 }
 
-// other clients: kinematic body following the published one.
-// The own player turns toward the local input right away, without waiting for the host
+// other clients: kinematic body set to the published position
 function SyncedPlayer(props: MatchPlayerProps) {
-  const { player, state, ...playerProps } = props
+  const { player: _player, state, ...playerProps } = props
 
   const bodyRef = useRef<RapierRigidBody>(null)
-  const angleRef = useRef<number>(undefined)
-  const { walking } = useWalking(state)
+  const { walking, characterRef } = useJoystick(state)
   const initial = useInitialPosition(props)
 
-  useFrame((_, delta) => {
-    const body = bodyRef.current
-    if (!body) return
-
-    const published = publishedBody(props)
-    _targetPosition.fromArray(published?.position ?? player.position)
-    _targetRotation.fromArray(published?.rotation ?? IDENTITY)
-
-    if (player.id === myPlayer()?.id) {
-      // the last direction is kept when idle, while the host is still turning toward it
-      const angle: number | null = state.getState(PLAYER.input)
-      if (angle != null) angleRef.current = angle
-      if (angleRef.current != null) _targetRotation.setFromAxisAngle(UP, angleRef.current)
-    }
-
-    const safeDelta = Math.min(delta, 0.1)
-    const position = vec3(body.translation()).lerp(_targetPosition, FOLLOW_RATE * safeDelta)
-    const rotation = quat(body.rotation()).slerp(_targetRotation, FOLLOW_RATE * safeDelta)
-
-    body.setNextKinematicTranslation(position)
-    body.setNextKinematicRotation(rotation)
+  useFrame(() => {
+    const position = publishedBody(props)?.position
+    if (!position) return
+    const [x, y, z] = position
+    bodyRef.current?.setTranslation({ x, y, z }, true)
   })
 
   return (
     <PlayerBody ref={bodyRef} type="kinematicPosition" position={initial}>
-      <Player {...playerProps} animate={walking} />
+      <group ref={characterRef}>
+        <Player {...playerProps} animate={walking} />
+      </group>
     </PlayerBody>
   )
 }

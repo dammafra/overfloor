@@ -1,38 +1,50 @@
 import { useIsTouch } from '@hooks'
-import { Html, KeyboardControls } from '@react-three/drei'
+import { KeyboardControls } from '@react-three/drei'
 import { PLAYER } from '@schema'
-import clsx from 'clsx'
-import { myPlayer } from 'playroomkit'
-import { useEffect, useRef, useState } from 'react'
-import { Nipple } from 'react-nipplejs'
-
-const OCTANT = Math.PI / 4
+import { Joystick, myPlayer } from 'playroomkit'
+import { useEffect, useRef, type PropsWithChildren } from 'react'
 
 type Key = 'up' | 'down' | 'left' | 'right'
 
 const IDLE_KEYS: Record<Key, boolean> = { up: false, down: false, left: false, right: false }
 
 /**
- * The input is the direction as a y-axis angle, 0 toward the camera (+z) and π/2 to the right (+x),
- * snapped to one of the 8 directions, or `null` when idle.
- * It's sent to the host, which moves the players (see `Players`).
+ * Same state as Playroom's joystick (see `PLAYER.joystick` and `PLAYER.angle`), from the keys:
+ * the angle is around the y-axis, 0 toward the camera (+z) and π/2 to the right (+x)
  */
-function sendInput(x: number, z: number) {
-  const angle = x || z ? Math.round(Math.atan2(x, z) / OCTANT) * OCTANT : null
-  myPlayer()?.setState(PLAYER.input, angle, true)
+function sendKeys({ up, down, left, right }: Record<Key, boolean>) {
+  const x = Number(right) - Number(left)
+  const z = Number(down) - Number(up)
+  const pressed = x !== 0 || z !== 0
+
+  const me = myPlayer()
+  if (!me) return
+  if (pressed) me.setState(PLAYER.angle, Math.atan2(x, z), true)
+  me.setState(PLAYER.joystick, pressed, true)
 }
 
-export function Controller() {
+/**
+ * Input of the own player, synced to the host which moves the players (see `Players`):
+ * Playroom's on-screen joystick on touch devices, and the keys by their physical position
+ * (WASD on any layout, ZQSD on AZERTY) or the arrows.
+ */
+export function Controller({ children }: PropsWithChildren) {
   const isTouch = useIsTouch()
   const keysRef = useRef({ ...IDLE_KEYS })
 
-  const [nippleHelper, setNippleHelper] = useState(true)
+  useEffect(() => {
+    if (!isTouch) return
+    // its own keyboard reads the typed letters, not the key positions: replaced by `KeyboardControls`
+    const joystick = new Joystick(myPlayer(), { type: 'angular', keyboard: false })
+    // also removes the stick and resets its state
+    return () => joystick.destroy()
+  }, [isTouch])
 
   useEffect(() => {
-    // keyup/touchend are lost when the page loses focus, leaving the input stuck: stop
+    // keyup is lost when the page loses focus, leaving the input stuck: stop
     const stop = () => {
       keysRef.current = { ...IDLE_KEYS }
-      sendInput(0, 0)
+      sendKeys(keysRef.current)
     }
     const handleVisibilityChange = () => document.hidden && stop()
 
@@ -55,35 +67,11 @@ export function Controller() {
       ]}
       // only the changed key: drei's state keeps keys whose keyup was lost
       onChange={(name, pressed) => {
-        const keys = keysRef.current
-        keys[name as Key] = pressed
-        sendInput(Number(keys.right) - Number(keys.left), Number(keys.down) - Number(keys.up))
+        keysRef.current[name as Key] = pressed
+        sendKeys(keysRef.current)
       }}
     >
-      {isTouch && (
-        <Html center wrapperClass="fixed inset-0 -z-0!" className="h-[100dvh] w-screen">
-          <Nipple
-            options={{ mode: 'static', size: 120 }}
-            className={clsx('pointer-events-none absolute! right-8 bottom-8 h-30! w-30!', {
-              hidden: !nippleHelper,
-            })}
-          />
-          <Nipple
-            className="fixed inset-0 h-full! w-full!"
-            options={{ mode: 'semi', size: 120, catchDistance: 0 }}
-            onMove={(_, data) => {
-              setNippleHelper(false)
-
-              if (data.force < 0.2) return
-
-              // screen angle, 0 to the right and π/2 up (away from the camera, -z)
-              const angle = data.angle.radian
-              sendInput(Math.cos(angle), -Math.sin(angle))
-            }}
-            onEnd={() => sendInput(0, 0)}
-          />
-        </Html>
-      )}
+      {children}
     </KeyboardControls>
   )
 }

@@ -143,10 +143,15 @@ export class PracticeBot extends Bot {
     return away.length ? away : tiles
   }
 
-  // same input as the human players (see `Controller`)
+  // same state as the joystick of the human players (see `Controller`), snapped like the keyboard.
+  // The angle first, so the host never reads the joystick pressed with the previous one
   #move(angle: number | null) {
-    const snapped = angle == null ? null : Math.round(angle / OCTANT) * OCTANT
-    if (snapped !== this.getState(PLAYER.input)) this.setState(PLAYER.input, snapped, true)
+    const pressed = angle != null
+    if (pressed) {
+      const snapped = Math.round(angle / OCTANT) * OCTANT
+      if (snapped !== this.getState(PLAYER.angle)) this.setState(PLAYER.angle, snapped)
+    }
+    if (pressed !== !!this.getState(PLAYER.joystick)) this.setState(PLAYER.joystick, pressed)
   }
 }
 
