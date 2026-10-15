@@ -1,13 +1,12 @@
 import {
   GameLoopPhase,
-  getGridCoordinates,
-  getPlayerInitialPosition,
   gridConfig,
   STATE,
   type GridDimension,
   type PlayerSchema,
   type TileSchema,
 } from '@schema'
+import { getGridCoordinates, getPlayerInitialPosition } from '@utils'
 import { getState, setState } from 'playroomkit'
 import { v4 as uuid } from 'uuid'
 
@@ -91,8 +90,9 @@ export class GameState {
   }
 
   targetTiles(shrink?: boolean) {
-    const pattern = shrink ? gridConfig[this.dimension].shrinkPattern.flat() : this.#randomPattern()
-    if (shrink) this.dimension = this.dimension === 'large' ? 'medium' : 'small'
+    const shrinkConfig = shrink ? gridConfig[this.dimension].shrink : undefined
+    const pattern = shrinkConfig ? shrinkConfig.pattern.flat() : this.#randomPattern()
+    if (shrinkConfig) this.dimension = shrinkConfig.to
 
     this.tiles
       .filter(tile => !tile.disabled)

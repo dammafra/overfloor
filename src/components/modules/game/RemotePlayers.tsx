@@ -1,14 +1,13 @@
-import { useRoomState } from '@stores'
 import { useTransition } from '@react-spring/three'
+import { useRoomState } from '@stores'
 import { myPlayer, usePlayersList } from 'playroomkit'
-import { useMemo } from 'react'
 import { RemotePlayer } from './RemotePlayer'
 
 export function RemotePlayers() {
   const players = useRoomState(s => s.players)
   const participants = usePlayersList()
 
-  const remotePlayers = useMemo(() => players.filter(p => p.id !== myPlayer()?.id), [players])
+  const remotePlayers = players.filter(p => p.id !== myPlayer()?.id)
 
   const transition = useTransition(remotePlayers, {
     keys: player => player.id,

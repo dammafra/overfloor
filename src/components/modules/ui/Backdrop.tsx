@@ -1,12 +1,9 @@
 import { a, useSpring } from '@react-spring/three'
+import { useModalRoute } from '@hooks'
 import { MathUtils } from 'three'
-import { useRoute } from 'wouter'
 
 export function Backdrop() {
-  const [matchNew] = useRoute('/new')
-  const [matchJoin] = useRoute('/join/:id?')
-  const [matchCredits] = useRoute('/credits')
-  const match = matchNew || matchJoin || matchCredits
+  const match = useModalRoute()
 
   const { opacity } = useSpring({ opacity: match ? 0.8 : 0 })
 

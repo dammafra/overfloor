@@ -1,14 +1,14 @@
 import { LetterTile } from '@components/modules/tiles'
-import { animatable } from '@utils'
+import { animatable, COLORS } from '@utils'
 import type { MenuTileProps } from './MenuTile'
 
 type MenuLetterTileProps = Omit<MenuTileProps, 'type'>
 
 export const MenuLetterTile = animatable(({ index, ...props }: MenuLetterTileProps) => {
-  if (typeof index === 'undefined') return <></>
+  if (index === undefined) return null
 
   return (
-    <LetterTile {...props} color={index < 4 ? 'brown' : 'limegreen'}>
+    <LetterTile {...props} color={index < 4 ? COLORS.danger : COLORS.go}>
       {'OVERFLOOR'.at(index)}
     </LetterTile>
   )

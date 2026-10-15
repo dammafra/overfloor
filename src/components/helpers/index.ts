@@ -1,6 +1,5 @@
 export * from './Canvas'
 export * from './DoubleTapPreventer'
-export * from './Dynamic'
 export * from './ErrorBoundary'
 export * from './GUI'
 export * from './Helpers'

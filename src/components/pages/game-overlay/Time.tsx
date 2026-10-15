@@ -1,5 +1,6 @@
+import { usePopIn } from '@hooks'
+import { a } from '@react-spring/web'
 import { useRoomState } from '@stores'
-import { a, useSpring } from '@react-spring/web'
 
 export function Time() {
   const time = useRoomState(s => s.time)
@@ -10,11 +11,7 @@ export function Time() {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
   }
 
-  const spring = useSpring({
-    from: { scale: 0, opacity: 0 },
-    to: { scale: 1, opacity: 1 },
-    config: { tension: 300, friction: 20 },
-  })
+  const spring = usePopIn()
 
   return (
     <a.span

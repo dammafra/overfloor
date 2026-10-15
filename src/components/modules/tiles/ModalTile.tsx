@@ -1,6 +1,6 @@
 import { useSpring } from '@react-spring/three'
 import { useThree } from '@react-three/fiber'
-import { aspects } from '@utils'
+import { aspects, COLORS } from '@utils'
 import { useEffect } from 'react'
 import { MathUtils, type ColorRepresentation, type Vector3Tuple } from 'three'
 import { useLocation } from 'wouter'
@@ -14,8 +14,8 @@ interface ModalTileProps extends ButtonTileProps {
 export function ModalTile({
   open,
   labelProps,
-  color = 'dodgerblue',
-  openColor = 'dodgerblue',
+  color = COLORS.tile,
+  openColor = COLORS.tile,
   ...props
 }: ModalTileProps) {
   const { viewport } = useThree()
@@ -29,16 +29,15 @@ export function ModalTile({
     color: (open ? openColor : color) as string,
   })
 
+  // only the open modal closes on Escape
   useEffect(() => {
+    if (!open) return
+
     const handler = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      navigate('/')
-      e.stopPropagation()
+      if (e.key === 'Escape') navigate('/')
     }
     document.addEventListener('keydown', handler)
-    return () => {
-      document.removeEventListener('keydown', handler)
-    }
+    return () => document.removeEventListener('keydown', handler)
   }, [open, navigate])
 
   return (

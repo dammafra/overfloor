@@ -4,13 +4,15 @@ import { CreateRoom, Credits, GameOverlay, JoinRoom, LobbyOverlay } from '@compo
 import { useDebug } from '@hooks'
 import { consumePendingNotification, hasSession, leave } from '@multiplayer'
 import { useNotification } from '@stores'
+import { ROUTES } from '@utils'
 import { useEffect } from 'react'
-import { Redirect, Route, Switch, useLocation } from 'wouter'
+import { Redirect, Route, Switch, useRoute } from 'wouter'
 
 export default function App() {
   const debug = useDebug()
   const notify = useNotification(s => s.notify)
-  const [location] = useLocation()
+  const [inLobby] = useRoute(ROUTES.lobby)
+  const [inGame] = useRoute(ROUTES.game)
 
   useEffect(() => {
     const message = consumePendingNotification()
@@ -19,27 +21,24 @@ export default function App() {
 
   // leaving lobby and game pages means leaving the multiplayer room
   useEffect(() => {
-    const inRoom = /^\/[^/]+\/lobby\/|^\/game$/.test(location)
-    if (!inRoom && hasSession()) leave()
-  }, [location])
+    if (!inLobby && !inGame && hasSession()) leave()
+  }, [inLobby, inGame])
 
   return (
     <>
       <GUI />
       <DoubleTapPreventer />
 
-      {/* <StrictMode> */}
       <ErrorBoundary>
         <Experience />
         <Notification />
         <Switch>
-          <Route path="/" />
-          <Route path="/new" component={CreateRoom} />
-          <Route path="/join" component={JoinRoom} />
-          <Route path="/join/:id" component={JoinRoom} />
-          <Route path="/credits" component={Credits} />
-          <Route path="/:from/lobby/:options" component={LobbyOverlay} />
-          <Route path="/game" component={GameOverlay} />
+          <Route path={ROUTES.home} />
+          <Route path={ROUTES.create} component={CreateRoom} />
+          <Route path={ROUTES.join} component={JoinRoom} />
+          <Route path={ROUTES.credits} component={Credits} />
+          <Route path={ROUTES.lobby} component={LobbyOverlay} />
+          <Route path={ROUTES.game} component={GameOverlay} />
           {!debug && (
             <Route>
               <Redirect to="/" />
@@ -47,8 +46,6 @@ export default function App() {
           )}
         </Switch>
       </ErrorBoundary>
-
-      {/* </StrictMode> */}
     </>
   )
 }

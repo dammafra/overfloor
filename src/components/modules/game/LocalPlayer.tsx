@@ -2,23 +2,24 @@ import { Player } from '@components'
 import { useGamePhase, useThrottle } from '@hooks'
 import { notifyFell } from '@multiplayer'
 import { useFrame } from '@react-three/fiber'
-import { BallCollider, quat, RigidBody, vec3, type RapierRigidBody } from '@react-three/rapier'
+import { quat, vec3, type RapierRigidBody } from '@react-three/rapier'
 import { PLAYER, type PlayerSchema } from '@schema'
 import { useController, useRoomState } from '@stores'
 import { myPlayer } from 'playroomkit'
 import { useEffect, useRef, useState } from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { Controller } from './Controller'
-
-const GROUP = 0x0001 // category bit 1
-const MASK = 0xffff ^ GROUP // collide with everything except itself
-export const PLAYERS_COLLISION_GROUP = (GROUP << 16) | MASK
+import { PlayerBody } from './PlayerBody'
 
 const FALL_LIMIT = -50
+const UP = new Vector3(0, 1, 0)
+
+// reused every frame
+const _impulse = new Vector3()
+const _rotation = new Quaternion()
 
 export function LocalPlayer() {
   const started = useGamePhase() === 'started'
-  const { up, down, left, right, strength } = useController()
 
   const bodyRef = useRef<RapierRigidBody>(null)
   const fellRef = useRef(false)
@@ -57,50 +58,39 @@ export function LocalPlayer() {
     if (!fellRef.current) sendMovement()
 
     if (!started) return
+
+    // read the controller here instead of subscribing, to avoid re-rendering on every key press
+    const { up, down, left, right, strength } = useController.getState()
     setWalking(up || down || left || right)
 
-    const impulse = new Vector3()
-    if (up) impulse.z -= 1
-    if (down) impulse.z += 1
-    if (right) impulse.x += 1
-    if (left) impulse.x -= 1
+    _impulse.set(Number(right) - Number(left), 0, Number(down) - Number(up))
+    if (_impulse.lengthSq() === 0) return
 
     const safeDelta = Math.min(delta, 0.1)
-    const impulseStrength = strength * safeDelta
-    impulse.normalize().multiplyScalar(impulseStrength)
+    _impulse.normalize()
 
-    if (impulse.equals(new Vector3())) return
+    // rotation toward direction, with smooth interpolation
+    const angle = Math.atan2(_impulse.x, _impulse.z) // y-axis rotation
+    _rotation.setFromAxisAngle(UP, angle)
+    const rotation = quat(bodyRef.current.rotation()).slerp(_rotation, 5 * delta)
 
-    bodyRef.current.applyImpulse(impulse, true)
-
-    // rotation toward direction
-    const target = impulse.clone().normalize()
-    const angle = Math.atan2(target.x, target.z) // y-axis rotation
-    const current = quat(bodyRef.current.rotation())
-    const q = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), angle)
-
-    // smooth interpolation
-    const lerped = new Quaternion().slerpQuaternions(current, q, 5 * delta)
-    bodyRef.current.setRotation(lerped, true)
+    bodyRef.current.applyImpulse(_impulse.multiplyScalar(strength * safeDelta), true)
+    bodyRef.current.setRotation(rotation, true)
   })
 
   return (
     player && (
       <Controller>
-        <RigidBody
+        <PlayerBody
           key={player.spawn}
           ref={bodyRef}
-          colliders={false}
           gravityScale={5}
           friction={0.5}
           linearDamping={0.4}
-          enabledRotations={[false, false, false]}
           position={player.position}
-          collisionGroups={PLAYERS_COLLISION_GROUP}
         >
-          <BallCollider args={[0.6]} />
           <Player username={player.username} animate={walking} showIndicator />
-        </RigidBody>
+        </PlayerBody>
       </Controller>
     )
   )

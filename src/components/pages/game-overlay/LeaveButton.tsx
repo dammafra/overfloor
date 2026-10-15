@@ -1,17 +1,20 @@
 import { a, useTransition } from '@react-spring/web'
-import { useState } from 'react'
+import { POP_TRANSITION } from '@utils'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 
 export function LeaveButton() {
   const [, navigate] = useLocation()
   const [confirm, setConfirm] = useState(false)
 
-  const transitions = useTransition(confirm, {
-    from: { scale: 0, opacity: 0 },
-    enter: { scale: 1, opacity: 1 },
-    leave: { scale: 0, opacity: 0 },
-    config: { tension: 300, friction: 20 },
-  })
+  // confirmation expires after a while
+  useEffect(() => {
+    if (!confirm) return
+    const timeout = setTimeout(() => setConfirm(false), 3000)
+    return () => clearTimeout(timeout)
+  }, [confirm])
+
+  const transitions = useTransition(confirm, POP_TRANSITION)
 
   return transitions((spring, confirm) =>
     confirm ? (
@@ -26,10 +29,7 @@ export function LeaveButton() {
       <a.button
         className="button danger icon large absolute bottom-8 left-8 p-1"
         style={spring}
-        onClick={() => {
-          setConfirm(true)
-          setTimeout(() => setConfirm(false), 3000)
-        }}
+        onClick={() => setConfirm(true)}
       >
         <span className="icon-[mdi--close]" />
       </a.button>

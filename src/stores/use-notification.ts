@@ -14,6 +14,8 @@ type NotificationStore = {
   notify: (notification: string | Notification) => void
 }
 
+let timeout: number | undefined
+
 export const useNotification = create<NotificationStore>()(set => ({
   notify: input => {
     const notification: Notification =
@@ -22,6 +24,9 @@ export const useNotification = create<NotificationStore>()(set => ({
         : { type: DEFAULT_TYPE, duration: DEFAULT_DURATION, ...input }
 
     set({ notification })
-    setTimeout(() => set({ notification: undefined }), notification.duration)
+
+    // a new notification restarts the timer, so it's not dismissed by the previous one
+    clearTimeout(timeout)
+    timeout = window.setTimeout(() => set({ notification: undefined }), notification.duration)
   },
 }))

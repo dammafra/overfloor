@@ -1,16 +1,12 @@
 import { a, useTransition } from '@react-spring/web'
 import { useNotification } from '@stores'
+import { POP_TRANSITION } from '@utils'
 import clsx from 'clsx'
 
 export function Notification() {
   const notification = useNotification(s => s.notification)
 
-  const transition = useTransition(notification, {
-    from: { scale: 0, opacity: 0 },
-    enter: { scale: 1, opacity: 1 },
-    leave: { scale: 0, opacity: 0 },
-    config: { tension: 300, friction: 20 },
-  })
+  const transition = useTransition(notification, POP_TRANSITION)
 
   return transition(
     (spring, notification) =>

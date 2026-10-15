@@ -1,12 +1,9 @@
-import { a, useSpring } from '@react-spring/web'
+import { useFadeIn } from '@hooks'
+import { a } from '@react-spring/web'
 import { Link } from 'wouter'
 
 export function Credits() {
-  const { opacity } = useSpring({
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-    delay: 500,
-  })
+  const { opacity } = useFadeIn(500)
 
   return (
     <a.div className="page text-center text-white text-stroke-black" style={{ opacity }}>

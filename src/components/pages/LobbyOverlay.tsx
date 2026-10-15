@@ -1,10 +1,11 @@
-import { a, useSpring, useTransition } from '@react-spring/web'
+import { useLobbyOptions, usePopIn } from '@hooks'
+import { a, useTransition } from '@react-spring/web'
+import { POP_TRANSITION } from '@utils'
 import { useState } from 'react'
-import { Link, useParams } from 'wouter'
+import { Link } from 'wouter'
 
 export function LobbyOverlay() {
-  const { options } = useParams()
-  const { id, training, rematch } = JSON.parse(atob(options!))
+  const { id, training, rematch } = useLobbyOptions() ?? {}
   const [info, setInfo] = useState(false)
 
   const share = async () => {
@@ -12,29 +13,24 @@ export function LobbyOverlay() {
     const url = `${location.protocol}//${location.host}/join/${id}`
     const toShare = { text: url }
 
-    navigator.clipboard.writeText(url)
+    await navigator.clipboard.writeText(url)
     setInfo(true)
 
-    if (navigator.canShare(toShare)) {
+    // Web Share API is missing on some desktop browsers (e.g. Firefox)
+    if (navigator.canShare?.(toShare)) {
       await navigator.share(toShare)
     }
   }
 
-  const spring = useSpring({
-    from: { scale: 0, opacity: 0 },
-    to: { scale: 1, opacity: 1 },
-    config: { tension: 300, friction: 20 },
-  })
+  const spring = usePopIn()
 
   const transition = useTransition(info, {
-    from: { scale: 0, opacity: 0 },
-    enter: { scale: 1, opacity: 1 },
-    leave: { scale: 0, opacity: 0, delay: 3000 },
-    config: { tension: 300, friction: 20 },
+    ...POP_TRANSITION,
+    leave: { ...POP_TRANSITION.leave, delay: 3000 },
     onRest: () => setInfo(false),
   })
 
-  if (training) return <></>
+  if (training) return null
 
   return (
     <a.div className="page pointer-events-none" style={spring}>

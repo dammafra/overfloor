@@ -1,14 +1,13 @@
 import { Environment, Player } from '@components'
+import { useLobbyOptions } from '@hooks'
 import { useLobbyPlayers } from '@multiplayer'
 import { a, useTransition } from '@react-spring/three'
 import { Float, Hud } from '@react-three/drei'
 import { positions } from '@utils'
 import type { Vector3Tuple } from 'three'
-import { useParams } from 'wouter'
 
 export function Players() {
-  const { options } = useParams()
-  const { training } = JSON.parse(atob(options!))
+  const training = useLobbyOptions()?.training
 
   const players = useLobbyPlayers()
 

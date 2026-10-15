@@ -2,6 +2,11 @@ import { useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, type JSX, type PropsWithChildren } from 'react'
 import { Object3D, Plane, Quaternion, Vector2, Vector3, type Vector3Tuple } from 'three'
 
+// reused on every pointer move
+const _position = new Vector3()
+const _target = new Vector3()
+const _direction = new Vector3()
+
 type PointerControlsProps = JSX.IntrinsicElements['object3D'] &
   PropsWithChildren & {
     enabled?: boolean
@@ -41,15 +46,15 @@ export function PointerControls({
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1
 
-      const position = new Vector3()
       raycaster.setFromCamera(mouse, camera)
-      raycaster.ray.intersectPlane(plane, position)
-      ref.current.position.copy(position.add(new Vector3().fromArray(positionOffset)))
+      raycaster.ray.intersectPlane(plane, _position)
+      ref.current.position.copy(_position.add(_target.fromArray(positionOffset)))
 
       if (type !== 'fixed') {
-        const _target = type === 'billboard' ? camera.position : new Vector3().fromArray(target)
-        const dir = new Vector3().subVectors(_target, position).setY(0).normalize()
-        const angle = Math.atan2(dir.x, dir.z)
+        if (type === 'billboard') _target.copy(camera.position)
+        else _target.fromArray(target)
+        _direction.subVectors(_target, _position).setY(0).normalize()
+        const angle = Math.atan2(_direction.x, _direction.z)
         const rotationY = angle + Math.PI * (type === 'billboard' ? 1.5 : 0.5)
         ref.current.rotation.y = rotationY + rotationYOffset
       }

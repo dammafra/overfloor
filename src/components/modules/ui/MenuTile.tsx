@@ -1,4 +1,3 @@
-import { Dynamic } from '@components/helpers'
 import { Tile, type TileProps } from '@components/modules/tiles'
 import { animatable } from '@utils'
 import { MenuButtonTile } from './MenuButtonTile'
@@ -10,12 +9,7 @@ export type MenuTileProps = TileProps & {
 }
 
 export const MenuTile = animatable(({ type, index, ...props }: MenuTileProps) => {
-  const a = type !== 'base' ? { index } : undefined
-  return (
-    <Dynamic
-      component={type === 'button' ? MenuButtonTile : type === 'letter' ? MenuLetterTile : Tile}
-      {...a}
-      {...props}
-    />
-  )
+  if (type === 'button') return <MenuButtonTile index={index} {...props} />
+  if (type === 'letter') return <MenuLetterTile index={index} {...props} />
+  return <Tile {...props} />
 })

@@ -1,43 +1,30 @@
+import { useHover, useSpin } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
-import { animatable } from '@utils'
-import { Center, Float, Text3D, useCursor } from '@react-three/drei'
-import { useState } from 'react'
+import { Center, Float, Text3D } from '@react-three/drei'
+import { animatable, FONT_3D } from '@utils'
 import { MathUtils } from 'three'
 import type { TileProps } from './Tile'
 
-export const LetterTile = animatable(({ children, color, ...props }: TileProps) => {
-  const [hovered, setHovered] = useState(false)
-  const [clicked, setClicked] = useState(0)
-  useCursor(hovered)
+export const LetterTile = animatable(({ children, color, scale, ...props }: TileProps) => {
+  const [hovered, hoverHandlers] = useHover()
+  const [rotationX, spin] = useSpin(-90)
 
-  const { scale } = useSpring({
-    scale: hovered ? 1.1 : (props.scale as number),
-  })
-
-  const { rotationX } = useSpring({
-    rotationX: MathUtils.degToRad(-90 + clicked * 360),
-    config: { mass: 1, tension: 120, friction: 15 },
+  const baseScale = (scale as number) ?? 1
+  const spring = useSpring({
+    scale: hovered ? baseScale * 1.1 : baseScale,
   })
 
   return (
-    <Float
-      floatIntensity={0.5}
-      speed={5}
-      rotationIntensity={0}
-      onPointerOver={e => {
-        setHovered(true)
-        e.stopPropagation()
-      }}
-      onPointerOut={e => {
-        setHovered(false)
-        e.stopPropagation()
-      }}
-      onClick={() => setClicked(c => c + 1)}
-    >
-      <a.group scale={scale} rotation-x={rotationX} rotation-z={MathUtils.degToRad(-90)} {...props}>
+    <Float floatIntensity={0.5} speed={5} rotationIntensity={0} {...hoverHandlers} onClick={spin}>
+      <a.group
+        scale={spring.scale}
+        rotation-x={rotationX}
+        rotation-z={MathUtils.degToRad(-90)}
+        {...props}
+      >
         <Center>
           <Text3D
-            font="/fonts/audiowide.json"
+            font={FONT_3D}
             bevelEnabled
             size={0.9}
             bevelSize={0.025}

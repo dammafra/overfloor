@@ -1,17 +1,15 @@
 import { useIsTouch } from '@hooks'
 import { Html, KeyboardControls } from '@react-three/drei'
-import { useController } from '@stores'
+import { IDLE_DIRECTION, useController } from '@stores'
 import clsx from 'clsx'
 import { useState, type PropsWithChildren } from 'react'
 import ReactNipple from 'react-nipplejs'
 
+const OCTANT = Math.PI / 4
+
 export function Controller({ children }: PropsWithChildren) {
   const isTouch = useIsTouch()
-
-  const setUp = useController(state => state.setUp)
-  const setDown = useController(state => state.setDown)
-  const setLeft = useController(state => state.setLeft)
-  const setRight = useController(state => state.setRight)
+  const setDirection = useController(state => state.setDirection)
 
   const [nippleHelper, setNippleHelper] = useState(true)
 
@@ -23,12 +21,9 @@ export function Controller({ children }: PropsWithChildren) {
         { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
         { name: 'right', keys: ['ArrowRight', 'KeyD'] },
       ]}
-      onChange={(_name, _pressed, state) => {
-        setUp(state.up)
-        setDown(state.down)
-        setLeft(state.left)
-        setRight(state.right)
-      }}
+      onChange={(_name, _pressed, { up, down, left, right }) =>
+        setDirection({ up, down, left, right })
+      }
     >
       {isTouch && (
         <Html center wrapperClass="fixed inset-0 -z-0!" className="h-[100dvh] w-screen">
@@ -46,32 +41,14 @@ export function Controller({ children }: PropsWithChildren) {
 
               if (data.force < 0.2) return
 
-              const directions = [
-                'right',
-                'top right',
-                'top',
-                'top left',
-                'left',
-                'bottom left',
-                'bottom',
-                'bottom right',
-              ]
+              // snap the angle to one of the 8 directions
+              const angle = Math.round(data.angle.radian / OCTANT) * OCTANT
+              const x = Math.cos(angle)
+              const y = Math.sin(angle)
 
-              const angle = (data.angle.radian + Math.PI * 2) % (Math.PI * 2)
-              const index = Math.round(angle / (Math.PI / 4)) % 8
-              const direction = directions[index]
-
-              setUp(direction.toLowerCase().includes('top'))
-              setDown(direction.toLowerCase().includes('bottom'))
-              setLeft(direction.toLowerCase().includes('left'))
-              setRight(direction.toLowerCase().includes('right'))
+              setDirection({ up: y > 0.5, down: y < -0.5, left: x < -0.5, right: x > 0.5 })
             }}
-            onEnd={() => {
-              setUp(false)
-              setDown(false)
-              setLeft(false)
-              setRight(false)
-            }}
+            onEnd={() => setDirection(IDLE_DIRECTION)}
           />
         </Html>
       )}

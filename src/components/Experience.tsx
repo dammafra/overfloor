@@ -5,6 +5,7 @@ import { UI } from '@components/modules/ui'
 import { useDebug, useIsTouch } from '@hooks'
 import { CameraControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
+import { ROUTES } from '@utils'
 import { useControls } from 'leva'
 import { Route } from 'wouter'
 import { Environment } from './Environment'
@@ -40,9 +41,9 @@ export function Experience() {
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
       <Physics {...physicsControls}>
-        <Route path="/" nest component={UI} />
-        <Route path="/:from/lobby/:options" component={Lobby} />
-        <Route path="/game" component={Game} />
+        <Route path={ROUTES.home} nest component={UI} />
+        <Route path={ROUTES.lobby} component={Lobby} />
+        <Route path={ROUTES.game} component={Game} />
         <Helpers />
       </Physics>
 

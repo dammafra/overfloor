@@ -6,13 +6,15 @@ import { GameHost } from './game-host'
  * Authoritative room logic, running only on the host client (port of the old Colyseus `GameLobby`).
  * When the host leaves, Playroom promotes another player and a new `Host` takes over from the room state.
  */
-export class Host {
-  MIN_PLAYERS = 2
-  COUNTDOWN_START = 60
-  COUNTDOWN_END = 4
+const MIN_PLAYERS = 2
+const COUNTDOWN_START = 60
+const COUNTDOWN_END = 4
 
-  #players: () => PlayerState[]
-  #training: boolean
+export class Host {
+  readonly #players: () => PlayerState[]
+  readonly #training: boolean
+  readonly #minPlayers: number
+  readonly #countdownStart: number
   #interval: number
   #game?: GameHost
 
@@ -21,14 +23,10 @@ export class Host {
 
     const config: GameConfigSchema = getState(STATE.config) ?? {}
     this.#training = !!config.training
-    this.COUNTDOWN_START = config.countdown || this.COUNTDOWN_START
+    this.#minPlayers = this.#training ? 1 : MIN_PLAYERS
+    this.#countdownStart = this.#training ? COUNTDOWN_END : config.countdown || COUNTDOWN_START
 
-    if (this.#training) {
-      this.MIN_PLAYERS = 1
-      this.COUNTDOWN_START = this.COUNTDOWN_END
-    }
-
-    if (!getState(STATE.lobby)) this.#setLobby(false, this.COUNTDOWN_START)
+    if (!getState(STATE.lobby)) this.#setLobby(false, this.#countdownStart)
     if (getState(STATE.stage) === 'game') this.#game = GameHost.resume(this.#training)
 
     this.#interval = window.setInterval(() => this.#lobbyTick(), 1000)
@@ -71,11 +69,11 @@ export class Host {
     if (stage === 'game') return
 
     const lobby: LobbySchema | undefined = getState(STATE.lobby)
-    const canStart = this.#lobbyPlayers().length >= this.MIN_PLAYERS
-    let countdown = lobby?.countdown ?? this.COUNTDOWN_START
+    const canStart = this.#lobbyPlayers().length >= this.#minPlayers
+    let countdown = lobby?.countdown ?? this.#countdownStart
 
-    if (!canStart) countdown = this.COUNTDOWN_START
-    else if (countdown > this.COUNTDOWN_END) countdown--
+    if (!canStart) countdown = this.#countdownStart
+    else if (countdown > COUNTDOWN_END) countdown--
     else return this.#startMatch()
 
     this.#setLobby(canStart, countdown)
@@ -95,7 +93,7 @@ export class Host {
     this.#game?.dispose()
     this.#game = GameHost.start(players, this.#training)
 
-    this.#setLobby(false, this.COUNTDOWN_START)
+    this.#setLobby(false, this.#countdownStart)
     setState(STATE.stage, 'game', true)
   }
 }

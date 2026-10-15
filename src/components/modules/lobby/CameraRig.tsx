@@ -20,5 +20,5 @@ export function CameraRig() {
     cameraControls.dollyTo(z + aspects.lobby.camera.distance(viewport.aspect), true)
   }, [playersCount, controls, viewport])
 
-  return <></>
+  return null
 }

@@ -1,13 +1,19 @@
 import { Environment } from '@components'
-import { ButtonTile } from '@components/modules/tiles'
-import { useIsTouch } from '@hooks'
+import { ButtonTile, TileLabel } from '@components/modules/tiles'
+import { useIsTouch, useSpin } from '@hooks'
 import { requestStart } from '@multiplayer'
 import { useSpring } from '@react-spring/three'
-import { Hud, PerspectiveCamera, Text, type TextProps } from '@react-three/drei'
+import { Hud, PerspectiveCamera } from '@react-three/drei'
 import { useRoomState } from '@stores'
+import { COLORS } from '@utils'
 import { useIsHost } from 'playroomkit'
-import { useMemo, useState } from 'react'
 import { MathUtils } from 'three'
+
+const LABEL_ROTATION: [number, number, number] = [
+  MathUtils.degToRad(-90),
+  0,
+  MathUtils.degToRad(-45),
+]
 
 export function Countdown() {
   const isTouch = useIsTouch()
@@ -17,28 +23,12 @@ export function Countdown() {
   const countdown = lobby?.countdown
   const isOwner = useIsHost()
 
-  const [clicked, setClicked] = useState(0)
-
-  const commonTextProps = useMemo<Partial<TextProps>>(
-    () => ({
-      font: '/fonts/audiowide.ttf',
-      position: [0, 0.13, 0],
-      outlineWidth: 0.01,
-      textAlign: 'center',
-      rotation: [MathUtils.degToRad(-90), 0, MathUtils.degToRad(-45)],
-    }),
-    [],
-  )
-
   const { scale, color } = useSpring({
-    from: { scale: 0, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },
-    to: { scale: 1.5, color: canStart && isOwner ? 'limegreen' : 'dodgerblue' },
+    from: { scale: 0 },
+    to: { scale: 1.5, color: canStart && isOwner ? COLORS.go : COLORS.tile },
   })
 
-  const { rotationZ } = useSpring({
-    rotationZ: MathUtils.degToRad(0 - clicked * 360),
-    config: { mass: 1, tension: 120, friction: 15 },
-  })
+  const [rotationZ, spin] = useSpin(0, -1)
 
   return (
     <Hud renderPriority={2}>
@@ -51,30 +41,30 @@ export function Countdown() {
         rotation-z={rotationZ}
         onClick={() => {
           if (isOwner && canStart) requestStart()
-          else setClicked(c => c + 1)
+          else spin()
         }}
       >
         {canStart ? (
           <>
-            <Text fontSize={0.4} {...commonTextProps}>
+            <TileLabel fontSize={0.4} rotation={LABEL_ROTATION}>
               {countdown}
-            </Text>
+            </TileLabel>
             {isOwner && (
-              <Text
+              <TileLabel
                 fontSize={0.1}
                 maxWidth={0.8}
                 anchorY={-0.45}
-                {...commonTextProps}
+                rotation={LABEL_ROTATION}
                 rotation-z={0}
               >
                 {isTouch ? 'Tap' : 'Click'} to start
-              </Text>
+              </TileLabel>
             )}
           </>
         ) : (
-          <Text fontSize={0.13} maxWidth={1} {...commonTextProps}>
+          <TileLabel fontSize={0.13} maxWidth={1} rotation={LABEL_ROTATION}>
             Waiting for opponents
-          </Text>
+          </TileLabel>
         )}
       </ButtonTile>
     </Hud>

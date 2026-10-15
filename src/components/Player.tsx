@@ -1,8 +1,7 @@
-import { animatable } from '@utils'
+import { animatable, FONT } from '@utils'
 import { BlockCharacter, type BlockCharacterProps } from '@components/models'
 import { a } from '@react-spring/three'
 import { Billboard, Text } from '@react-three/drei'
-import { useMemo } from 'react'
 
 function stringToColor(str: string) {
   // simple 32-bit hash
@@ -36,23 +35,17 @@ export interface PlayerProps extends BlockCharacterProps {
 
 export const Player = animatable(
   ({ username, showIndicator, showUsername, animate, ...props }: PlayerProps) => {
-    const color = useMemo(() => username && stringToColor(username), [username])
+    const color = username && stringToColor(username)
 
     return (
       <a.group {...props}>
         <BlockCharacter color={color} animate={animate} />
         {(showIndicator || showUsername) && (
           <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>
-            <Text
-              font="/fonts/audiowide.ttf"
-              maxWidth={20}
-              textAlign="center"
-              fontSize={1.5}
-              outlineWidth={0.1}
-            >
+            <Text font={FONT} maxWidth={20} textAlign="center" fontSize={1.5} outlineWidth={0.1}>
               {showUsername ? username : 'YOU'}
             </Text>
-            <mesh scale={[showUsername ? username!.length : 4, 0.5, 1]} position-y={-1.3}>
+            <mesh scale={[showUsername ? (username?.length ?? 0) : 4, 0.5, 1]} position-y={-1.3}>
               <planeGeometry />
               <meshBasicMaterial color={color} />
             </mesh>

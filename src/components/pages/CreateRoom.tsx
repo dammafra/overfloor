@@ -1,28 +1,22 @@
-import { useSafeInput } from '@hooks'
-import { a, useSpring } from '@react-spring/web'
+import { useFadeIn, useStoredUsername } from '@hooks'
+import { a } from '@react-spring/web'
+import { lobbyPath } from '@utils'
 import { clsx } from 'clsx'
-import { useEffect, type SubmitEventHandler } from 'react'
+import { type SubmitEventHandler } from 'react'
 import { Link, useLocation } from 'wouter'
 
 export function CreateRoom() {
   const [, navigate] = useLocation()
-  const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
-
-  useEffect(() => localStorage.setItem('overfloor-username', username), [username])
+  const [username, setUsername] = useStoredUsername()
 
   const onSubmit: SubmitEventHandler = e => {
     e.preventDefault()
     if (!username) return
 
-    const options = btoa(JSON.stringify({ username }))
-    navigate(`/new/lobby/${options}`)
+    navigate(lobbyPath('new', { username }))
   }
 
-  const { opacity } = useSpring({
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-    delay: 500,
-  })
+  const { opacity } = useFadeIn(500)
 
   return (
     <a.div className="page" style={{ opacity }}>

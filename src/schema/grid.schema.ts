@@ -3,7 +3,7 @@ export type GridDimension = 'large' | 'medium' | 'small'
 
 type Pattern = number[][]
 
-interface PatterConfig {
+interface PatternConfig {
   key: string
   value: Pattern
   flipX?: boolean
@@ -11,7 +11,7 @@ interface PatterConfig {
   negate?: boolean
 }
 
-const large: PatterConfig[] = [
+const large: PatternConfig[] = [
   {
     key: 'splitY',
     value: [
@@ -82,7 +82,7 @@ const large: PatterConfig[] = [
   },
 ]
 
-const medium: PatterConfig[] = [
+const medium: PatternConfig[] = [
   {
     key: 'splitY',
     value: [
@@ -143,7 +143,7 @@ const medium: PatterConfig[] = [
   },
 ]
 
-const small: PatterConfig[] = [
+const small: PatternConfig[] = [
   {
     key: 'arrows',
     value: [
@@ -208,17 +208,33 @@ const small: PatterConfig[] = [
   },
 ]
 
+// pattern with only the outer ring of tiles set
+const border = (width: number, height: number): Pattern =>
+  Array.from({ length: height }, (_, j) =>
+    Array.from({ length: width }, (_, i) =>
+      Number(i === 0 || j === 0 || i === width - 1 || j === height - 1),
+    ),
+  )
+
 interface GridConfig {
   width: number
   height: number
   playersPerRow: number
   maxPlayers: number
-  patterns: PatterConfig[]
-  shrinkPattern: Pattern
+  patterns: PatternConfig[]
+  // phase duration decrease (ms) at every loop
+  phaseDecrement: number
+  // shrink to the next dimension once players fit and enough loops are played
+  shrink?: {
+    to: GridDimension
+    afterLoops: number
+    pattern: Pattern
+  }
 }
 
 export const GRID_UNIT = 2.5
 export const GRID_GAP = 0.15
+export const GRID_STEP = GRID_UNIT + GRID_GAP
 
 export const gridConfig: Record<GridDimension, GridConfig> = {
   large: {
@@ -227,16 +243,8 @@ export const gridConfig: Record<GridDimension, GridConfig> = {
     playersPerRow: 11,
     maxPlayers: 55,
     patterns: large,
-    shrinkPattern: [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ],
+    phaseDecrement: 10,
+    shrink: { to: 'medium', afterLoops: 0, pattern: border(11, 8) },
   },
   medium: {
     width: 9,
@@ -244,14 +252,8 @@ export const gridConfig: Record<GridDimension, GridConfig> = {
     playersPerRow: 7,
     maxPlayers: 21,
     patterns: medium,
-    shrinkPattern: [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ],
+    phaseDecrement: 30,
+    shrink: { to: 'small', afterLoops: 5, pattern: border(9, 6) },
   },
   small: {
     width: 7,
@@ -259,6 +261,6 @@ export const gridConfig: Record<GridDimension, GridConfig> = {
     playersPerRow: 5,
     maxPlayers: 15,
     patterns: small,
-    shrinkPattern: [],
+    phaseDecrement: 50,
   },
 }

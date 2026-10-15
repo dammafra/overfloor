@@ -12,9 +12,12 @@ import { GameState } from './game-state'
 /**
  * Runs the match game loop on the host client (port of the old Colyseus `GameRoom`).
  */
-export class GameHost {
-  IDLE = 2000 //ms, gives clients time to load the game scene
+const IDLE = 2000 //ms, gives clients time to load the game scene
+const INITIAL_PHASE_DURATION = 800
+const MIN_PHASE_DURATION = 300
+const RESET_DURATION = 700
 
+export class GameHost {
   #state: GameState
   #training: boolean
 
@@ -24,8 +27,7 @@ export class GameHost {
   #idle?: number
 
   #loopsCount = 0
-  #phaseDuration = 800 // min 300ms
-  #resetDuration = 700
+  #phaseDuration = INITIAL_PHASE_DURATION
 
   #time = 0
 
@@ -46,7 +48,7 @@ export class GameHost {
     setState(STATE.time, 0, true)
     setState(STATE.countdown, null, true)
 
-    host.#idle = window.setTimeout(() => host.#startCountdown(), host.IDLE)
+    host.#idle = window.setTimeout(() => host.#startCountdown(), IDLE)
     return host
   }
 
@@ -83,7 +85,7 @@ export class GameHost {
       // TODO improve
       this.#state.dimension = 'medium'
       this.#loopsCount = 0
-      this.#phaseDuration = 800
+      this.#phaseDuration = INITIAL_PHASE_DURATION
       this.#state.resetTiles()
       this.#state.addPlayer(player.id, player.username)
       this.#state.syncGrid()
@@ -163,34 +165,22 @@ export class GameHost {
 
       this.#state.tick()
       this.#state.syncPhase()
-    }, this.#resetDuration)
+    }, RESET_DURATION)
   }
 
   #decreasePhaseDuration() {
-    switch (this.#state.dimension) {
-      case 'large':
-        this.#phaseDuration -= 10
-        break
-      case 'medium':
-        this.#phaseDuration -= 30
-        break
-      case 'small':
-        this.#phaseDuration -= 50
-        break
-    }
-
-    this.#phaseDuration = Math.max(300, this.#phaseDuration)
+    const { phaseDecrement } = gridConfig[this.#state.dimension]
+    this.#phaseDuration = Math.max(MIN_PHASE_DURATION, this.#phaseDuration - phaseDecrement)
   }
 
   #shrinkCheck() {
-    switch (this.#state.dimension) {
-      case 'large':
-        return this.#state.players.length <= gridConfig.medium.maxPlayers
-      case 'medium':
-        return this.#state.players.length <= gridConfig.small.maxPlayers && this.#loopsCount > 4
-      case 'small':
-        return false
-    }
+    const { shrink } = gridConfig[this.#state.dimension]
+    if (!shrink) return false
+
+    return (
+      this.#state.players.length <= gridConfig[shrink.to].maxPlayers &&
+      this.#loopsCount >= shrink.afterLoops
+    )
   }
 
   #syncLoop() {

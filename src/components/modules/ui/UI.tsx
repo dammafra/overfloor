@@ -1,8 +1,8 @@
 import { useTransition } from '@react-spring/three'
 import { Sparkles } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { aspects, positions } from '@utils'
-import { useCallback, useMemo, useRef } from 'react'
+import { aspects, BOUNCY_CONFIG, positions, ROUTES } from '@utils'
+import { useRef } from 'react'
 import { type Vector3Tuple } from 'three'
 import { useRoute } from 'wouter'
 import { Backdrop } from './Backdrop'
@@ -15,65 +15,35 @@ type MenuTileSprings = {
   scale: number
   rotate: boolean
   type: MenuTileProps['type']
-  index: number
+  index?: number
 }
 
-export function UI() {
-  const [matchGame] = useRoute('/game')
-  const [matchLobby] = useRoute('/:from/lobby/:options')
-  const [matchTest] = useRoute('/test/*?')
+type TileRole = Pick<MenuTileSprings, 'type' | 'index'>
 
-  const match = useMemo(
-    () => matchGame || matchLobby || matchTest,
-    [matchGame, matchLobby, matchTest],
-  )
+export function UI() {
+  const [matchGame] = useRoute(ROUTES.game)
+  const [matchLobby] = useRoute(ROUTES.lobby)
+  const match = matchGame || matchLobby
 
   const { viewport } = useThree()
 
-  const size = useMemo(() => (matchGame || matchTest ? 0 : 11), [matchGame, matchTest])
-  const tiles = useMemo(() => [...Array(size * size).keys()], [size])
+  const size = matchGame ? 0 : 11
+  const tiles = [...Array(size * size).keys()]
   const firstRenderRef = useRef(true)
 
-  const buttonIndices = useMemo(
-    () => aspects.ui.tile.button.indices(size, viewport.aspect),
-    [size, viewport.aspect],
-  )
+  // menu role of each tile, by grid index
+  const roles = new Map<number, TileRole>()
+  aspects.ui.tile.letter
+    .indices(size, viewport.aspect)
+    .forEach((tile, index) => roles.set(tile, { type: 'letter', index }))
+  aspects.ui.tile.button
+    .indices(size, viewport.aspect)
+    .forEach((tile, index) => roles.set(tile, { type: 'button', index }))
 
-  const lettersIndices = useMemo(
-    () => aspects.ui.tile.letter.indices(size, viewport.aspect),
-    [size, viewport.aspect],
-  )
-
-  const getTilePosition = useCallback(
-    (index: number) => (matchLobby ? positions.lobby.tile(index) : positions.ui.tile(index, size)),
-    [size, matchLobby],
-  )
-
-  // TODO improve
-  const getTileType = useCallback(
-    (index: number) =>
-      match
-        ? 'base'
-        : buttonIndices.includes(index)
-          ? 'button'
-          : lettersIndices.includes(index)
-            ? 'letter'
-            : 'base',
-    [buttonIndices, lettersIndices, match],
-  )
-
-  // TODO improve
-  const getTileIndex = useCallback(
-    (index: number) =>
-      matchLobby
-        ? undefined
-        : buttonIndices.includes(index)
-          ? buttonIndices.indexOf(index)
-          : lettersIndices.includes(index)
-            ? lettersIndices.indexOf(index)
-            : undefined,
-    [buttonIndices, lettersIndices, matchLobby],
-  )
+  const getTilePosition = (index: number) =>
+    matchLobby ? positions.lobby.tile(index) : positions.ui.tile(index, size)
+  const getTileType = (index: number) => (match ? 'base' : (roles.get(index)?.type ?? 'base'))
+  const getTileIndex = (index: number) => (matchLobby ? undefined : roles.get(index)?.index)
 
   const transitions = useTransition<number, MenuTileSprings>(tiles, {
     from: (_, i) => ({
@@ -94,7 +64,7 @@ export function UI() {
     onRest: () => {
       firstRenderRef.current = false
     },
-    config: { mass: 1, tension: 120, friction: 15 },
+    config: BOUNCY_CONFIG,
   })
 
   return (

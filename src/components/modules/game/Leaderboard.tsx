@@ -1,19 +1,15 @@
-import { useRoomState } from '@stores'
 import { Environment, Player } from '@components'
 import { Tile } from '@components/modules/tiles'
+import { useLeaderboard } from '@hooks'
 import { a, useSpring } from '@react-spring/three'
 import { Billboard, Float, Hud, PerspectiveCamera } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
-import { PLAYER } from '@schema'
-import { myPlayer } from 'playroomkit'
 import { MathUtils } from 'three'
 
 export function Leaderboard() {
   const { viewport } = useThree()
 
-  const username: string | undefined = myPlayer()?.getState(PLAYER.username)
-  const leaderboard = useRoomState(s => s.leaderboard)
-  const winner = leaderboard.at(-1) === username
+  const { username, winner } = useLeaderboard()
 
   const tileSpring = useSpring({
     from: { scale: 0, opacity: 0 },

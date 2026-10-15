@@ -1,37 +1,35 @@
 import { ButtonTile, ModalTile, type ButtonTileProps } from '@components/modules/tiles'
-import { animatable } from '@utils'
+import { animatable, COLORS, lobbyPath, ROUTES } from '@utils'
 import { v4 as uuid } from 'uuid'
 import { useLocation, useRoute } from 'wouter'
 import type { MenuTileProps } from './MenuTile'
 
 type MenuButtonTileProps = Omit<MenuTileProps, 'type'>
 
+const BUTTONS = [JoinRoomButton, CreateRoomButton, TrainingRoomButton, CreditsButton]
+
 export const MenuButtonTile = animatable(({ index, ...props }: MenuButtonTileProps) => {
-  return [
-    <JoinRoomButton key="JoinRoomButton" {...props} />,
-    <CreateRoomButton key="CreateRoomButton" {...props} />,
-    <TrainingRoomButton key="TrainingRoomButton" {...props} />,
-    <CreditsButton key="CreditsButton" {...props} />,
-  ].at(index!)
+  const Button = index === undefined ? undefined : BUTTONS.at(index)
+  return Button ? <Button {...props} /> : null
 })
 
-function CreateRoomButton(props: MenuButtonTileProps) {
-  const [match] = useRoute('/new')
+function CreateRoomButton(props: ButtonTileProps) {
+  const [match] = useRoute(ROUTES.create)
   const [, navigate] = useLocation()
 
   return (
-    <ModalTile {...props} color="orange" open={match} onClick={() => navigate('/new')}>
+    <ModalTile {...props} color={COLORS.button} open={match} onClick={() => navigate('/new')}>
       create room
     </ModalTile>
   )
 }
 
 function JoinRoomButton(props: ButtonTileProps) {
-  const [match] = useRoute('/join/:id?')
+  const [match] = useRoute(ROUTES.join)
   const [, navigate] = useLocation()
 
   return (
-    <ModalTile {...props} color="orange" open={match} onClick={() => navigate('/join')}>
+    <ModalTile {...props} color={COLORS.button} open={match} onClick={() => navigate('/join')}>
       join room
     </ModalTile>
   )
@@ -43,11 +41,8 @@ function TrainingRoomButton(props: ButtonTileProps) {
   return (
     <ButtonTile
       {...props}
-      color="orange"
-      onClick={() => {
-        const options = { username: uuid(), training: true, countdown: 3 }
-        navigate(`/new/lobby/${btoa(JSON.stringify(options))}`)
-      }}
+      color={COLORS.button}
+      onClick={() => navigate(lobbyPath('new', { username: uuid(), training: true, countdown: 3 }))}
     >
       training room
     </ButtonTile>
@@ -55,7 +50,7 @@ function TrainingRoomButton(props: ButtonTileProps) {
 }
 
 function CreditsButton(props: ButtonTileProps) {
-  const [match] = useRoute('/credits')
+  const [match] = useRoute(ROUTES.credits)
   const [, navigate] = useLocation()
 
   return (

@@ -1,15 +1,12 @@
+import { usePopIn } from '@hooks'
+import { a } from '@react-spring/web'
 import { useRoomState } from '@stores'
-import { a, useSpring } from '@react-spring/web'
 
 export function PlayersCount() {
   const players = useRoomState(s => s.players)
   const playersCount = players.length
 
-  const spring = useSpring({
-    from: { scale: 0, opacity: 0 },
-    to: { scale: 1, opacity: 1 },
-    config: { tension: 300, friction: 20 },
-  })
+  const spring = usePopIn()
 
   return (
     playersCount > 0 && (

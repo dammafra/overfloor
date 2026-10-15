@@ -1,27 +1,26 @@
-import { useRoomState } from '@stores'
 import { Tile } from '@components/modules/tiles'
 import { useTransition } from '@react-spring/three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { GameLoopPhase, GRID_UNIT } from '@schema'
-import { useMemo } from 'react'
+import { useRoomState } from '@stores'
+import { BOUNCY_CONFIG, COLORS } from '@utils'
 
 export function Grid() {
-  const defaultColor = 'dodgerblue'
+  const defaultColor = COLORS.tile
 
   //oxfmt-ignore
   const phaseColors = [
     defaultColor,   // IDLE
-    'limegreen',    // COUNTDOWN_3
-    'orange',       // COUNTDOWN_2
-    'brown',        // COUNTDOWN_1
+    COLORS.go,      // COUNTDOWN_3
+    COLORS.ready,   // COUNTDOWN_2
+    COLORS.danger,  // COUNTDOWN_1
     defaultColor,   // FALLING
   ]
 
   const phase = useRoomState(s => s.phase)
   const tiles = useRoomState(s => s.tiles)
-  const safeTiles = useMemo(
-    () => tiles.filter(t => !t.disabled && (phase !== GameLoopPhase.FALLING || !t.targeted)),
-    [tiles, phase],
+  const safeTiles = tiles.filter(
+    t => !t.disabled && (phase !== GameLoopPhase.FALLING || !t.targeted),
   )
 
   const transitions = useTransition(safeTiles, {
@@ -34,7 +33,7 @@ export function Grid() {
     enter: { scale: GRID_UNIT },
     leave: { scale: 0 },
     update: tile => ({ color: tile.targeted ? phaseColors[phase] : defaultColor }),
-    config: { mass: 1, tension: 120, friction: 15 },
+    config: BOUNCY_CONFIG,
   })
 
   return (

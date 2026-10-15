@@ -1,48 +1,24 @@
-import { useRoomState } from '@stores'
 import { CuboidCollider } from '@react-three/rapier'
-import { GRID_GAP, GRID_UNIT, gridConfig } from '@schema'
+import { useRoomState } from '@stores'
+import { getGridSize } from '@utils'
+import type { Vector3Tuple } from 'three'
+
+const WALL_HEIGHT = 3
+const WALL_THICKNESS = 0.1
 
 export function Boundaries() {
   const dimension = useRoomState(s => s.dimension)
-  const width = dimension ? gridConfig[dimension].width : 0
-  const height = dimension ? gridConfig[dimension].height : 0
+  const size = getGridSize(dimension)
 
-  const wallHeight = 3
-  const wallThickness = 0.1
-  const horizontalWallWidth = width * (GRID_UNIT + GRID_GAP)
-  const verticalWallWidth = height * (GRID_UNIT + GRID_GAP)
-  const verticalWallPosition = horizontalWallWidth * 0.5 + wallThickness
-  const horizontalWallPosition = verticalWallWidth * 0.5 + wallThickness
+  const x = size.x * 0.5 + WALL_THICKNESS
+  const z = size.z * 0.5 + WALL_THICKNESS
 
-  return (
-    <>
-      {/* Vertical Boundaries */}
-      <CuboidCollider
-        restitution={0}
-        friction={0}
-        args={[wallThickness, wallHeight, verticalWallWidth * 0.5]}
-        position={[verticalWallPosition, wallHeight, 0]}
-      />
-      <CuboidCollider
-        restitution={0}
-        friction={0}
-        args={[wallThickness, wallHeight, verticalWallWidth * 0.5]}
-        position={[-verticalWallPosition, wallHeight, 0]}
-      />
+  const walls: { args: Vector3Tuple; position: Vector3Tuple }[] = [
+    { args: [WALL_THICKNESS, WALL_HEIGHT, size.z * 0.5], position: [x, WALL_HEIGHT, 0] },
+    { args: [WALL_THICKNESS, WALL_HEIGHT, size.z * 0.5], position: [-x, WALL_HEIGHT, 0] },
+    { args: [size.x * 0.5, WALL_HEIGHT, WALL_THICKNESS], position: [0, WALL_HEIGHT, z] },
+    { args: [size.x * 0.5, WALL_HEIGHT, WALL_THICKNESS], position: [0, WALL_HEIGHT, -z] },
+  ]
 
-      {/* Horizontal Boundaries */}
-      <CuboidCollider
-        restitution={0}
-        friction={0}
-        args={[horizontalWallWidth * 0.5, wallHeight, wallThickness]}
-        position={[0, wallHeight, horizontalWallPosition]}
-      />
-      <CuboidCollider
-        restitution={0}
-        friction={0}
-        args={[horizontalWallWidth * 0.5, wallHeight, wallThickness]}
-        position={[0, wallHeight, -horizontalWallPosition]}
-      />
-    </>
-  )
+  return walls.map((wall, i) => <CuboidCollider key={i} restitution={0} friction={0} {...wall} />)
 }

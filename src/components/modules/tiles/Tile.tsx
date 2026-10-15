@@ -1,4 +1,4 @@
-import { animatable } from '@utils'
+import { animatable, COLORS } from '@utils'
 import { a } from '@react-spring/three'
 import { Float, RoundedBoxGeometry } from '@react-three/drei'
 import type { JSX } from 'react'
@@ -12,7 +12,7 @@ export type TileProps = JSX.IntrinsicElements['object3D'] & {
 }
 
 function _Tile({
-  color = 'dodgerblue',
+  color = COLORS.tile,
   opacity = 0.9,
   float = true,
   rotate = false,

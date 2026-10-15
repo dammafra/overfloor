@@ -1,7 +1,8 @@
-import { useIsTouch, useSafeInput } from '@hooks'
-import { a, useSpring } from '@react-spring/web'
+import { useFadeIn, useIsTouch, useSafeInput, useStoredUsername } from '@hooks'
+import { a } from '@react-spring/web'
+import { lobbyPath } from '@utils'
 import clsx from 'clsx'
-import { useEffect, type SubmitEventHandler } from 'react'
+import { type SubmitEventHandler } from 'react'
 import { Link, useLocation, useParams } from 'wouter'
 
 export function JoinRoom() {
@@ -10,22 +11,16 @@ export function JoinRoom() {
 
   const params = useParams()
   const [id, setId] = useSafeInput(params.id ?? '')
-  const [username, setUsername] = useSafeInput(localStorage.getItem('overfloor-username') ?? '')
-
-  useEffect(() => localStorage.setItem('overfloor-username', username), [username])
+  const [username, setUsername] = useStoredUsername()
 
   const onSubmit: SubmitEventHandler = e => {
     e.preventDefault()
     if (!id || !username) return
 
-    const options = btoa(JSON.stringify({ id: id.toUpperCase(), username }))
-    navigate(`/join/lobby/${options}`)
+    navigate(lobbyPath('join', { id: id.toUpperCase(), username }))
   }
 
-  const { opacity } = useSpring({
-    from: { opacity: 0 },
-    to: { opacity: 1 },
-  })
+  const { opacity } = useFadeIn()
 
   return (
     <a.div className="page" style={{ opacity }}>

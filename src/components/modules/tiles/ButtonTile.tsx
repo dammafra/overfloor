@@ -1,9 +1,9 @@
+import { useHover } from '@hooks'
 import { useSpring } from '@react-spring/three'
+import type { TextProps } from '@react-three/drei'
 import { animatable } from '@utils'
-import { Text, useCursor, type TextProps } from '@react-three/drei'
-import { useState } from 'react'
-import { MathUtils } from 'three'
 import { Tile, type TileProps } from './Tile'
+import { TileLabel } from './TileLabel'
 
 export type ButtonTileProps = TileProps & {
   disabled?: boolean
@@ -12,28 +12,18 @@ export type ButtonTileProps = TileProps & {
 
 export const ButtonTile = animatable(
   ({ disabled, children, labelProps, onClick, ...props }: ButtonTileProps) => {
-    const [hovered, setHovered] = useState(false)
-    useCursor(hovered)
+    const [hovered, hoverHandlers] = useHover(disabled)
 
     const baseScale = (props.scale as number) ?? 1
     const spring = useSpring({
-      scale: hovered ? baseScale + 0.1 : baseScale,
+      scale: hovered ? baseScale * 1.1 : baseScale,
     })
 
     return (
       <Tile
         {...props}
+        {...hoverHandlers}
         scale={spring.scale}
-        onPointerOver={e => {
-          if (disabled) return
-          setHovered(true)
-          e.stopPropagation()
-        }}
-        onPointerOut={e => {
-          if (disabled) return
-          setHovered(false)
-          e.stopPropagation()
-        }}
         onClick={e => {
           if (disabled) return
           if (typeof onClick === 'function') onClick(e)
@@ -41,20 +31,15 @@ export const ButtonTile = animatable(
         }}
       >
         {typeof children === 'string' ? (
-          <Text
-            font="/fonts/audiowide.ttf"
-            textAlign="center"
+          <TileLabel
             anchorY="middle"
             maxWidth={0.1}
             lineHeight={0.9}
             fontSize={0.2}
-            position-y={[0.13]}
-            outlineWidth={0.01}
-            rotation={[MathUtils.degToRad(-90), 0, MathUtils.degToRad(-90)]}
             {...labelProps}
           >
             {children}
-          </Text>
+          </TileLabel>
         ) : (
           children
         )}

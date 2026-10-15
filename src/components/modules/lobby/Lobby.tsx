@@ -1,16 +1,22 @@
+import { useLobbyOptions } from '@hooks'
 import { connect } from '@multiplayer'
 import { PLAYER } from '@schema'
 import { useRoomState } from '@stores'
+import { lobbyPath, type LobbyOptions } from '@utils'
 import { getRoomCode, myPlayer } from 'playroomkit'
 import { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'wouter'
+import { Redirect, useLocation, useParams } from 'wouter'
 import { CameraRig } from './CameraRig'
 import { Countdown } from './Countdown'
 import { Players } from './Players'
 
 export function Lobby() {
-  const { from, options } = useParams()
-  const { id, username, training, countdown, rematch } = JSON.parse(atob(options!))
+  const options = useLobbyOptions()
+  return options ? <LobbyRoom {...options} /> : <Redirect to="/" replace />
+}
+
+function LobbyRoom({ id, username, training, countdown, rematch }: LobbyOptions) {
+  const { from } = useParams()
   const [, navigate] = useLocation()
 
   const [connected, setConnected] = useState(false)
@@ -23,8 +29,9 @@ export function Lobby() {
       setConnected(true)
 
       if (from === 'new') {
-        const options = btoa(JSON.stringify({ id: getRoomCode(), username, training, rematch }))
-        navigate(`/join/lobby/${options}`, { replace: true })
+        navigate(lobbyPath('join', { id: getRoomCode(), username, training, rematch }), {
+          replace: true,
+        })
       }
     })
   }, [from, id, username, training, countdown, rematch, navigate])

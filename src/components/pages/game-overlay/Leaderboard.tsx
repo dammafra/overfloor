@@ -1,30 +1,24 @@
-import { useRoomState } from '@stores'
-import { useConfetti } from '@hooks'
-import { a, useSpring } from '@react-spring/web'
-import { PLAYER } from '@schema'
+import { useConfetti, useLeaderboard, usePopIn } from '@hooks'
+import { a, config } from '@react-spring/web'
+import { lobbyPath } from '@utils'
 import clsx from 'clsx'
-import { getRoomCode, myPlayer } from 'playroomkit'
-import { useMemo } from 'react'
+import { getRoomCode } from 'playroomkit'
 import { Link, useLocation } from 'wouter'
 
 export function Leaderboard() {
   const [, navigate] = useLocation()
 
-  const username: string | undefined = myPlayer()?.getState(PLAYER.username)
-  const ranking = useRoomState(s => s.leaderboard)
-  const leaderboard = useMemo(() => [...ranking].reverse(), [ranking])
-  const winner = leaderboard.at(0) === username
+  const { username, leaderboard, winner } = useLeaderboard()
 
-  const rematch = async () => {
-    const options = btoa(JSON.stringify({ id: getRoomCode(), username, rematch: true }))
-    navigate(`/join/lobby/${options}`)
+  const rematch = () => {
+    if (!username) return
+    navigate(lobbyPath('join', { id: getRoomCode(), username, rematch: true }))
   }
 
   const burst = useConfetti()
-  const webSpring = useSpring({
-    from: { scale: 0, opacity: 0 },
-    to: { scale: 1, opacity: 1 },
-    onRest: () => (winner ? burst() : undefined),
+  const webSpring = usePopIn({
+    config: config.default,
+    onRest: () => winner && burst(),
   })
 
   return (

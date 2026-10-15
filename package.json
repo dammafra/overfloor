@@ -48,8 +48,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
-    "vite-plugin-full-reload": "^1.2.0",
-    "vite-plugin-glsl": "^1.6.2"
+    "vite-plugin-full-reload": "^1.2.0"
   },
   "overrides": {
     "react-nipplejs": {
