@@ -14,7 +14,7 @@ import { PlayerBody } from './PlayerBody'
 
 const FALL_LIMIT = -50
 // walking: the horizontal velocity is steered toward the input, quickly so it doesn't feel like ice
-const SPEED = 8
+const SPEED = 7
 const ACCELERATION = 15
 const DECELERATION = 20
 const UP = new Vector3(0, 1, 0)
@@ -22,8 +22,8 @@ const IDENTITY: Vector4Tuple = [0, 0, 0, 1]
 const PUBLISH_INTERVAL = 33 //ms
 const FOLLOW_RATE = 20
 // knockback on contact between players: a base bump plus the speed of the pusher toward the other
-const BUMP = 1
-const KNOCKBACK = 0.4
+const BUMP = 1.5
+const KNOCKBACK = 0.6
 // time without control after a bump, so the knockback isn't cancelled by the walking
 const STUN = 350 //ms
 
