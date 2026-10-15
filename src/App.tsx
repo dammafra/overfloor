@@ -1,5 +1,5 @@
 import { Experience, Notification } from '@components'
-import { DoubleTapPreventer, ErrorBoundary, GUI } from '@components/helpers'
+import { DoubleTapPreventer, ErrorBoundary, GUI, ScrollResetter } from '@components/helpers'
 import { CreateRoom, Credits, GameOverlay, JoinRoom, LobbyOverlay } from '@components/pages'
 import { useDebug } from '@hooks'
 import { hasSession, leave } from '@multiplayer'
@@ -21,6 +21,7 @@ export default function App() {
     <>
       <GUI />
       <DoubleTapPreventer />
+      <ScrollResetter />
 
       <ErrorBoundary>
         <Experience />
