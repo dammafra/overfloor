@@ -7,7 +7,7 @@ import { positions } from '@utils'
 import type { Vector3Tuple } from 'three'
 
 export function Players() {
-  const training = useLobbyOptions()?.training
+  const practice = useLobbyOptions()?.practice
 
   const players = useLobbyPlayers()
 
@@ -26,7 +26,7 @@ export function Players() {
         // @ts-ignore
         <a.group scale={spring.scale} position={spring.position}>
           <Float floatIntensity={2} rotationIntensity={2}>
-            <Player username={player} showUsername={!training} />
+            <Player username={player} showUsername={!practice} />
           </Float>
         </a.group>
       ))}

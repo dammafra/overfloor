@@ -1,3 +1,6 @@
+import { MathUtils } from 'three'
+import { CAMERA_FOV } from './constants'
+
 // TODO improve, I don't like having this file
 export const aspects = {
   ui: {
@@ -6,16 +9,25 @@ export const aspects = {
     },
     tile: {
       button: {
-        position: (aspect: number) => [0, Math.max(aspect > 2 ? 4.7 : 3.5, aspects.ui.camera.distance(aspect) - 1.5), 0], //oxfmt-ignore
+        // open modal tile, in front of the camera
+        position: (aspect: number, height: number) => {
+          const distance = aspects.ui.camera.distance(aspect)
+          const y = Math.max(aspect > 2 ? 4.7 : 3.5, distance - 1.5)
+          if (aspect <= 1) return [0, y, 0]
+
+          // short landscape screens: closer to the camera to still frame the page
+          const visibleHeight = (0.55 / 410) * height // ~410px of page half-extents
+          const viewGap = visibleHeight / (2 * Math.tan(MathUtils.degToRad(CAMERA_FOV / 2)))
+          const gap = Math.max(0.8, viewGap + 0.125) // 0.125: tile half-thickness
+          return [0, Math.max(y, distance - gap), 0]
+        },
         indices: (size: number, aspect: number) => {
           const center = Math.floor((size * size) / 2)
 
           const index0 = aspect > 1 ? center + 2 * size - 2 : center - 2 - 2 * size
-          const index1 = aspect > 1 ? index0 + 1 : index0 + 1
-          const index2 = aspect > 1 ? index0 - size : index0 + size
-          const index3 = index2 - 1
+          const index1 = aspect > 1 ? index0 - size : index0 + size
 
-          return [index0, index1, index2, index3]
+          return [index0, index1]
         },
       },
       letter: {

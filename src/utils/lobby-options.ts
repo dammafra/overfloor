@@ -1,14 +1,14 @@
-// Lobby options travel base64-encoded in the lobby route (`/:from/lobby/:options`)
+// Lobby options travel base64-encoded in the lobby route (`/lobby/:options`)
 export interface LobbyOptions {
-  id?: string
+  id: string
   username: string
-  training?: boolean
+  practice?: boolean
   countdown?: number
   rematch?: boolean
 }
 
-export function lobbyPath(from: 'new' | 'join', options: LobbyOptions) {
-  return `/${from}/lobby/${btoa(JSON.stringify(options))}`
+export function lobbyPath(options: LobbyOptions) {
+  return `/lobby/${btoa(JSON.stringify(options))}`
 }
 
 export function decodeLobbyOptions(encoded?: string): LobbyOptions | undefined {

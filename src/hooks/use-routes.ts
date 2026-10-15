@@ -1,12 +1,11 @@
 import { decodeLobbyOptions, ROUTES } from '@utils'
 import { useParams, useRoute } from 'wouter'
 
-// whether a menu modal page (create, join, credits) is open
+// whether a menu modal page (room, credits) is open
 export function useModalRoute() {
-  const [create] = useRoute(ROUTES.create)
-  const [join] = useRoute(ROUTES.join)
+  const [room] = useRoute(ROUTES.room)
   const [credits] = useRoute(ROUTES.credits)
-  return create || join || credits
+  return room || credits
 }
 
 // options of the current lobby route, undefined if missing or malformed

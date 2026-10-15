@@ -18,12 +18,12 @@ export function ModalTile({
   openColor = COLORS.tile,
   ...props
 }: ModalTileProps) {
-  const { viewport } = useThree()
+  const { viewport, size } = useThree()
   const [, navigate] = useLocation()
 
   const spring = useSpring({
     position: (open
-      ? aspects.ui.tile.button.position(viewport.aspect)
+      ? aspects.ui.tile.button.position(viewport.aspect, size.height)
       : props.position) as Vector3Tuple,
     rotationX: MathUtils.degToRad(open ? 360 : 0),
     color: (open ? openColor : color) as string,

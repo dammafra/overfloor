@@ -13,7 +13,7 @@ export type GameLoopPhase = (typeof GameLoopPhase)[keyof typeof GameLoopPhase]
 export type GameStage = 'lobby' | 'game' | 'ended'
 
 export interface GameConfigSchema {
-  training?: boolean
+  practice?: boolean
   countdown?: number
 }
 

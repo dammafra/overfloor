@@ -12,7 +12,7 @@ export function Leaderboard() {
 
   const rematch = () => {
     if (!username) return
-    navigate(lobbyPath('join', { id: getRoomCode(), username, rematch: true }))
+    navigate(lobbyPath({ id: getRoomCode()!, username, rematch: true }))
   }
 
   const burst = useConfetti()

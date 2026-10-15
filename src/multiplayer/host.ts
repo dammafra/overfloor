@@ -12,7 +12,7 @@ const COUNTDOWN_END = 4
 
 export class Host {
   readonly #players: () => PlayerState[]
-  readonly #training: boolean
+  readonly #practice: boolean
   readonly #minPlayers: number
   readonly #countdownStart: number
   #interval: number
@@ -22,12 +22,12 @@ export class Host {
     this.#players = players
 
     const config: GameConfigSchema = getState(STATE.config) ?? {}
-    this.#training = !!config.training
-    this.#minPlayers = this.#training ? 1 : MIN_PLAYERS
-    this.#countdownStart = this.#training ? COUNTDOWN_END : config.countdown || COUNTDOWN_START
+    this.#practice = !!config.practice
+    this.#minPlayers = this.#practice ? 1 : MIN_PLAYERS
+    this.#countdownStart = this.#practice ? COUNTDOWN_END : config.countdown || COUNTDOWN_START
 
     if (!getState(STATE.lobby)) this.#setLobby(false, this.#countdownStart)
-    if (getState(STATE.stage) === 'game') this.#game = GameHost.resume(this.#training)
+    if (getState(STATE.stage) === 'game') this.#game = GameHost.resume(this.#practice)
 
     this.#interval = window.setInterval(() => this.#lobbyTick(), 1000)
   }
@@ -91,7 +91,7 @@ export class Host {
     }))
 
     this.#game?.dispose()
-    this.#game = GameHost.start(players, this.#training)
+    this.#game = GameHost.start(players, this.#practice)
 
     this.#setLobby(false, this.#countdownStart)
     setState(STATE.stage, 'game', true)

@@ -19,7 +19,7 @@ const RESET_DURATION = 700
 
 export class GameHost {
   #state: GameState
-  #training: boolean
+  #practice: boolean
 
   #timer?: number
   #loop?: number
@@ -31,19 +31,19 @@ export class GameHost {
 
   #time = 0
 
-  private constructor(state: GameState, training: boolean) {
+  private constructor(state: GameState, practice: boolean) {
     this.#state = state
-    this.#training = training
+    this.#practice = practice
   }
 
-  static start(players: Pick<PlayerSchema, 'id' | 'username'>[], training: boolean) {
+  static start(players: Pick<PlayerSchema, 'id' | 'username'>[], practice: boolean) {
     const dimension: GridDimension = players.length <= gridConfig.medium.maxPlayers ? 'medium' : 'large' //oxfmt-ignore
 
     const state = new GameState()
     state.init(dimension, players)
     state.syncAll()
 
-    const host = new GameHost(state, training)
+    const host = new GameHost(state, practice)
     host.#syncLoop()
     setState(STATE.time, 0, true)
     setState(STATE.countdown, null, true)
@@ -53,8 +53,8 @@ export class GameHost {
   }
 
   // take over a running match, e.g. after host migration
-  static resume(training: boolean) {
-    const host = new GameHost(GameState.hydrate(), training)
+  static resume(practice: boolean) {
+    const host = new GameHost(GameState.hydrate(), practice)
 
     const loop: GameLoopSchema | undefined = getState(STATE.loop)
     host.#loopsCount = loop?.loopsCount ?? host.#loopsCount
@@ -81,7 +81,7 @@ export class GameHost {
 
     this.#state.leaderboard.push(player.username)
 
-    if (this.#training) {
+    if (this.#practice) {
       // TODO improve
       this.#state.dimension = 'medium'
       this.#loopsCount = 0
@@ -153,7 +153,7 @@ export class GameHost {
     clearInterval(this.#loop)
     this.#loop = window.setInterval(() => {
       if (this.#state.phase === GameLoopPhase.IDLE) {
-        if (this.#training || this.#state.players.length > 1) {
+        if (this.#practice || this.#state.players.length > 1) {
           const shrink = this.#shrinkCheck()
           this.#gameLoop(shrink)
         } else {

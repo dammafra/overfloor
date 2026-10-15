@@ -5,12 +5,12 @@ import { useState } from 'react'
 import { Link } from 'wouter'
 
 export function LobbyOverlay() {
-  const { id, training, rematch } = useLobbyOptions() ?? {}
+  const { id, practice, rematch } = useLobbyOptions() ?? {}
   const [info, setInfo] = useState(false)
 
   const share = async () => {
     if (!id) return
-    const url = `${location.protocol}//${location.host}/join/${id}`
+    const url = `${location.protocol}//${location.host}/room/${id}`
     const toShare = { text: url }
 
     await navigator.clipboard.writeText(url)
@@ -30,7 +30,7 @@ export function LobbyOverlay() {
     onRest: () => setInfo(false),
   })
 
-  if (training) return null
+  if (practice) return null
 
   return (
     <a.div className="page pointer-events-none" style={spring}>

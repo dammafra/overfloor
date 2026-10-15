@@ -46,7 +46,7 @@ export function hasSession() {
   return !!session
 }
 
-export function connect({ roomCode, username, training, countdown }: ConnectOptions) {
+export function connect({ roomCode, username, practice, countdown }: ConnectOptions) {
   if (session) return session.connection
 
   const current: Session = {
@@ -64,7 +64,7 @@ export function connect({ roomCode, username, training, countdown }: ConnectOpti
           gameId: import.meta.env.VITE_PLAYROOM_GAME_ID,
           roomCode,
           skipLobby: true,
-          maxPlayersPerRoom: training ? 1 : gridConfig.large.maxPlayers,
+          maxPlayersPerRoom: practice ? 1 : gridConfig.large.maxPlayers,
         },
         undefined,
         error => fail(current, ERRORS[error.message] ?? error.message ?? 'Connection lost'),
@@ -82,7 +82,7 @@ export function connect({ roomCode, username, training, countdown }: ConnectOpti
       myPlayer().setState(PLAYER.username, username, true)
 
       if (isHost() && !getState(STATE.stage)) {
-        const config: GameConfigSchema = { training, countdown }
+        const config: GameConfigSchema = { practice, countdown }
         setState(STATE.config, config, true)
         setState(STATE.stage, 'lobby', true)
       }
