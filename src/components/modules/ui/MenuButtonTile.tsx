@@ -1,11 +1,17 @@
 import { ModalTile, type ButtonTileProps } from '@components/modules/tiles'
-import { animatable, COLORS, ROUTES } from '@utils'
+import { animatable, COLORS, getStoredUsername, ROUTES } from '@utils'
 import { useLocation, useRoute } from 'wouter'
 import type { MenuTileProps } from './MenuTile'
 
 type MenuButtonTileProps = Omit<MenuTileProps, 'type'>
 
-const BUTTONS = [PlayButton, CreditsButton, HowToPlayButton]
+const BUTTONS = [PlayButton, HowToPlayButton, ProfileButton, CreditsButton]
+
+const SMALL_LABEL: ButtonTileProps['labelProps'] = {
+  fontSize: 0.15,
+  lineHeight: 1.1,
+  maxWidth: 0.8,
+}
 
 export const MenuButtonTile = animatable(({ index, ...props }: MenuButtonTileProps) => {
   const Button = index === undefined ? undefined : BUTTONS.at(index)
@@ -22,7 +28,8 @@ function PlayButton(props: ButtonTileProps) {
       labelProps={{ lineHeight: 1.1 }}
       color={COLORS.button}
       open={match}
-      onClick={() => navigate('/room')}
+      // the profile is set up first
+      onClick={() => navigate(getStoredUsername() ? '/room' : '/profile')}
     >
       ▶️ start
     </ModalTile>
@@ -58,13 +65,25 @@ function HowToPlayButton(props: ButtonTileProps) {
       {...props}
       open={match}
       onClick={() => navigate('/tutorial')}
-      labelProps={{
-        fontSize: 0.15,
-        lineHeight: 1.1,
-        maxWidth: 0.8,
-      }}
+      labelProps={SMALL_LABEL}
     >
       how to play❓
+    </ModalTile>
+  )
+}
+
+function ProfileButton(props: ButtonTileProps) {
+  const [match] = useRoute(ROUTES.profile)
+  const [, navigate] = useLocation()
+
+  return (
+    <ModalTile
+      {...props}
+      open={match}
+      onClick={() => navigate('/profile')}
+      labelProps={SMALL_LABEL}
+    >
+      👤 profile
     </ModalTile>
   )
 }

@@ -12,6 +12,7 @@ export function Players() {
   const players = useLobbyPlayers()
 
   const transitions = useTransition(players, {
+    keys: player => player.id,
     from: { scale: 0, position: [0, 0, 0] as Vector3Tuple },
     enter: (_, i) => ({ scale: 0.5, position: positions.lobby.player(i), delay: i * 50 }),
     update: (_, i) => ({ position: positions.lobby.player(i) }),
@@ -26,7 +27,7 @@ export function Players() {
         // @ts-ignore
         <a.group scale={spring.scale} position={spring.position}>
           <Float floatIntensity={2} rotationIntensity={2}>
-            <Player username={player} showUsername={!practice} />
+            <Player username={player.username} color={player.color} showUsername={!practice} />
           </Float>
         </a.group>
       ))}

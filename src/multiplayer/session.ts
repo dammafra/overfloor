@@ -1,4 +1,11 @@
-import { gridConfig, PLAYER, RPC_EVENTS, STATE, type GameConfigSchema } from '@schema'
+import {
+  gridConfig,
+  PLAYER,
+  RPC_EVENTS,
+  STATE,
+  type GameConfigSchema,
+  type PlayerProfileSchema,
+} from '@schema'
 import { initialRoomState, useNotification, useRoomState, type RoomState } from '@stores'
 import {
   getState,
@@ -16,10 +23,12 @@ import {
 import { useSyncExternalStore } from 'react'
 import { navigate } from 'wouter/use-browser-location'
 import { Host, PRACTICE_BOTS } from './host'
+import { playerProfile } from './player'
 
 interface ConnectOptions extends GameConfigSchema {
   roomCode?: string
   username: string
+  color: string
 }
 
 interface Session {
@@ -29,8 +38,8 @@ interface Session {
   players: Map<string, PlayerState>
   // own player state, set again when a host sync overwrites it (e.g. the host lost it on a reconnection)
   myState: Record<string, unknown>
-  // usernames of the players waiting in the lobby, latest first
-  lobbyPlayers: string[]
+  // profiles of the players waiting in the lobby, latest first
+  lobbyPlayers: PlayerProfileSchema[]
   // Playroom listeners outlive `Multiplayer.reset`: they subscribe again on every `insertCoin`
   unsubscribes: (() => void)[]
   electInterval?: number
@@ -40,7 +49,7 @@ interface Session {
 
 const PLAYROOM_PLAYER_ID_KEY = 'myId'
 const PLAYROOM_ROOM_HASH_KEY = 'r'
-const NO_PLAYERS: string[] = []
+const NO_PLAYERS: PlayerProfileSchema[] = []
 
 const ERRORS: Record<string, string> = {
   ROOM_LIMIT_EXCEEDED: 'Room is full',
@@ -55,7 +64,7 @@ export function hasSession() {
   return !!session
 }
 
-export function connect({ roomCode, username, practice, countdown }: ConnectOptions) {
+export function connect({ roomCode, username, color, practice, countdown }: ConnectOptions) {
   if (session) return session.connection
 
   const current: Session = {
@@ -94,7 +103,7 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
       if (session !== current) return teardown(current)
 
       syncRoomState(current)
-      setMyState(PLAYER.username, username)
+      setMyState(PLAYER.profile, { ...myPlayer().getState(PLAYER.profile), name: username, color })
       setMyState(PLAYER.away, document.hidden)
 
       if (isHost() && !getState(STATE.stage)) {
@@ -110,7 +119,7 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
 
         const unsubscribeState = player.on('state', (key, value) => {
           if (player.id === myPlayer()?.id) restoreMyState(current, key, value)
-          if (key === PLAYER.username || key === PLAYER.inLobby) updateLobbyPlayers(current)
+          if (key === PLAYER.profile || key === PLAYER.inLobby) updateLobbyPlayers(current)
         })
 
         player.onQuit(() => {
@@ -184,7 +193,7 @@ export function useIsHost() {
   return useSyncExternalStore(subscribe, () => !!session?.host)
 }
 
-// usernames of the players waiting in the lobby, latest first
+// players waiting in the lobby, latest first
 export function useLobbyPlayers() {
   return useSyncExternalStore(subscribe, () => session?.lobbyPlayers ?? NO_PLAYERS)
 }
@@ -251,16 +260,15 @@ function syncRoomState(current: Session) {
 }
 
 function updateLobbyPlayers(current: Session) {
-  const usernames = [...current.players.values()]
+  const players = [...current.players.values()]
     .filter(p => p.getState(PLAYER.inLobby))
-    .map(p => p.getState(PLAYER.username) as string | undefined)
-    .filter(username => !!username)
-    .reverse() as string[]
+    .map(playerProfile)
+    .filter(p => !!p.username)
+    .reverse()
 
-  const previous = current.lobbyPlayers
-  if (usernames.length === previous.length && usernames.every((u, i) => u === previous[i])) return
+  if (JSON.stringify(players) === JSON.stringify(current.lobbyPlayers)) return
 
-  current.lobbyPlayers = usernames
+  current.lobbyPlayers = players
   notify()
 }
 

@@ -4,7 +4,7 @@ import {
   STATE,
   type GameLoopSchema,
   type GridDimension,
-  type PlayerSchema,
+  type PlayerProfileSchema,
 } from '@schema'
 import { getState, setState } from 'playroomkit'
 import { GameState } from './game-state'
@@ -36,7 +36,7 @@ export class GameHost {
     this.#practice = practice
   }
 
-  static start(players: Pick<PlayerSchema, 'id' | 'username'>[], practice: boolean) {
+  static start(players: PlayerProfileSchema[], practice: boolean) {
     const dimension: GridDimension = players.length <= gridConfig.medium.maxPlayers ? 'medium' : 'large' //oxfmt-ignore
 
     const state = new GameState()

@@ -19,6 +19,7 @@ export const ROUTES = {
   room: '/room/:id?',
   credits: '/credits',
   howToPlay: '/tutorial',
+  profile: '/profile',
   lobby: '/lobby/:options',
   game: '/game',
 } as const

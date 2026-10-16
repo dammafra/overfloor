@@ -11,6 +11,7 @@ type Slot = typeof INPUT | number
 interface RoomCodeFieldProps {
   value: string
   onChange: (code: string) => void
+  autoFocus?: boolean
 }
 
 /**
@@ -18,7 +19,7 @@ interface RoomCodeFieldProps {
  * which takes its space from them.
  * The input and the slots overlap while swapping, the slots popping one at a time.
  */
-export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
+export function RoomCodeField({ value, onChange, autoFocus }: RoomCodeFieldProps) {
   const [recentRooms] = useState(getRecentRooms)
   const [history, setHistory] = useState(false)
 
@@ -55,6 +56,7 @@ export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
               label="room code"
               placeholder="empty for new room"
               autoComplete="off"
+              autoFocus={autoFocus}
               value={value}
               onChange={e => onChange(e.target.value)}
               className="absolute inset-0"

@@ -22,9 +22,14 @@ export interface LobbySchema {
   countdown: number
 }
 
-export interface PlayerSchema {
+// from the Playroom profile of the player
+export interface PlayerProfileSchema {
   id: string
   username: string
+  color: string
+}
+
+export interface PlayerSchema extends PlayerProfileSchema {
   position: Vector3Tuple
   spawn: string
 }

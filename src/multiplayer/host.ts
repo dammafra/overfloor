@@ -2,6 +2,7 @@ import { PLAYER, STATE, type GameConfigSchema, type GameStage, type LobbySchema 
 import { getState, setState, waitForPlayerState, type PlayerState } from 'playroomkit'
 import { GameHost } from './game-host'
 import { PracticeBot } from './practice-bot'
+import { playerProfile } from './player'
 
 /**
  * Authoritative room logic, running only on the host client (port of the old Colyseus `GameLobby`).
@@ -47,12 +48,13 @@ export class Host {
   }
 
   async onPlayerJoin(player: PlayerState) {
-    const username = await waitForPlayerState<string>(player, PLAYER.username)
+    await waitForPlayerState(player, PLAYER.profile)
+    const { username } = playerProfile(player)
 
     // players are listed in join order: the latest one with a duplicated username gets kicked
     const players = this.#players()
     const index = players.indexOf(player)
-    const duplicated = players.slice(0, index).some(p => p.getState(PLAYER.username) === username)
+    const duplicated = players.slice(0, index).some(p => playerProfile(p).username === username)
     if (duplicated) player.kick()
   }
 
@@ -113,10 +115,7 @@ export class Host {
 
   // `players`: the lobby players by default, everyone in the room on a practice restart (the player is no longer in the lobby)
   #startMatch(players = this.#lobbyPlayers()) {
-    const match = players.map(p => ({
-      id: p.id,
-      username: p.getState(PLAYER.username) as string,
-    }))
+    const match = players.map(playerProfile)
 
     this.#game?.dispose()
     this.#game = GameHost.start(match, this.#practice)

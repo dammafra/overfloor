@@ -7,6 +7,7 @@ import {
   type PlayerSchema,
   type TileSchema,
 } from '@schema'
+import { usernameColor } from '@utils'
 import { Bot, getState, Multiplayer, type PlayerState } from 'playroomkit'
 
 const OCTANT = Math.PI / 4
@@ -45,7 +46,7 @@ export class PracticeBot extends Bot {
 
   constructor({ username, ...params }: { player: PlayerState; username: string }) {
     super(params)
-    this.setState(PLAYER.username, username, true)
+    this.setState(PLAYER.profile, { name: username, color: usernameColor(username) }, true)
     this.setState(PLAYER.inLobby, true, true)
   }
 

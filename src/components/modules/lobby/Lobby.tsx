@@ -2,7 +2,7 @@ import { useLobbyOptions } from '@hooks'
 import { connect, setMyState } from '@multiplayer'
 import { PLAYER } from '@schema'
 import { useRoomState } from '@stores'
-import { addRecentRoom, lobbyPath, type LobbyOptions } from '@utils'
+import { addRecentRoom, getProfileColor, lobbyPath, type LobbyOptions } from '@utils'
 import { getRoomCode, myPlayer } from 'playroomkit'
 import { useEffect, useState } from 'react'
 import { Redirect, useLocation } from 'wouter'
@@ -24,7 +24,9 @@ function LobbyRoom({ id, username, practice, countdown }: LobbyOptions) {
   const players = useRoomState(s => s.players)
 
   useEffect(() => {
-    connect({ roomCode: id, username, practice, countdown }).then(() => {
+    const color = getProfileColor(username)
+
+    connect({ roomCode: id, username, color, practice, countdown }).then(() => {
       setConnected(true)
 
       const code = getRoomCode()

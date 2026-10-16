@@ -3,6 +3,7 @@ import {
   gridConfig,
   STATE,
   type GridDimension,
+  type PlayerProfileSchema,
   type PlayerSchema,
   type TileSchema,
 } from '@schema'
@@ -41,7 +42,7 @@ export class GameState {
     return state
   }
 
-  init(dimension: GridDimension, players: Pick<PlayerSchema, 'id' | 'username'>[]) {
+  init(dimension: GridDimension, players: PlayerProfileSchema[]) {
     this.dimension = dimension
     this.phase = GameLoopPhase.IDLE
     this.leaderboard = []
@@ -55,9 +56,8 @@ export class GameState {
     }))
 
     const positions = getPlayersInitialPositions(players.length, dimension)
-    this.players = players.map(({ id, username }, i) => ({
-      id,
-      username,
+    this.players = players.map((player, i) => ({
+      ...player,
       spawn: uuid(),
       position: positions[i],
     }))

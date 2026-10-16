@@ -1,12 +1,13 @@
-import { PLAYER } from '@schema'
+import { playerProfile } from '@multiplayer'
 import { useRoomState } from '@stores'
 import { myPlayer } from 'playroomkit'
 
-// final ranking, winner first, and whether the local player won
+// final ranking, winner first, and the local player: its color and whether it won
 export function useLeaderboard() {
-  const username: string | undefined = myPlayer()?.getState(PLAYER.username)
+  const me = myPlayer()
+  const { username, color } = me ? playerProfile(me) : {}
   const ranking = useRoomState(s => s.leaderboard)
   const leaderboard = [...ranking].reverse()
 
-  return { username, leaderboard, winner: leaderboard.at(0) === username }
+  return { username, color, leaderboard, winner: leaderboard.at(0) === username }
 }

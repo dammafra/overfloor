@@ -15,7 +15,8 @@ export const STATE = {
 
 // Per-player state, written by each player on its own state (except `body`, written by the host)
 export const PLAYER = {
-  username: 'username',
+  // Playroom's profile: the username as `name`, and the `color` of the character
+  profile: 'profile',
   inLobby: 'inLobby',
   // page hidden: not picked as the next host
   away: 'away',

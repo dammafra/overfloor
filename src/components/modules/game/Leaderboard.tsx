@@ -9,7 +9,7 @@ import { MathUtils } from 'three'
 export function Leaderboard() {
   const { viewport } = useThree()
 
-  const { username, winner } = useLeaderboard()
+  const { username, color, winner } = useLeaderboard()
 
   const tileSpring = useSpring({
     from: { scale: 0, opacity: 0 },
@@ -47,7 +47,7 @@ export function Leaderboard() {
             speed={winner ? 25 : 2}
             rotationIntensity={winner ? 1 : 0}
           >
-            <Player username={username} />
+            <Player username={username} color={color} />
           </Float>
         </Billboard>
       </a.group>
