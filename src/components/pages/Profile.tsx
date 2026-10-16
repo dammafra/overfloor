@@ -84,6 +84,8 @@ export function Profile() {
               open && (
                 <a.div
                   style={spring}
+                  // scrolling the grid is not a drag of the character (see `ProfileCharacter`)
+                  onPointerDown={e => e.stopPropagation()}
                   className="absolute inset-y-0 left-0 grid w-32 auto-rows-max grid-cols-2 gap-2 overflow-y-auto rounded-xl bg-white/30 p-2 short:w-48 short:grid-cols-3"
                 >
                   {PATTERNS.map(option => (
