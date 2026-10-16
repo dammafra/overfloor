@@ -22,6 +22,7 @@
     "r3f-monitor": "^3.1.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-nipplejs": "^0.0.5",
     "three": "^0.186.1",
     "use-sound": "^5.0.0",
     "uuid": "^14.0.3",
@@ -48,6 +49,12 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vite-plugin-full-reload": "^1.2.0"
+  },
+  "overrides": {
+    "react-nipplejs": {
+      "react": "^19.3.0",
+      "react-dom": "^19.3.0"
+    }
   },
   "allowScripts": {
     "fsevents@2.3.3": true,
