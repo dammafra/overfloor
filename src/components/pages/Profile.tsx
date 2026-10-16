@@ -34,7 +34,7 @@ export function Profile() {
           onKeyDown={e => e.key === 'Enter' && start()}
         />
 
-        {/* room for the character, its height mirrored by `ProfileCharacter` */}
+        {/* room for the character, on the open profile tile (see `ProfileCharacter`) */}
         <div className="relative h-80 short:h-40">
           <label className="button icon absolute top-2 right-2" style={{ background: color }}>
             <span className="icon-[mdi--palette] text-white" />
