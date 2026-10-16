@@ -10,6 +10,7 @@ import {
   RPC,
   setState,
   transferHost,
+  type InitOptions,
   type PlayerState,
 } from 'playroomkit'
 import { useSyncExternalStore } from 'react'
@@ -77,7 +78,9 @@ export function connect({ roomCode, username, practice, countdown }: ConnectOpti
           skipLobby: true,
           // practice: the player and the bots
           maxPlayersPerRoom: practice ? 1 + PRACTICE_BOTS : gridConfig.large.maxPlayers,
-        },
+          // untyped: sent to the server as `profile_*` params (`profile_name` only, no `profile_photo`)
+          profile: { name: username },
+        } as InitOptions,
         undefined,
         error => fail(current, ERRORS[error.message] ?? error.message ?? 'Connection lost'),
       )
