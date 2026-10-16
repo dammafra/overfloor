@@ -53,6 +53,8 @@ export function Players() {
           host={host}
           username={player.username}
           color={player.color}
+          pattern={player.pattern}
+          patternColor={player.patternColor}
           showIndicator={player.id === myPlayer()?.id}
           {...spring}
         />

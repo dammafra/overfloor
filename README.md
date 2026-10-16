@@ -11,7 +11,7 @@
 
 Watch the floor tiles, be careful where you stand, outlast your opponents and be the last one standing!
 
-<img src="./client/public/cover.png" alt="Cover"  >
+<img src="./public/cover.png" alt="Cover"  >
 
 ## Technologies Used
 

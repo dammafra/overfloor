@@ -10,10 +10,24 @@ export interface PlayerProps extends BlockCharacterProps {
 }
 
 export const Player = animatable(
-  ({ username, color, showIndicator, showUsername, animate, ...props }: PlayerProps) => {
+  ({
+    username,
+    color,
+    pattern,
+    patternColor,
+    showIndicator,
+    showUsername,
+    animate,
+    ...props
+  }: PlayerProps) => {
     return (
       <a.group {...props}>
-        <BlockCharacter color={color} animate={animate} />
+        <BlockCharacter
+          color={color}
+          pattern={pattern}
+          patternColor={patternColor}
+          animate={animate}
+        />
         {(showIndicator || showUsername) && (
           <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>
             <Text font={FONT} maxWidth={20} textAlign="center" fontSize={1.5} outlineWidth={0.1}>

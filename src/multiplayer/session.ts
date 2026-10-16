@@ -3,6 +3,7 @@ import {
   PLAYER,
   RPC_EVENTS,
   STATE,
+  type CharacterLookSchema,
   type GameConfigSchema,
   type PlayerProfileSchema,
 } from '@schema'
@@ -25,10 +26,9 @@ import { navigate } from 'wouter/use-browser-location'
 import { Host, PRACTICE_BOTS } from './host'
 import { playerProfile } from './player'
 
-interface ConnectOptions extends GameConfigSchema {
+interface ConnectOptions extends GameConfigSchema, CharacterLookSchema {
   roomCode?: string
   username: string
-  color: string
 }
 
 interface Session {
@@ -64,7 +64,7 @@ export function hasSession() {
   return !!session
 }
 
-export function connect({ roomCode, username, color, practice, countdown }: ConnectOptions) {
+export function connect({ roomCode, username, practice, countdown, ...look }: ConnectOptions) {
   if (session) return session.connection
 
   const current: Session = {
@@ -103,7 +103,11 @@ export function connect({ roomCode, username, color, practice, countdown }: Conn
       if (session !== current) return teardown(current)
 
       syncRoomState(current)
-      setMyState(PLAYER.profile, { ...myPlayer().getState(PLAYER.profile), name: username, color })
+      setMyState(PLAYER.profile, {
+        ...myPlayer().getState(PLAYER.profile),
+        name: username,
+        ...look,
+      })
       setMyState(PLAYER.away, document.hidden)
 
       if (isHost() && !getState(STATE.stage)) {

@@ -9,8 +9,19 @@
 
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph, type ObjectMap } from '@react-three/fiber'
+import { patternUrl } from '@utils'
 import { useEffect, useMemo, useRef, type JSX } from 'react'
-import type { Bone, ColorRepresentation, Group, MeshStandardMaterial, SkinnedMesh } from 'three'
+import {
+  Color,
+  RepeatWrapping,
+  TextureLoader,
+  type Bone,
+  type ColorRepresentation,
+  type Group,
+  type MeshStandardMaterial,
+  type SkinnedMesh,
+  type Texture,
+} from 'three'
 import type { GLTF } from 'three-stdlib'
 import { SkeletonUtils } from 'three/examples/jsm/Addons.js'
 
@@ -31,12 +42,97 @@ type ActionName = 'Armature|Jump.001' | 'Armature|Walk'
 
 export type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
   color?: ColorRepresentation
+  // none: a plain body
+  pattern?: number
+  patternColor?: ColorRepresentation
   animate?: boolean
   action?: ActionName
 }
 
+// body cube in the rest pose, with rounded edges: the model's up is z, its front (the eyes) faces -y.
+// In its units the cube spans -1 to 1, one repetition of the pattern each: two across each face,
+// a whole number all around so it closes without a seam
+const HALF_SIZE = 0.01
+// the feet are below the body cube, left plain
+const FEET_TOP = -1.03
+
+// shared by every character with the same pattern, filled once loaded
+const patternTextures = new Map<number, Texture>()
+const textureLoader = new TextureLoader()
+
+function patternTexture(pattern: number) {
+  let texture = patternTextures.get(pattern)
+  if (!texture) {
+    texture = textureLoader.load(patternUrl(pattern))
+    texture.wrapS = texture.wrapT = RepeatWrapping
+    patternTextures.set(pattern, texture)
+  }
+  return texture
+}
+
+// the UVs of the model don't fit a pattern: projected on the faces of the blocky body instead,
+// from the rest pose so it moves with the skeleton
+function applyPattern(material: MeshStandardMaterial, pattern: number, color: ColorRepresentation) {
+  const uniforms = {
+    patternMap: { value: patternTexture(pattern) },
+    patternColor: { value: new Color(color) },
+  }
+
+  material.customProgramCacheKey = () => 'pattern'
+  material.onBeforeCompile = shader => {
+    Object.assign(shader.uniforms, uniforms)
+
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        '#include <common>',
+        /* glsl */ `#include <common>
+        varying vec3 vPatternPosition;`,
+      )
+      .replace(
+        '#include <begin_vertex>',
+        /* glsl */ `#include <begin_vertex>
+        vPatternPosition = position / ${HALF_SIZE};`,
+      )
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        '#include <common>',
+        /* glsl */ `#include <common>
+        uniform sampler2D patternMap;
+        uniform vec3 patternColor;
+        varying vec3 vPatternPosition;`,
+      )
+      .replace(
+        '#include <color_fragment>',
+        /* glsl */ `#include <color_fragment>
+        // projected from the center on the cube: the faces meet exactly on its edges,
+        // also across the rounded ones
+        vec3 p = vPatternPosition;
+        vec3 q = p / max(max(abs(p.x), abs(p.y)), abs(p.z));
+
+        // around the body: the distance along its outline from the middle of the front, rightward
+        float around = abs(q.x) >= abs(q.y)
+          ? sign(q.x) * (2.0 + q.y)
+          : q.y < 0.0 ? q.x : sign(q.x) * 4.0 - q.x;
+        vec2 uv = vec2(around, q.z);
+        // the top and the bottom go on from the front, their other edges can't all match
+        if (abs(q.z) >= max(abs(q.x), abs(q.y))) uv = vec2(q.x, sign(q.z) * (2.0 + q.y));
+
+        // the texture coordinates jump where they can't match (the middle of the back, the edges
+        // of the top), the gradients for the mipmaps are taken from the position instead
+        vec2 uvDx = vec2(length(dFdx(p)), 0.0);
+        vec2 uvDy = vec2(0.0, length(dFdy(p)));
+        float patternMask = textureGrad(patternMap, uv, uvDx, uvDy).r;
+        patternMask *= step(${FEET_TOP}, p.z);
+        diffuseColor.rgb = mix(diffuseColor.rgb, patternColor, patternMask);`,
+      )
+  }
+}
+
 export function BlockCharacter({
   color = 'white',
+  pattern,
+  patternColor = 'white',
   animate,
   action = 'Armature|Walk',
   ...props
@@ -50,8 +146,9 @@ export function BlockCharacter({
   const bodyMaterial = useMemo(() => {
     const bodyMaterial = materials.body.clone()
     bodyMaterial.color.set(color)
+    if (pattern) applyPattern(bodyMaterial, pattern, patternColor)
     return bodyMaterial
-  }, [materials, color])
+  }, [materials, color, pattern, patternColor])
 
   useEffect(() => () => bodyMaterial.dispose(), [bodyMaterial])
 

@@ -27,7 +27,13 @@ export function Players() {
         // @ts-ignore
         <a.group scale={spring.scale} position={spring.position}>
           <Float floatIntensity={2} rotationIntensity={2}>
-            <Player username={player.username} color={player.color} showUsername={!practice} />
+            <Player
+              username={player.username}
+              color={player.color}
+              pattern={player.pattern}
+              patternColor={player.patternColor}
+              showUsername={!practice}
+            />
           </Float>
         </a.group>
       ))}

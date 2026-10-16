@@ -22,11 +22,18 @@ export interface LobbySchema {
   countdown: number
 }
 
+// how the character of a player looks
+export interface CharacterLookSchema {
+  color: string
+  // none: a plain body
+  pattern?: number
+  patternColor?: string
+}
+
 // from the Playroom profile of the player
-export interface PlayerProfileSchema {
+export interface PlayerProfileSchema extends CharacterLookSchema {
   id: string
   username: string
-  color: string
 }
 
 export interface PlayerSchema extends PlayerProfileSchema {

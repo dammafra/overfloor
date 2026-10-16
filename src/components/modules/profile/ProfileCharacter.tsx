@@ -1,6 +1,6 @@
 import { Player } from '@components'
 import { a, useSpring } from '@react-spring/three'
-import { Float } from '@react-three/drei'
+import { Float, PresentationControls } from '@react-three/drei'
 import { selectProfileColor, useProfile } from '@stores'
 import { MathUtils } from 'three'
 
@@ -8,6 +8,8 @@ import { MathUtils } from 'three'
 // bigger in the middle of the tile once open
 export function ProfileCharacter({ open }: { open: boolean }) {
   const color = useProfile(selectProfileColor)
+  const pattern = useProfile(s => s.pattern)
+  const patternColor = useProfile(s => s.patternColor)
 
   const spring = useSpring({
     // above the label when closed
@@ -25,7 +27,26 @@ export function ProfileCharacter({ open }: { open: boolean }) {
         scale={spring.scale}
       >
         <Float floatIntensity={2} rotationIntensity={1}>
-          <Player position-y={-0.4} rotation-y={-0.4} scale={1.25} color={color} />
+          {/* turned in every direction by dragging anywhere, back to the front once closed.
+              Listening on the body: the profile page covers the canvas */}
+          <PresentationControls
+            key={String(open)}
+            enabled={open}
+            global
+            domElement={document.body}
+            cursor={false}
+            speed={2}
+            polar={[-Infinity, Infinity]}
+          >
+            <Player
+              position-y={-0.4}
+              rotation-y={-0.4}
+              scale={1.25}
+              color={color}
+              pattern={pattern}
+              patternColor={patternColor}
+            />
+          </PresentationControls>
         </Float>
       </a.group>
     </group>

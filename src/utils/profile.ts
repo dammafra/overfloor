@@ -1,11 +1,30 @@
+import type { CharacterLookSchema } from '@schema'
 import { Color } from 'three'
 
 const USERNAME_KEY = 'overfloor-username'
 const COLOR_KEY = 'overfloor-color'
+const PATTERN_KEY = 'overfloor-pattern'
+const PATTERN_COLOR_KEY = 'overfloor-pattern-color'
 export const USERNAME_MAX_LENGTH = 12
+
+// in `public/patterns`, numbered from 1: black and white tileable masks, white in the pattern color
+export const PATTERNS_COUNT = 84
+const DEFAULT_PATTERN_COLOR = '#ffffff'
 
 // the color input works with hex colors only
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
+
+export function patternUrl(pattern: number) {
+  return `/patterns/pattern_${String(pattern).padStart(2, '0')}.png`
+}
+
+export function isPattern(pattern: unknown): pattern is number {
+  return Number.isInteger(pattern) && Number(pattern) >= 1 && Number(pattern) <= PATTERNS_COUNT
+}
+
+export function isHexColor(color: unknown): color is string {
+  return typeof color === 'string' && HEX_COLOR.test(color)
+}
 
 export function getStoredUsername() {
   return localStorage.getItem(USERNAME_KEY) ?? ''
@@ -14,18 +33,46 @@ export function getStoredUsername() {
 // none until picked in the profile: the color follows the username
 export function getStoredColor() {
   const color = localStorage.getItem(COLOR_KEY)
-  return color && HEX_COLOR.test(color) ? color : undefined
+  return isHexColor(color) ? color : undefined
 }
 
-export function saveProfile({ username, color }: { username: string; color?: string }) {
+// none until picked in the profile: a plain body
+export function getStoredPattern() {
+  const pattern = Number(localStorage.getItem(PATTERN_KEY))
+  return isPattern(pattern) ? pattern : undefined
+}
+
+export function getStoredPatternColor() {
+  const color = localStorage.getItem(PATTERN_COLOR_KEY)
+  return isHexColor(color) ? color : DEFAULT_PATTERN_COLOR
+}
+
+type StoredProfile = {
+  username: string
+  color?: string
+  pattern?: number
+  patternColor: string
+}
+
+export function saveProfile({ username, color, pattern, patternColor }: StoredProfile) {
   localStorage.setItem(USERNAME_KEY, username)
-  if (color) localStorage.setItem(COLOR_KEY, color)
-  else localStorage.removeItem(COLOR_KEY)
+  setOrRemove(COLOR_KEY, color)
+  setOrRemove(PATTERN_KEY, pattern?.toString())
+  localStorage.setItem(PATTERN_COLOR_KEY, patternColor)
 }
 
-// the picked one, the default one of the username otherwise
-export function getProfileColor(username: string) {
-  return getStoredColor() ?? usernameColor(username)
+function setOrRemove(key: string, value?: string) {
+  if (value) localStorage.setItem(key, value)
+  else localStorage.removeItem(key)
+}
+
+// the stored look, the default color of the username if none picked
+export function getProfileLook(username: string): CharacterLookSchema {
+  return {
+    color: getStoredColor() ?? usernameColor(username),
+    pattern: getStoredPattern(),
+    patternColor: getStoredPatternColor(),
+  }
 }
 
 // default color of a player, from its username

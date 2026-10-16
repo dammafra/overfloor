@@ -34,8 +34,13 @@ export function Credits() {
       </p>
       <p>
         <a href="https://kenney.nl/assets/cursor-pack" target="_blank">
-          Cursor Pack
-        </a>
+          Cursor
+        </a>{' '}
+        and{' '}
+        <a href="https://kenney.nl/assets/pattern-pack" target="_blank">
+          Pattern
+        </a>{' '}
+        Packs
         <br /> by Kenney
       </p>
       <Link href="/" className="button danger mt-4">
