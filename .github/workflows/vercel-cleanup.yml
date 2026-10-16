@@ -1,0 +1,23 @@
+name: Cleanup old Vercel deployments
+
+on: deployment_status
+
+jobs:
+  cleanup:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      KEEP: 3
+    steps:
+      - name: Delete production deployments beyond the latest ${{ env.KEEP }}
+        run: |
+          curl -sf -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?projectId=$PROJECT_ID&target=production&state=READY&limit=100" \
+          | jq -r --argjson keep "$KEEP" '.deployments | sort_by(.created) | reverse | .[$keep:] | .[].uid' \
+          | while read -r id; do
+              echo "Deleting $id"
+              curl -sf -X DELETE -H "Authorization: Bearer $VERCEL_TOKEN" \
+                "https://api.vercel.com/v13/deployments/$id"
+            done
