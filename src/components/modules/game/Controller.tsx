@@ -10,6 +10,9 @@ type Key = 'up' | 'down' | 'left' | 'right'
 
 const IDLE_KEYS: Record<Key, boolean> = { up: false, down: false, left: false, right: false }
 
+// joystick angle step: 64 directions, so small moves repeat the same state and aren't sent
+const ANGLE_STEP = Math.PI / 32
+
 /**
  * The input is the direction as a y-axis angle, 0 toward the camera (+z) and π/2 to the right (+x)
  * (see `PLAYER.joystick` and `PLAYER.angle`): analog from the joystick, 8 directions from the keys.
@@ -86,7 +89,7 @@ export function Controller({ children }: PropsWithChildren) {
               if (data.force < 0.2) return
 
               // screen angle, 0 to the right and π/2 up (away from the camera, -z)
-              const angle = data.angle.radian
+              const angle = Math.round(data.angle.radian / ANGLE_STEP) * ANGLE_STEP
               sendInput(Math.cos(angle), -Math.sin(angle), true)
             }}
             onEnd={() => sendInput(0, 0)}
