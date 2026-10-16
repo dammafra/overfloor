@@ -1,14 +1,13 @@
+import { isTouchDevice, TOUCH_QUERY } from '@utils'
 import { useSyncExternalStore } from 'react'
 
-const QUERY = '(pointer: coarse)'
-
 function subscribe(callback: () => void) {
-  const mediaQuery = window.matchMedia(QUERY)
+  const mediaQuery = window.matchMedia(TOUCH_QUERY)
   mediaQuery.addEventListener('change', callback)
   return () => mediaQuery.removeEventListener('change', callback)
 }
 
-const getSnapshot = () => window.matchMedia(QUERY).matches
+const getSnapshot = isTouchDevice
 const getServerSnapshot = () => false
 
 export function useIsTouch() {

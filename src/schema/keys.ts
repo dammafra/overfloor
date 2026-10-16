@@ -11,6 +11,8 @@ export const STATE = {
   players: 'players',
   leaderboard: 'leaderboard',
   loop: 'loop',
+  // bumped by the host, every player answers it: the ones not answering are gone
+  rollCall: 'rollCall',
 } as const
 
 // Per-player state, written by each player on its own state (except `body`, written by the host)
@@ -24,6 +26,8 @@ export const PLAYER = {
   joystick: 'ctr-joystick',
   angle: 'ctr-angle',
   body: 'body',
+  // last `STATE.rollCall` answered
+  rollCall: 'rollCall',
 } as const
 
 export const RPC_EVENTS = {

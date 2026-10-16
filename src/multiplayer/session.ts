@@ -5,21 +5,21 @@ import {
   STATE,
   type CharacterLookSchema,
   type GameConfigSchema,
+  type LobbySchema,
   type PlayerProfileSchema,
 } from '@schema'
 import { initialRoomState, useNotification, useRoomState, type RoomState } from '@stores'
+import { isTouchDevice } from '@utils'
 import {
   getState,
   insertCoin,
   isHost,
   Multiplayer,
   myPlayer,
-  onPlayerJoin,
   RPC,
   setState,
   transferHost,
   type InitOptions,
-  type PlayerState,
 } from 'playroomkit'
 import { useSyncExternalStore } from 'react'
 import { navigate } from 'wouter/use-browser-location'
@@ -35,14 +35,15 @@ interface Session {
   connection: Promise<void>
   connected: boolean
   host?: Host
-  players: Map<string, PlayerState>
+  // ids of the players known at the last tick
+  playerIds: Set<string>
   // own player state, set again when a host sync overwrites it (e.g. the host lost it on a reconnection)
   myState: Record<string, unknown>
   // profiles of the players waiting in the lobby, latest first
   lobbyPlayers: PlayerProfileSchema[]
   // Playroom listeners outlive `Multiplayer.reset`: they subscribe again on every `insertCoin`
   unsubscribes: (() => void)[]
-  electInterval?: number
+  tickInterval?: number
   // Playroom mounts its own (hidden, with `skipLobby`) React root in the body
   playroomRoot?: Element
 }
@@ -50,6 +51,13 @@ interface Session {
 const PLAYROOM_PLAYER_ID_KEY = 'myId'
 const PLAYROOM_ROOM_HASH_KEY = 'r'
 const NO_PLAYERS: PlayerProfileSchema[] = []
+const TICK_INTERVAL = 250 //ms
+// host syncs in a row (one every 3s) without this player before it joins again
+const MISSING_SYNCS = 2
+// closing the socket with a code Playroom does not handle makes it reconnect, i.e. join again with the same id
+const REJOIN_CODE = 3000
+// how long a hidden host keeps the room
+const HAND_OVER_DELAY = { lobby: 5000, game: 1000 } //ms
 
 const ERRORS: Record<string, string> = {
   ROOM_LIMIT_EXCEEDED: 'Room is full',
@@ -70,7 +78,7 @@ export function connect({ roomCode, username, practice, countdown, ...look }: Co
   const current: Session = {
     connection: Promise.resolve(),
     connected: false,
-    players: new Map(),
+    playerIds: new Set(),
     myState: {},
     lobbyPlayers: NO_PLAYERS,
     unsubscribes: [],
@@ -103,6 +111,7 @@ export function connect({ roomCode, username, practice, countdown, ...look }: Co
       if (session !== current) return teardown(current)
 
       syncRoomState(current)
+      watchMyPlayer(current)
       setMyState(PLAYER.profile, {
         ...myPlayer().getState(PLAYER.profile),
         name: username,
@@ -116,39 +125,23 @@ export function connect({ roomCode, username, practice, countdown, ...look }: Co
         setState(STATE.stage, 'lobby', true)
       }
 
-      const unsubscribeJoin = onPlayerJoin(player => {
-        current.players.set(player.id, player)
-        current.host?.onPlayerJoin(player)
-        updateLobbyPlayers(current)
-
-        const unsubscribeState = player.on('state', (key, value) => {
-          if (player.id === myPlayer()?.id) restoreMyState(current, key, value)
-          if (key === PLAYER.profile || key === PLAYER.inLobby) updateLobbyPlayers(current)
-        })
-
-        player.onQuit(() => {
-          unsubscribeState()
-          // a player reconnecting with the same id may have joined again already
-          if (current.players.get(player.id) === player) current.players.delete(player.id)
-          current.host?.onPlayerQuit(player)
-          updateLobbyPlayers(current)
-        })
-      })
-
       const unsubscribeStart = RPC.register(RPC_EVENTS.start, async () => current.host?.start())
 
+      let handOver: number | undefined
       const onVisibilityChange = () => {
         setMyState(PLAYER.away, document.hidden)
-        if (document.hidden) handOverHost(current)
+        clearTimeout(handOver)
+        if (document.hidden) handOver = window.setTimeout(() => handOverHost(current), handOverDelay()) //oxfmt-ignore
       }
       document.addEventListener('visibilitychange', onVisibilityChange)
 
-      current.unsubscribes.push(unsubscribeJoin, unsubscribeStart, () =>
-        document.removeEventListener('visibilitychange', onVisibilityChange),
-      )
+      current.unsubscribes.push(unsubscribeStart, () => {
+        clearTimeout(handOver)
+        document.removeEventListener('visibilitychange', onVisibilityChange)
+      })
 
-      electHost(current)
-      current.electInterval = window.setInterval(() => electHost(current), 250)
+      tick(current)
+      current.tickInterval = window.setInterval(() => tick(current), TICK_INTERVAL)
     })
 
   current.connection.catch(() => {}) // handled by the error callback
@@ -215,12 +208,12 @@ function fail(current: Session, message: string) {
  * so `insertCoin` can join another room without reloading the page.
  */
 function teardown(current: Session) {
-  clearInterval(current.electInterval)
+  clearInterval(current.tickInterval)
   current.unsubscribes.forEach(unsubscribe => unsubscribe())
   current.unsubscribes = []
   current.host?.dispose()
   current.host = undefined
-  current.players.clear()
+  current.playerIds.clear()
   current.lobbyPlayers = NO_PLAYERS
   notify()
 
@@ -263,16 +256,69 @@ function syncRoomState(current: Session) {
   current.unsubscribes.push(unsubscribe)
 }
 
+// Keeps this player in the room, whatever the host lost
+function watchMyPlayer(current: Session) {
+  const me = myPlayer()
+  const connection = Multiplayer().connection!
+
+  const unsubscribeState = me.on('state', (key, value) => restoreMyState(current, key, value))
+
+  // the host drops the players not answering its roll calls
+  const answerRollCall = () => {
+    if (!isHost()) me.setState(PLAYER.rollCall, getState(STATE.rollCall), true)
+  }
+  const unsubscribeRollCall = Multiplayer().on('state', (_, key) => {
+    if (key === STATE.rollCall) answerRollCall()
+  })
+  answerRollCall()
+
+  // Playroom loses the join of a player while the host changes (or the host dropped it): the host never syncs it
+  let missingSyncs = 0
+  const unsubscribeSync = connection.on('sync', sync => {
+    const known = isHost() || !!sync.__players?.[me.id] || !!sync.waitingPlayers?.includes(me.id)
+    missingSyncs = known ? 0 : missingSyncs + 1
+    if (missingSyncs < MISSING_SYNCS) return
+
+    missingSyncs = 0
+    connection.ws?.close(REJOIN_CODE)
+  })
+
+  current.unsubscribes.push(unsubscribeState, unsubscribeRollCall, unsubscribeSync)
+}
+
+// the players known to this client, read from Playroom: a player quitting before its profile arrives never fires `onQuit`
+function roster() {
+  return Object.values(Multiplayer().connection?.playerStates ?? {})
+}
+
+function tick(current: Session) {
+  electHost(current)
+
+  // joins and quits since the last tick
+  const players = roster()
+  const ids = new Set(players.map(p => p.id))
+  current.playerIds.forEach(id => !ids.has(id) && current.host?.onPlayerQuit(id))
+  players.forEach(p => !current.playerIds.has(p.id) && current.host?.onPlayerJoin(p))
+  current.playerIds = ids
+
+  current.host?.refreshLobby()
+  updateLobbyPlayers(current)
+}
+
+// the players counted by the host, so that everyone sees the same lobby
 function updateLobbyPlayers(current: Session) {
-  const players = [...current.players.values()]
-    .filter(p => p.getState(PLAYER.inLobby))
+  const lobby: LobbySchema | undefined = getState(STATE.lobby)
+  const players = new Map(roster().map(p => [p.id, p]))
+  const profiles = (lobby?.players ?? [])
+    .map(id => players.get(id))
+    .filter(p => !!p)
     .map(playerProfile)
     .filter(p => !!p.username)
     .reverse()
 
-  if (JSON.stringify(players) === JSON.stringify(current.lobbyPlayers)) return
+  if (JSON.stringify(profiles) === JSON.stringify(current.lobbyPlayers)) return
 
-  current.lobbyPlayers = players
+  current.lobbyPlayers = profiles
   notify()
 }
 
@@ -283,13 +329,22 @@ function restoreMyState(current: Session, key: string, value: unknown) {
   })
 }
 
+// Every host change can lose a join or a quit: a hidden host keeps the room for a while, in case it comes back
+function handOverDelay() {
+  // a hidden mobile page is suspended, its timers do not run
+  if (isTouchDevice()) return 0
+  // the host simulates the match on animation frames, which stop on a hidden page
+  return getState(STATE.stage) === 'game' ? HAND_OVER_DELAY.game : HAND_OVER_DELAY.lobby
+}
+
 // A hidden page throttles its timers (on mobile it is suspended): the host hands the room over to a visible player
 function handOverHost(current: Session) {
-  if (!current.host) return
+  const { host } = current
+  if (!host) return
 
   // the bots never set `away`
   const me = myPlayer()?.id
-  const next = [...current.players.values()].find(p => p.id !== me && p.getState(PLAYER.away) === false) //oxfmt-ignore
+  const next = roster().find(p => p.id !== me && p.getState(PLAYER.away) === false && host.isResponsive(p.id)) //oxfmt-ignore
   if (!next) return
 
   transferHost(next.id)
@@ -300,7 +355,7 @@ function handOverHost(current: Session) {
 // Playroom migrates the host when it leaves, the new one takes over the room logic
 function electHost(current: Session) {
   if (isHost() && !current.host) {
-    current.host = new Host(() => [...current.players.values()])
+    current.host = new Host(roster)
   } else if (!isHost() && current.host) {
     current.host.dispose()
     current.host = undefined

@@ -1,5 +1,5 @@
 import { PLAYER, STATE, type GameConfigSchema, type GameStage, type LobbySchema } from '@schema'
-import { getState, setState, waitForPlayerState, type PlayerState } from 'playroomkit'
+import { getState, myPlayer, setState, waitForPlayerState, type PlayerState } from 'playroomkit'
 import { GameHost } from './game-host'
 import { PracticeBot } from './practice-bot'
 import { playerProfile } from './player'
@@ -13,16 +13,23 @@ export const PRACTICE_BOTS = 3
 const COUNTDOWN_START = 60
 const COUNTDOWN_END = 4
 const BOT_THINK_INTERVAL = 100 //ms
+const ROLL_CALL_INTERVAL = 500 //ms
+// roll calls missed in a row before a player is dropped (~2s)
+const ROLL_CALL_MISSES = 3
 
 export class Host {
   readonly #players: () => PlayerState[]
   readonly #practice: boolean
   readonly #minPlayers: number
   readonly #countdownStart: number
-  #interval: number
+  #lobbyInterval: number
+  #rollCallInterval: number
   #game?: GameHost
   #bots: PracticeBot[] = []
   #botInterval?: number
+  #rollCall: number
+  // roll calls missed in a row by each player
+  #missed = new Map<string, number>()
 
   constructor(players: () => PlayerState[]) {
     this.#players = players
@@ -33,16 +40,21 @@ export class Host {
     this.#minPlayers = this.#practice ? 1 + PRACTICE_BOTS : MIN_PLAYERS
     this.#countdownStart = this.#practice ? COUNTDOWN_END : config.countdown || COUNTDOWN_START
 
+    // a new host carries on the roll call of the previous one
+    this.#rollCall = getState(STATE.rollCall) ?? 0
+
     if (!getState(STATE.lobby)) this.#setLobby(false, this.#countdownStart)
     if (getState(STATE.stage) === 'game') this.#game = GameHost.resume(this.#practice)
 
     if (this.#practice) this.#addBots()
 
-    this.#interval = window.setInterval(() => this.#lobbyTick(), 1000)
+    this.#lobbyInterval = window.setInterval(() => this.#updateLobby(true), 1000)
+    this.#rollCallInterval = window.setInterval(() => this.#callRoll(), ROLL_CALL_INTERVAL)
   }
 
   dispose() {
-    clearInterval(this.#interval)
+    clearInterval(this.#lobbyInterval)
+    clearInterval(this.#rollCallInterval)
     clearInterval(this.#botInterval)
     this.#game?.dispose()
   }
@@ -58,8 +70,8 @@ export class Host {
     if (duplicated) player.kick()
   }
 
-  onPlayerQuit(player: PlayerState) {
-    this.#game?.quit(player.id)
+  onPlayerQuit(id: string) {
+    this.#game?.quit(id)
   }
 
   onPlayerFell(id: string) {
@@ -71,6 +83,16 @@ export class Host {
   start() {
     const lobby: LobbySchema | undefined = getState(STATE.lobby)
     if (lobby?.canStart) this.#startMatch()
+  }
+
+  // publishes the lobby players right away, without waiting for the next countdown tick
+  refreshLobby() {
+    this.#updateLobby(false)
+  }
+
+  // answered the last roll call: still connected
+  isResponsive(id: string) {
+    return this.#missed.get(id) === 0
   }
 
   #addBots() {
@@ -93,7 +115,30 @@ export class Host {
     return this.#players().filter(p => p.getState(PLAYER.inLobby))
   }
 
-  #lobbyTick() {
+  /**
+   * Playroom loses the quit of a player while the host changes: the player would stay in the room forever.
+   * A player missing too many roll calls is gone: dropped here, the next sync drops it everywhere.
+   * One still connected (e.g. its page was suspended) finds itself missing from the syncs and joins again.
+   */
+  #callRoll() {
+    const me = myPlayer()?.id
+    const missed = new Map<string, number>()
+
+    this.#players().forEach(player => {
+      // the bots run on this client
+      if (player.id === me || player.getState('__proxyBy')) return
+
+      const count = player.getState(PLAYER.rollCall) === this.#rollCall ? 0 : (this.#missed.get(player.id) ?? 0) + 1 //oxfmt-ignore
+      if (count > ROLL_CALL_MISSES) player.disconnect()
+      else missed.set(player.id, count)
+    })
+
+    this.#missed = missed
+    setState(STATE.rollCall, ++this.#rollCall, true)
+  }
+
+  // `tick`: a second of the countdown elapsed
+  #updateLobby(tick: boolean) {
     const stage: GameStage | undefined = getState(STATE.stage)
     if (stage === 'game') return
 
@@ -102,14 +147,14 @@ export class Host {
     let countdown = lobby?.countdown ?? this.#countdownStart
 
     if (!canStart) countdown = this.#countdownStart
-    else if (countdown > COUNTDOWN_END) countdown--
-    else return this.#startMatch()
+    else if (tick && countdown > COUNTDOWN_END) countdown--
+    else if (tick) return this.#startMatch()
 
     this.#setLobby(canStart, countdown)
   }
 
   #setLobby(canStart: boolean, countdown: number) {
-    const lobby: LobbySchema = { canStart, countdown }
+    const lobby: LobbySchema = { canStart, countdown, players: this.#lobbyPlayers().map(p => p.id) }
     setState(STATE.lobby, lobby, true)
   }
 

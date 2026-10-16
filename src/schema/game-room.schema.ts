@@ -20,6 +20,8 @@ export interface GameConfigSchema {
 export interface LobbySchema {
   canStart: boolean
   countdown: number
+  // ids of the players in the lobby counted by the host, in join order
+  players: string[]
 }
 
 // how the character of a player looks

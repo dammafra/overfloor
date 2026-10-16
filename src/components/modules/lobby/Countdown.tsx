@@ -1,12 +1,11 @@
 import { Environment } from '@components'
 import { ButtonTile, TileLabel } from '@components/modules/tiles'
 import { useIsTouch, useSpin } from '@hooks'
-import { requestStart } from '@multiplayer'
+import { requestStart, useIsHost } from '@multiplayer'
 import { useSpring } from '@react-spring/three'
 import { Hud, PerspectiveCamera } from '@react-three/drei'
 import { useRoomState } from '@stores'
 import { COLORS } from '@utils'
-import { useIsHost } from 'playroomkit'
 import { MathUtils } from 'three'
 
 const LABEL_ROTATION: [number, number, number] = [

@@ -1,3 +1,8 @@
+export const TOUCH_QUERY = '(pointer: coarse)'
+
+// a touch screen as the main input, e.g. a phone
+export const isTouchDevice = () => window.matchMedia(TOUCH_QUERY).matches
+
 export interface SafeInputOptions {
   maxLength?: number
   uppercase?: boolean
