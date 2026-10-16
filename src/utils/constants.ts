@@ -19,7 +19,7 @@ export const ROUTES = {
   room: '/room/:id?',
   credits: '/credits',
   howToPlay: '/tutorial',
-  profile: '/profile',
+  profile: '/profile/:room?',
   lobby: '/lobby/:options',
   game: '/game',
 } as const

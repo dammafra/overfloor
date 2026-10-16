@@ -1,6 +1,7 @@
 import { Canvas, Helpers } from '@components/helpers'
 import { Game } from '@components/modules/game'
 import { Lobby } from '@components/modules/lobby'
+import { ProfileCharacter } from '@components/modules/profile'
 import { UI } from '@components/modules/ui'
 import { useDebug, useIsTouch } from '@hooks'
 import { CameraControls } from '@react-three/drei'
@@ -43,6 +44,7 @@ export function Experience() {
 
       <Physics {...physicsControls}>
         <Route path={ROUTES.home} nest component={UI} />
+        <Route path={ROUTES.profile} component={ProfileCharacter} />
         <Route path={ROUTES.lobby} component={Lobby} />
         <Route path={ROUTES.game} component={Game} />
         <Helpers />

@@ -12,6 +12,6 @@ export function useModalRoute() {
 
 // options of the current lobby route, undefined if missing or malformed
 export function useLobbyOptions() {
-  const { options } = useParams<{ options?: string }>()
+  const { options } = useParams()
   return decodeLobbyOptions(options)
 }

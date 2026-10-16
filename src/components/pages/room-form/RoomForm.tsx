@@ -1,37 +1,40 @@
 import { useFadeIn, useIsTouch, useSafeInput } from '@hooks'
 import { a } from '@react-spring/web'
-import { getStoredUsername, lobbyPath, ROOM_CODE_LENGTH } from '@utils'
+import { getStoredUsername, lobbyPath, ROOM_CODE_LENGTH, sanitizeInput } from '@utils'
+import clsx from 'clsx'
 import { useState, type SubmitEventHandler } from 'react'
 import { v4 as uuid } from 'uuid'
 import { Link, Redirect, useLocation, useParams } from 'wouter'
 import { RoomCodeField } from './RoomCodeField'
 
-// Playroom creates the room if no one is in it yet, so creating and joining share the same form
+// Uppercase like Playroom's codes: every typed or shared code goes through it
+const ROOM_CODE_INPUT = { maxLength: ROOM_CODE_LENGTH, uppercase: true }
+
+// creating and joining a room as separate actions, a shared link joining its room right away
 export function RoomForm() {
   const params = useParams()
   const [username] = useState(getStoredUsername)
+  const id = sanitizeInput(params.id ?? '', ROOM_CODE_INPUT) || undefined
 
-  // the profile is set up first, then back here with the same room
-  if (!username) return <Redirect to={profilePath(params.id)} replace />
+  // the profile is set up first, then on to the lobby (of the shared room, if any)
+  if (!username) return <Redirect to={id ? `/profile/${id}` : '/profile'} replace />
+  if (id) return <Redirect to={lobbyPath({ id, username })} replace />
 
-  return <RoomFormContent id={params.id} username={username} />
+  return <RoomFormContent username={username} />
 }
 
-function profilePath(id?: string) {
-  return id ? `/profile?${new URLSearchParams({ room: id })}` : '/profile'
-}
-
-function RoomFormContent({ id: initialId, username }: { id?: string; username: string }) {
+function RoomFormContent({ username }: { username: string }) {
   const [, navigate] = useLocation()
   const isTouch = useIsTouch()
 
-  // without a code, Playroom creates a new room.
-  // Uppercase like Playroom's codes: every typed or shared code goes through here
-  const [id, setId] = useSafeInput(initialId, { maxLength: ROOM_CODE_LENGTH, uppercase: true })
+  const [id, setId] = useSafeInput('', ROOM_CODE_INPUT)
 
-  const onSubmit: SubmitEventHandler = e => {
+  // without a code, Playroom creates a new room
+  const create = () => navigate(lobbyPath({ username }))
+
+  const join: SubmitEventHandler = e => {
     e.preventDefault()
-    navigate(lobbyPath({ id: id || undefined, username }))
+    if (id) navigate(lobbyPath({ id, username }))
   }
 
   // single player room, nobody else can join it
@@ -42,18 +45,24 @@ function RoomFormContent({ id: initialId, username }: { id?: string; username: s
   return (
     <a.div className="page" style={{ opacity }}>
       <div className="flex w-full max-w-110 flex-col gap-4">
-        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+        <button type="button" className="button success h-10 w-full" onClick={create}>
+          create room
+        </button>
+
+        <Or />
+
+        <form className="flex flex-col gap-4" onSubmit={join}>
           <RoomCodeField value={id} onChange={setId} autoFocus={!isTouch} />
-          <button type="submit" className="button success h-10 w-full">
-            {id ? 'join' : 'create'} room
+          <button
+            type="submit"
+            className={clsx('button success h-10 w-full', { disabled: !id })}
+            disabled={!id}
+          >
+            join room
           </button>
         </form>
 
-        <div className="flex items-center gap-2 text-white text-stroke-black">
-          <hr className="flex-1 border-white/40" />
-          or
-          <hr className="flex-1 border-white/40" />
-        </div>
+        <Or />
 
         <div className="flex gap-4">
           <Link href="/" className="button danger">
@@ -65,5 +74,15 @@ function RoomFormContent({ id: initialId, username }: { id?: string; username: s
         </div>
       </div>
     </a.div>
+  )
+}
+
+function Or() {
+  return (
+    <div className="flex items-center gap-2 text-white text-stroke-black">
+      <hr className="flex-1 border-white/40" />
+      or
+      <hr className="flex-1 border-white/40" />
+    </div>
   )
 }

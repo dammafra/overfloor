@@ -54,7 +54,6 @@ export function RoomCodeField({ value, onChange, autoFocus }: RoomCodeFieldProps
               id="room-code"
               icon="icon-[mdi--gamepad-variant]"
               label="room code"
-              placeholder="empty for new room"
               autoComplete="off"
               autoFocus={autoFocus}
               value={value}
