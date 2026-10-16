@@ -14,7 +14,7 @@ interface RoomCodeFieldProps {
 }
 
 /**
- * Room code input, swapped with the recent rooms through the history button on its right,
+ * Room code input, swapped with the recent rooms through the history button on its left,
  * which takes its space from them.
  * The input and the slots overlap while swapping, the slots popping one at a time.
  */
@@ -35,6 +35,17 @@ export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
 
   return (
     <div className="flex items-center gap-3">
+      {recentRooms.length > 0 && (
+        <button
+          type="button"
+          className="button icon"
+          aria-label={history ? 'close recent rooms' : 'recent rooms'}
+          onClick={() => setHistory(!history)}
+        >
+          <span className={history ? 'icon-[mdi--close]' : 'icon-[mdi--history]'} />
+        </button>
+      )}
+
       <div className="relative h-10 flex-1">
         {slots((spring, slot) =>
           slot === INPUT ? (
@@ -60,17 +71,6 @@ export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
           ),
         )}
       </div>
-
-      {recentRooms.length > 0 && (
-        <button
-          type="button"
-          className="button icon"
-          aria-label={history ? 'close recent rooms' : 'recent rooms'}
-          onClick={() => setHistory(!history)}
-        >
-          <span className={history ? 'icon-[mdi--close]' : 'icon-[mdi--history]'} />
-        </button>
-      )}
     </div>
   )
 }
