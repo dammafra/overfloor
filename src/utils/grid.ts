@@ -22,25 +22,22 @@ export function getGridCoordinates(width: number, height: number): [number, numb
   return coordinates
 }
 
-export function getPlayerInitialPosition(index: number, dimension: GridDimension): Vector3Tuple {
+// players spread over balanced rows, each row and the whole block centered on the grid
+export function getPlayersInitialPositions(count: number, dimension: GridDimension): Vector3Tuple[] {
   const spacingX = 2
-  const spacingY = 1.5
-  const rowSize = gridConfig[dimension].playersPerRow
-  const row = Math.floor(index / rowSize)
-  const positionInRow = index % rowSize
+  const spacingZ = 2.5
+  const y = 10
 
-  // zig-zag placement in x
-  let x = 0
-  if (positionInRow > 0) {
-    const n = Math.ceil(positionInRow / 2)
-    x = n * spacingX * (positionInRow % 2 === 1 ? -1 : 1)
+  const rows = Math.ceil(count / gridConfig[dimension].playersPerRow)
+  const positions: Vector3Tuple[] = []
+  for (let row = 0; row < rows; row++) {
+    // the first rows take the remainder, one more player each
+    const rowSize = Math.floor(count / rows) + (row < count % rows ? 1 : 0)
+    const z = (row - (rows - 1) / 2) * spacingZ
+    for (let i = 0; i < rowSize; i++) {
+      positions.push([(i - (rowSize - 1) / 2) * spacingX, y, z])
+    }
   }
 
-  // alternate forward/backward along z
-  const direction = row % 2 === 0 ? 1 : -1
-  const offset = row % 2 === 0 ? 0 : 1
-  const z = (row + offset) * spacingY * direction
-
-  const y = 10
-  return [x, y, z]
+  return positions
 }

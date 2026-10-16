@@ -241,7 +241,7 @@ export const gridConfig: Record<GridDimension, GridConfig> = {
     width: 11,
     height: 8,
     playersPerRow: 11,
-    maxPlayers: 55,
+    maxPlayers: 80,
     patterns: large,
     phaseDecrement: 10,
     shrink: { to: 'medium', afterLoops: 0, pattern: border(11, 8) },

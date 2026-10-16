@@ -6,7 +6,7 @@ import {
   type PlayerSchema,
   type TileSchema,
 } from '@schema'
-import { getGridCoordinates, getPlayerInitialPosition } from '@utils'
+import { getGridCoordinates, getPlayersInitialPositions } from '@utils'
 import { getState, setState } from 'playroomkit'
 import { v4 as uuid } from 'uuid'
 
@@ -54,17 +54,13 @@ export class GameState {
       disabled: false,
     }))
 
-    this.players = []
-    players.forEach(({ id, username }) => this.addPlayer(id, username))
-  }
-
-  addPlayer(id: string, username: string) {
-    this.players.push({
+    const positions = getPlayersInitialPositions(players.length, dimension)
+    this.players = players.map(({ id, username }, i) => ({
       id,
       username,
       spawn: uuid(),
-      position: getPlayerInitialPosition(this.players.length, this.dimension),
-    })
+      position: positions[i],
+    }))
   }
 
   removePlayer(id: string) {
