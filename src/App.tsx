@@ -1,6 +1,6 @@
 import { Experience, Notification } from '@components'
 import { DoubleTapPreventer, ErrorBoundary, GUI, ScrollResetter } from '@components/helpers'
-import { Credits, GameOverlay, LobbyOverlay, RoomForm } from '@components/pages'
+import { Credits, GameOverlay, HowToPlay, LobbyOverlay, RoomForm } from '@components/pages'
 import { useDebug } from '@hooks'
 import { hasSession, leave } from '@multiplayer'
 import { ROUTES } from '@utils'
@@ -30,6 +30,7 @@ export default function App() {
           <Route path={ROUTES.home} />
           <Route path={ROUTES.room} component={RoomForm} />
           <Route path={ROUTES.credits} component={Credits} />
+          <Route path={ROUTES.howToPlay} component={HowToPlay} />
           <Route path={ROUTES.lobby} component={LobbyOverlay} />
           <Route path={ROUTES.game} component={GameOverlay} />
           {!debug && (

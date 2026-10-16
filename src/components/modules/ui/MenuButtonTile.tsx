@@ -5,7 +5,7 @@ import type { MenuTileProps } from './MenuTile'
 
 type MenuButtonTileProps = Omit<MenuTileProps, 'type'>
 
-const BUTTONS = [PlayButton, CreditsButton]
+const BUTTONS = [PlayButton, CreditsButton, HowToPlayButton]
 
 export const MenuButtonTile = animatable(({ index, ...props }: MenuButtonTileProps) => {
   const Button = index === undefined ? undefined : BUTTONS.at(index)
@@ -42,10 +42,29 @@ function CreditsButton(props: ButtonTileProps) {
         fontSize: 0.13,
         lineHeight: 1.1,
         textAlign: 'left',
-        visible: !match,
       }}
     >
       made with ♥︎ by dammafra
+    </ModalTile>
+  )
+}
+
+function HowToPlayButton(props: ButtonTileProps) {
+  const [match] = useRoute(ROUTES.howToPlay)
+  const [, navigate] = useLocation()
+
+  return (
+    <ModalTile
+      {...props}
+      open={match}
+      onClick={() => navigate('/tutorial')}
+      labelProps={{
+        fontSize: 0.15,
+        lineHeight: 1.1,
+        maxWidth: 0.8,
+      }}
+    >
+      how to play❓
     </ModalTile>
   )
 }

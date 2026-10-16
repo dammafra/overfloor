@@ -40,7 +40,7 @@ export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
             id="room-code"
             icon="icon-[mdi--gamepad-variant]"
             label="room code"
-            placeholder="empty for a new room"
+            placeholder="empty for new room"
             autoComplete="off"
             value={value}
             onChange={e => onChange(e.target.value)}

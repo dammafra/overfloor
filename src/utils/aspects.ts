@@ -26,8 +26,10 @@ export const aspects = {
 
           const index0 = aspect > 1 ? center + 2 * size - 2 : center - 2 - 2 * size
           const index1 = aspect > 1 ? index0 - size : index0 + size
+          // top left of the start button, as seen by the menu camera
+          const index2 = index0 + 1
 
-          return [index0, index1]
+          return [index0, index1, index2]
         },
       },
       letter: {
