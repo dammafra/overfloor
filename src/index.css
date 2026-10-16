@@ -6,6 +6,8 @@
   src: url('/fonts/audiowide.ttf');
 }
 
+@custom-variant short (@media (orientation: landscape) and (max-height: 32rem));
+
 @utility font-audiowide {
   font-family: 'Audiowide';
 }

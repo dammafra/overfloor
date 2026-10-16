@@ -14,7 +14,8 @@ interface RoomCodeFieldProps {
 }
 
 /**
- * Room code input, swapped with the recent rooms through the history button on its right.
+ * Room code input, swapped with the recent rooms through the history button on its right,
+ * which takes its space from them.
  * The input and the slots overlap while swapping, the slots popping one at a time.
  */
 export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
@@ -33,35 +34,37 @@ export function RoomCodeField({ value, onChange }: RoomCodeFieldProps) {
   }
 
   return (
-    <div className="relative h-10">
-      {slots((spring, slot) =>
-        slot === INPUT ? (
-          <Field
-            id="room-code"
-            icon="icon-[mdi--gamepad-variant]"
-            label="room code"
-            placeholder="empty for new room"
-            autoComplete="off"
-            value={value}
-            onChange={e => onChange(e.target.value)}
-            className="absolute inset-0"
-            style={spring}
-          />
-        ) : (
-          <RecentRoom
-            key={slot}
-            slot={slot}
-            room={recentRooms[slot]}
-            style={spring}
-            onSelect={select}
-          />
-        ),
-      )}
+    <div className="flex items-center gap-3">
+      <div className="relative h-10 flex-1">
+        {slots((spring, slot) =>
+          slot === INPUT ? (
+            <Field
+              id="room-code"
+              icon="icon-[mdi--gamepad-variant]"
+              label="room code"
+              placeholder="empty for new room"
+              autoComplete="off"
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              className="absolute inset-0"
+              style={spring}
+            />
+          ) : (
+            <RecentRoom
+              key={slot}
+              slot={slot}
+              room={recentRooms[slot]}
+              style={spring}
+              onSelect={select}
+            />
+          ),
+        )}
+      </div>
 
       {recentRooms.length > 0 && (
         <button
           type="button"
-          className="button icon absolute top-1/2 left-full ml-4 -translate-y-1/2"
+          className="button icon"
           aria-label={history ? 'close recent rooms' : 'recent rooms'}
           onClick={() => setHistory(!history)}
         >

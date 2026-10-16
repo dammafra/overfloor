@@ -23,7 +23,10 @@ export function getGridCoordinates(width: number, height: number): [number, numb
 }
 
 // players spread over balanced rows, each row and the whole block centered on the grid
-export function getPlayersInitialPositions(count: number, dimension: GridDimension): Vector3Tuple[] {
+export function getPlayersInitialPositions(
+  count: number,
+  dimension: GridDimension,
+): Vector3Tuple[] {
   const spacingX = 2
   const spacingZ = 2.5
   const y = 10
