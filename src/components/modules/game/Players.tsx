@@ -5,10 +5,10 @@ import { useTransition } from '@react-spring/three'
 import { useFrame } from '@react-three/fiber'
 import { useBeforePhysicsStep, type RapierRigidBody } from '@react-three/rapier'
 import { PLAYER, type PlayerBodySchema, type PlayerSchema } from '@schema'
-import { useRoomState } from '@stores'
-import { animatable } from '@utils'
+import { useRoomState, useSoundBoard } from '@stores'
+import { animatable, getGridSize } from '@utils'
 import { myPlayer, usePlayersList, type PlayerState } from 'playroomkit'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Quaternion, Vector3, type Group, type Vector3Tuple } from 'three'
 import { PlayerBody } from './PlayerBody'
 
@@ -34,6 +34,16 @@ const SNAP_DISTANCE = 2
 // below the floor: falling
 const FALLING_HEIGHT = -1
 
+// on the tiles, not dropping on them nor falling: the steps are heard
+const GROUND_HEIGHT = 1.5
+// the steps of the other players, quieter than the own ones
+const OTHERS_VOLUME = 0.4
+// every step a bit different
+const STEP_VARIATION = 0.08
+
+// the players pop in and drop one after the other, each within this long
+const MAX_ENTER_DELAY = 600 //ms
+
 // the other players follow their published bodies this fast
 const FOLLOW_RATE = 15
 
@@ -58,14 +68,18 @@ export function Players() {
   useFrame(() => host && publishBodies())
 
   const transition = useTransition(players, {
-    keys: player => player.id,
+    // a respawn is a new entrance, delayed too
+    keys: player => `${player.id}-${player.spawn}`,
     from: { scale: 0 },
-    enter: { scale: 1 },
+    enter: () => ({ scale: 1, delay: Math.random() * MAX_ENTER_DELAY }),
     leave: { scale: 0 },
     config: { mass: 1, tension: 200, friction: 20 },
   })
 
   return transition((spring, player) => {
+    // the previous spawn of a respawned player: replaced right away, not shrinking
+    if (players.some(p => p.id === player.id && p.spawn !== player.spawn)) return null
+
     const state = participants.find(p => p.id === player.id)
     const mine = player.id === myPlayer()?.id
     const role: Role = host ? 'simulated' : mine ? 'predicted' : 'synced'
@@ -97,9 +111,12 @@ const ROLES = { simulated: SimulatedPlayer, predicted: PredictedPlayer, synced: 
 
 // the transition overrides the key of the elements it renders: the body is keyed here instead
 const MatchPlayer = animatable(({ role, ...props }: MatchPlayerProps & { role: Role }) => {
-  // a new body on (re)spawn, and when the role changes (e.g. after host migration)
+  // still waiting for the delayed entrance: no body to drop yet
+  if (props.scale === 0) return null
+
+  // a new body when the role changes (e.g. after host migration)
   const RolePlayer = ROLES[role]
-  return <RolePlayer key={`${props.player.spawn}-${role}`} {...props} />
+  return <RolePlayer key={role} {...props} />
 })
 
 // resume from the last published body (e.g. after host migration), from the spawn point otherwise
@@ -136,6 +153,43 @@ function useJoystick(state: PlayerState) {
   return { started, walking, characterRef }
 }
 
+// steps on the tiles and the landing on them, dropping from the spawn point, then the fall off
+// the grid. Placed left to right across it
+function usePlayerSounds(player: PlayerSchema, bodyRef: RefObject<RapierRigidBody | null>) {
+  const dimension = useRoomState(s => s.dimension)
+  // above the tiles at the last frame, unknown before the first one
+  const airborneRef = useRef<boolean>(undefined)
+  const fallenRef = useRef(false)
+
+  const onGround = (y: number) => y > 0 && y < GROUND_HEIGHT
+
+  const play = (name: 'step' | 'fall', x: number, rate?: number) =>
+    useSoundBoard.getState().play(name, {
+      pan: x / (getGridSize(dimension).x / 2 || 1),
+      volume: player.id === myPlayer()?.id ? 1 : OTHERS_VOLUME,
+      rate,
+    })
+  const step = (x: number) => play('step', x, 1 + (Math.random() * 2 - 1) * STEP_VARIATION)
+
+  useFrame(() => {
+    const position = bodyRef.current?.translation()
+    if (!position) return
+
+    if (airborneRef.current && onGround(position.y)) step(position.x)
+    airborneRef.current = position.y >= GROUND_HEIGHT
+
+    if (!fallenRef.current && position.y < FALLING_HEIGHT) {
+      fallenRef.current = true
+      play('fall', position.x)
+    }
+  })
+
+  return () => {
+    const position = bodyRef.current?.translation()
+    if (position && onGround(position.y)) step(position.x)
+  }
+}
+
 // walking toward the joystick angle (none: stopping), for a physics step
 function walk(body: RapierRigidBody, angle: number | null, step: number) {
   const velocity = body.linvel()
@@ -160,6 +214,7 @@ function SimulatedPlayer(props: MatchPlayerProps) {
   const fellRef = useRef(false)
   const { started, walking, characterRef } = useJoystick(state)
   const initial = useInitialPosition(props)
+  const onStep = usePlayerSounds(player, bodyRef)
 
   useEffect(() => simulateBody(player.id, player.spawn, bodyRef), [player.id, player.spawn])
 
@@ -179,7 +234,7 @@ function SimulatedPlayer(props: MatchPlayerProps) {
   return (
     <PlayerBody ref={bodyRef} gravityScale={5} position={initial}>
       <group ref={characterRef}>
-        <Player {...playerProps} animate={walking} />
+        <Player {...playerProps} animate={walking} onStep={onStep} />
       </group>
     </PlayerBody>
   )
@@ -224,6 +279,7 @@ function PredictedPlayer(props: MatchPlayerProps) {
   const correctedRef = useRef<PlayerBodySchema>(undefined)
   const { started, walking, characterRef } = useJoystick(state)
   const initial = useInitialPosition(props)
+  const onStep = usePlayerSounds(player, bodyRef)
 
   useBeforePhysicsStep(world => {
     const body = bodyRef.current
@@ -242,7 +298,7 @@ function PredictedPlayer(props: MatchPlayerProps) {
   return (
     <PlayerBody ref={bodyRef} gravityScale={5} position={initial}>
       <group ref={characterRef}>
-        <Player {...playerProps} animate={walking} />
+        <Player {...playerProps} animate={walking} onStep={onStep} />
       </group>
     </PlayerBody>
   )
@@ -255,6 +311,7 @@ function SyncedPlayer(props: MatchPlayerProps) {
   const bodyRef = useRef<RapierRigidBody>(null)
   const { walking, characterRef } = useJoystick(state)
   const initial = useInitialPosition(props)
+  const onStep = usePlayerSounds(player, bodyRef)
 
   useBeforePhysicsStep(world => {
     const body = bodyRef.current
@@ -269,7 +326,7 @@ function SyncedPlayer(props: MatchPlayerProps) {
   return (
     <PlayerBody ref={bodyRef} type="kinematicPosition" position={initial}>
       <group ref={characterRef}>
-        <Player {...playerProps} animate={walking} />
+        <Player {...playerProps} animate={walking} onStep={onStep} />
       </group>
     </PlayerBody>
   )

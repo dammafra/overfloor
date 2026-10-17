@@ -1,4 +1,4 @@
-import { Canvas, Helpers } from '@components/helpers'
+import { Canvas, Helpers, SoundBoard } from '@components/helpers'
 import { Game } from '@components/modules/game'
 import { Lobby } from '@components/modules/lobby'
 import { UI } from '@components/modules/ui'
@@ -65,7 +65,7 @@ export function Experience() {
         </Physics>
       </Suspense>
 
-      {/* <SoundBoard /> */}
+      <SoundBoard />
     </Canvas>
   )
 }

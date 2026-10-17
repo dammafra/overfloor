@@ -22,8 +22,7 @@ export function Credits() {
           Block Character
         </a>
         <br />
-        by J-Toastie
-        <br />
+        by J-Toastie{' '}
         <a
           className="text-xs underline"
           href="https://creativecommons.org/licenses/by/3.0/"
@@ -42,6 +41,12 @@ export function Credits() {
         </a>{' '}
         Packs
         <br /> by Kenney
+      </p>
+      <p>
+        SFX from{' '}
+        <a href="https://pixabay.com/playlists/overfloor-30738504" target="_blank">
+          Pixabay
+        </a>
       </p>
       <Link href="/" className="button danger mt-4">
         go back

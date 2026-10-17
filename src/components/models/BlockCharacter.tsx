@@ -8,7 +8,7 @@
 */
 
 import { useAnimations, useGLTF } from '@react-three/drei'
-import { useGraph, type ObjectMap } from '@react-three/fiber'
+import { useFrame, useGraph, type ObjectMap } from '@react-three/fiber'
 import { PATTERN_REPEAT, patternUrl } from '@utils'
 import { useEffect, useMemo, useRef, type JSX } from 'react'
 import {
@@ -48,6 +48,8 @@ export type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
   eyeColor?: ColorRepresentation
   animate?: boolean
   action?: ActionName
+  // on every footfall of the walk
+  onStep?: () => void
 }
 
 // body cube in the rest pose, with rounded edges: the model's up is z, its front (the eyes) faces -y.
@@ -55,6 +57,8 @@ export type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
 const HALF_SIZE = 0.01
 // the feet are below the body cube, left plain
 const FEET_TOP = -1.03
+// footfalls of the walk cycle
+const STEPS_PER_CYCLE = 2
 
 // shared by every character with the same pattern, filled once loaded
 const patternTextures = new Map<number, Texture>()
@@ -138,6 +142,7 @@ export function BlockCharacter({
   eyeColor = 'black',
   animate,
   action = 'Armature|Walk',
+  onStep,
   ...props
 }: BlockCharacterProps) {
   const groupRef = useRef<Group>(null)
@@ -167,6 +172,21 @@ export function BlockCharacter({
     if (animate) actions[action]?.reset().fadeIn(0.5).play()
     else actions[action]?.fadeOut(0.5)
   }, [actions, action, animate])
+
+  // footfalls in sync with the animation: the step of the cycle changed
+  const stepRef = useRef<number>(undefined)
+  useFrame(() => {
+    const current = actions[action]
+    if (!onStep || !animate || !current?.isRunning()) {
+      stepRef.current = undefined
+      return
+    }
+
+    const cycle = current.time / current.getClip().duration
+    const step = Math.floor(cycle * STEPS_PER_CYCLE)
+    if (stepRef.current !== undefined && step !== stepRef.current) onStep()
+    stepRef.current = step
+  })
 
   return (
     <group ref={groupRef} {...props} dispose={null}>

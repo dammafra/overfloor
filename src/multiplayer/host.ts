@@ -1,8 +1,8 @@
 import { PLAYER, STATE, type GameConfigSchema, type GameStage, type LobbySchema } from '@schema'
 import { getState, myPlayer, setState, waitForPlayerState, type PlayerState } from 'playroomkit'
 import { GameHost } from './game-host'
-import { PracticeBot } from './practice-bot'
 import { playerProfile } from './player'
+import { PracticeBot } from './practice-bot'
 
 /**
  * Authoritative room logic, running only on the host client (port of the old Colyseus `GameLobby`).

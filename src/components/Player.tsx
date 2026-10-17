@@ -19,6 +19,7 @@ export const Player = animatable(
     showIndicator,
     showUsername,
     animate,
+    onStep,
     ...props
   }: PlayerProps) => {
     return (
@@ -29,6 +30,7 @@ export const Player = animatable(
           patternColor={patternColor}
           eyeColor={eyeColor}
           animate={animate}
+          onStep={onStep}
         />
         {(showIndicator || showUsername) && (
           <Billboard position-y={showUsername ? 1.5 : 2.5} scale={showUsername ? 0.25 : 0.4}>

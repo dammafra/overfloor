@@ -1,11 +1,10 @@
 import { Player } from '@components'
 import { a, useSpring } from '@react-spring/three'
-import { Float, PresentationControls } from '@react-three/drei'
+import { Billboard, Float, PresentationControls } from '@react-three/drei'
 import { selectProfileColor, useProfile } from '@stores'
 import { MathUtils } from 'three'
 
-// the character lying on the profile tile, facing the camera like the tile label,
-// bigger in the middle of the tile once open
+// the character on the profile tile, always facing the camera, bigger in the middle of the tile once open
 export function ProfileCharacter({ open }: { open: boolean }) {
   const color = useProfile(selectProfileColor)
   const pattern = useProfile(s => s.pattern)
@@ -28,32 +27,33 @@ export function ProfileCharacter({ open }: { open: boolean }) {
         position-x={spring.positionX}
         position-y={0.3}
         position-z={spring.positionZ}
-        rotation={[MathUtils.degToRad(-90), 0, MathUtils.degToRad(-90)]}
         scale={spring.scale}
       >
-        <Float floatIntensity={2} rotationIntensity={1}>
-          {/* turned in every direction by dragging anywhere, back to the front once closed.
+        <Billboard>
+          <Float floatIntensity={2} rotationIntensity={1}>
+            {/* turned in every direction by dragging anywhere, back to the front once closed.
               Listening on the body: the profile page covers the canvas */}
-          <PresentationControls
-            key={String(open)}
-            enabled={open}
-            global
-            domElement={document.body}
-            cursor={false}
-            speed={2}
-            polar={[-Infinity, Infinity]}
-          >
-            <Player
-              position-y={-0.4}
-              rotation-y={-0.4}
-              scale={1.25}
-              color={color}
-              pattern={pattern}
-              patternColor={patternColor}
-              eyeColor={eyeColor}
-            />
-          </PresentationControls>
-        </Float>
+            <PresentationControls
+              key={String(open)}
+              enabled={open}
+              global
+              domElement={document.body}
+              cursor={false}
+              speed={2}
+              polar={[-Infinity, Infinity]}
+            >
+              <Player
+                position-y={-0.4}
+                rotation-y={-0.4}
+                scale={1.25}
+                color={color}
+                pattern={pattern}
+                patternColor={patternColor}
+                eyeColor={eyeColor}
+              />
+            </PresentationControls>
+          </Float>
+        </Billboard>
       </a.group>
     </group>
   )
