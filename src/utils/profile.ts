@@ -10,6 +10,10 @@ export const USERNAME_MAX_LENGTH = 12
 // in `public/patterns`, numbered from 1: black and white tileable masks, white in the pattern color
 export const PATTERNS_COUNT = 84
 const DEFAULT_PATTERN_COLOR = '#ffffff'
+// repetitions of the pattern across each face of the character's body, and across each preview of
+// the profile page: a multiple of 0.25, for a whole number all around the body so it closes
+// without a seam
+export const PATTERN_REPEAT = 1
 
 // the color input works with hex colors only
 const HEX_COLOR = /^#[0-9a-f]{6}$/i
@@ -97,4 +101,14 @@ export function usernameColor(str: string) {
   const l = 45 + ((hash >>> 8) % 15) // 45–59%
 
   return `#${new Color(`hsl(${Math.round(h)}, ${s}%, ${l}%)`).getHexString()}`
+}
+
+// white on the given background, black only when white barely reads on it
+export function contrastColor(background: string) {
+  // linear rgb, as the relative luminance wants it
+  const { r, g, b } = new Color(background)
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+  // WCAG contrast ratio of white, from 1 (white on white) to 21 (white on black)
+  const contrast = 1.05 / (luminance + 0.05)
+  return contrast < 1.75 ? 'black' : 'white'
 }

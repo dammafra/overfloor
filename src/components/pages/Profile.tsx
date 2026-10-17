@@ -1,9 +1,16 @@
 import { useFadeIn, useIsTouch } from '@hooks'
 import { a, useTransition } from '@react-spring/web'
 import { selectProfileColor, useProfile } from '@stores'
-import { lobbyPath, patternUrl, PATTERNS_COUNT, POP_TRANSITION } from '@utils'
+import {
+  contrastColor,
+  lobbyPath,
+  PATTERN_REPEAT,
+  patternUrl,
+  PATTERNS_COUNT,
+  POP_TRANSITION,
+} from '@utils'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useLocation, useParams } from 'wouter'
 import { Field } from './room-form/Field'
 
@@ -20,8 +27,12 @@ export function Profile() {
   const { username, setUsername, pickColor, pattern, pickPattern, patternColor, pickPatternColor } =
     useProfile()
   const color = useProfile(selectProfileColor)
-  const [patternsOpen, setPatternsOpen] = useState(false)
+  const patternsOpen = useProfile(s => s.patternsOpen)
+  const setPatternsOpen = useProfile(s => s.setPatternsOpen)
   const patternsTransition = useTransition(patternsOpen, POP_TRANSITION)
+
+  // closed again when leaving the page
+  useEffect(() => () => setPatternsOpen(false), [setPatternsOpen])
 
   // straight to the lobby of the shared room, if any
   const start = () => username && navigate(room ? lobbyPath({ id: room, username }) : '/room')
@@ -43,9 +54,9 @@ export function Profile() {
 
         {/* room for the character, on the open profile tile (see `ProfileCharacter`) */}
         <div className="relative h-80 short:h-40">
-          <div className="absolute top-2 right-2 flex flex-col gap-4">
+          <div className="absolute top-2 left-2 flex flex-col gap-4">
             <label className="button icon" style={{ background: color }}>
-              <span className="icon-[mdi--palette] text-white" />
+              <span className="icon-[mdi--palette]" style={{ color: contrastColor(color) }} />
               <input
                 type="color"
                 aria-label="character color"
@@ -59,7 +70,7 @@ export function Profile() {
               type="button"
               aria-label="character pattern"
               className="button icon overflow-hidden"
-              onClick={() => setPatternsOpen(open => !open)}
+              onClick={() => setPatternsOpen(!patternsOpen)}
             >
               <PatternPreview pattern={pattern} color={color} patternColor={patternColor} upright />
             </button>
@@ -68,7 +79,14 @@ export function Profile() {
               className={clsx('button icon', { disabled: !pattern })}
               style={{ background: patternColor }}
             >
-              <span className="icon-[mdi--palette-outline] text-white text-stroke-black" />
+              <span
+                className={clsx(
+                  'icon-[mdi--palette-outline]',
+                  contrastColor(patternColor) === 'white'
+                    ? 'text-white text-stroke-black'
+                    : 'text-black',
+                )}
+              />
               <input
                 type="color"
                 aria-label="pattern color"
@@ -86,7 +104,7 @@ export function Profile() {
                   style={spring}
                   // scrolling the grid is not a drag of the character (see `ProfileCharacter`)
                   onPointerDown={e => e.stopPropagation()}
-                  className="absolute inset-y-0 left-0 grid w-32 auto-rows-max grid-cols-2 gap-2 overflow-y-auto rounded-xl bg-white/30 p-2 short:w-48 short:grid-cols-3"
+                  className="absolute inset-y-0 left-14 grid w-32 auto-rows-max grid-cols-2 gap-2 overflow-y-auto rounded-xl bg-white/30 p-2 short:w-48 short:grid-cols-3"
                 >
                   {PATTERNS.map(option => (
                     <button
@@ -96,10 +114,7 @@ export function Profile() {
                       className={clsx('relative aspect-square overflow-hidden rounded-xl shadow', {
                         'ring-4 ring-amber-400': option === pattern,
                       })}
-                      onClick={() => {
-                        pickPattern(option)
-                        setPatternsOpen(false)
-                      }}
+                      onClick={() => pickPattern(option)}
                     >
                       <PatternPreview pattern={option} color={color} patternColor={patternColor} />
                     </button>
@@ -149,12 +164,15 @@ function PatternPreview({ pattern, color, patternColor, upright }: PatternPrevie
             // the white of the pattern is shown
             maskImage: `url(${patternUrl(pattern)})`,
             maskMode: 'luminance',
-            // the same size whatever the preview
-            maskSize: '24px',
+            // as many repetitions as across a face of the character, over the visible preview
+            // (the upright one overflows its button by a quarter on each side)
+            maskSize: `${100 / PATTERN_REPEAT / (upright ? 1.5 : 1)}%`,
+            // tiled from the middle, so the preview is centered on the pattern
+            maskPosition: 'center',
           }}
         />
       ) : (
-        <span className="icon-[mdi--cancel] text-2xl text-white" />
+        <span className="icon-[mdi--cancel] text-2xl" style={{ color: contrastColor(color) }} />
       )}
     </span>
   )

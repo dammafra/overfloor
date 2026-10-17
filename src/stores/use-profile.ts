@@ -20,10 +20,13 @@ type ProfileStore = {
   // none: a plain body
   pattern?: number
   patternColor: string
+  // the patterns picker of the profile page, the character makes room for it
+  patternsOpen: boolean
   setUsername: (username: string) => void
   pickColor: (color: string) => void
   pickPattern: (pattern?: number) => void
   pickPatternColor: (patternColor: string) => void
+  setPatternsOpen: (patternsOpen: boolean) => void
 }
 
 // edited in the profile page and previewed by its 3D character, stored as it changes
@@ -33,10 +36,12 @@ export const useProfile = create<ProfileStore>()(set => ({
   picked: getStoredColor(),
   pattern: getStoredPattern(),
   patternColor: getStoredPatternColor(),
+  patternsOpen: false,
   setUsername: username => set({ username: sanitizeUsername(username) }),
   pickColor: picked => set({ picked }),
   pickPattern: pattern => set({ pattern }),
   pickPatternColor: patternColor => set({ patternColor }),
+  setPatternsOpen: patternsOpen => set({ patternsOpen }),
 }))
 
 useProfile.subscribe(({ username, picked, pattern, patternColor }) =>

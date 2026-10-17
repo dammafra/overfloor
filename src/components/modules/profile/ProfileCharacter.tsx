@@ -10,10 +10,13 @@ export function ProfileCharacter({ open }: { open: boolean }) {
   const color = useProfile(selectProfileColor)
   const pattern = useProfile(s => s.pattern)
   const patternColor = useProfile(s => s.patternColor)
+  const patternsOpen = useProfile(s => s.patternsOpen)
 
   const spring = useSpring({
     // above the label when closed
     positionX: open ? 0 : 0.15,
+    // right of the patterns picker, on the left of the page
+    positionZ: open && patternsOpen ? 0.12 : 0,
     scale: open ? 0.15 : 0.28,
   })
 
@@ -23,6 +26,7 @@ export function ProfileCharacter({ open }: { open: boolean }) {
       <a.group
         position-x={spring.positionX}
         position-y={0.3}
+        position-z={spring.positionZ}
         rotation={[MathUtils.degToRad(-90), 0, MathUtils.degToRad(-90)]}
         scale={spring.scale}
       >

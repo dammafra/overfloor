@@ -9,7 +9,7 @@
 
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useGraph, type ObjectMap } from '@react-three/fiber'
-import { patternUrl } from '@utils'
+import { PATTERN_REPEAT, patternUrl } from '@utils'
 import { useEffect, useMemo, useRef, type JSX } from 'react'
 import {
   Color,
@@ -50,8 +50,7 @@ export type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
 }
 
 // body cube in the rest pose, with rounded edges: the model's up is z, its front (the eyes) faces -y.
-// In its units the cube spans -1 to 1, one repetition of the pattern each: two across each face,
-// a whole number all around so it closes without a seam
+// In its units the cube spans -1 to 1, `PATTERN_REPEAT` repetitions of the pattern across each face
 const HALF_SIZE = 0.01
 // the feet are below the body cube, left plain
 const FEET_TOP = -1.03
@@ -122,7 +121,9 @@ function applyPattern(material: MeshStandardMaterial, pattern: number, color: Co
         // of the top), the gradients for the mipmaps are taken from the position instead
         vec2 uvDx = vec2(length(dFdx(p)), 0.0);
         vec2 uvDy = vec2(0.0, length(dFdy(p)));
-        float patternMask = textureGrad(patternMap, uv, uvDx, uvDy).r;
+        // the outline goes from -1 to 1 on each face
+        float repeat = ${(PATTERN_REPEAT / 2).toFixed(4)};
+        float patternMask = textureGrad(patternMap, uv * repeat, uvDx * repeat, uvDy * repeat).r;
         patternMask *= step(${FEET_TOP}, p.z);
         diffuseColor.rgb = mix(diffuseColor.rgb, patternColor, patternMask);`,
       )
