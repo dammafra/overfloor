@@ -79,7 +79,7 @@ export class Host {
 
   onPlayerFell(id: string) {
     // practice: the fall of the player restarts the match, the bots are just eliminated
-    if (this.#practice && !this.#bots.some(bot => bot.id === id)) this.#startMatch(this.#players())
+    if (this.#practice && !this.#bots.some(bot => bot.id === id)) this.#startMatch(this.#players(), true)
     else this.#game?.fell(id)
   }
 
@@ -168,11 +168,11 @@ export class Host {
   }
 
   // `players`: the lobby players by default, everyone in the room on a practice restart (the player is no longer in the lobby)
-  #startMatch(players = this.#lobbyPlayers()) {
+  #startMatch(players = this.#lobbyPlayers(), restart = false) {
     const match = players.map(playerProfile)
 
     this.#game?.dispose()
-    this.#game = GameHost.start(match, this.#practice)
+    this.#game = GameHost.start(match, this.#practice, restart)
 
     this.#setLobby(false, this.#countdownStart)
     setState(STATE.stage, 'game', true)

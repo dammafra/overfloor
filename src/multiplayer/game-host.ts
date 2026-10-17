@@ -36,7 +36,8 @@ export class GameHost {
     this.#practice = practice
   }
 
-  static start(players: PlayerProfileSchema[], practice: boolean) {
+  // `restart`: the scene is already loaded and the players know the drill, no countdown
+  static start(players: PlayerProfileSchema[], practice: boolean, restart = false) {
     const dimension: GridDimension = players.length <= gridConfig.medium.maxPlayers ? 'medium' : 'large' //oxfmt-ignore
 
     const state = new GameState()
@@ -46,9 +47,15 @@ export class GameHost {
     const host = new GameHost(state, practice)
     host.#syncLoop()
     setState(STATE.time, 0, true)
-    setState(STATE.countdown, null, true)
 
-    host.#idle = window.setTimeout(() => host.#startCountdown(), IDLE)
+    if (restart) {
+      // past the countdown already, as when resuming
+      setState(STATE.countdown, -1, true)
+      host.#start()
+    } else {
+      setState(STATE.countdown, null, true)
+      host.#idle = window.setTimeout(() => host.#startCountdown(), IDLE)
+    }
     return host
   }
 

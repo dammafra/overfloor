@@ -20,6 +20,8 @@ const SPEED = 7
 const DAMPING = 12
 // turning toward the joystick, smooth also when it snaps (keyboard)
 const TURN_RATE = 5
+// dropping faster than this: falling, the joystick has no effect
+const FALLING_SPEED = 1 //m/s
 const UP = new Vector3(0, 1, 0)
 
 // prediction of the own player (other clients than the host): the host has it this much behind,
@@ -199,7 +201,8 @@ function walk(body: RapierRigidBody, angle: number | null, step: number) {
     body.setLinvel({ x: velocity.x * damping, y: velocity.y, z: velocity.z * damping }, true)
   }
 
-  if (angle == null) return
+  // falling: no control, e.g. pushing against the side of a tile, enough to hold on or climb back
+  if (angle == null || velocity.y < -FALLING_SPEED) return
 
   // scaled by the mass so the top speed is `SPEED`, whatever the collider
   const impulse = SPEED * DAMPING * body.mass() * step
