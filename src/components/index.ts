@@ -1,4 +1,5 @@
 export * from './Environment'
 export * from './Experience'
+export * from './Loader'
 export * from './Notification'
 export * from './Player'

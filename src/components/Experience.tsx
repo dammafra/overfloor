@@ -7,10 +7,11 @@ import { CameraControls, PerformanceMonitor } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { CAMERA_FOV, ROUTES } from '@utils'
 import { useControls } from 'leva'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { PCFShadowMap } from 'three'
 import { Route } from 'wouter'
 import { Environment } from './Environment'
+import { Loader } from './Loader'
 
 // sharp on high density screens, lowered while the frame rate can't keep up
 const MAX_DPR = Math.min(window.devicePixelRatio, 2)
@@ -54,12 +55,15 @@ export function Experience() {
       <Environment shadows />
       <CameraControls enabled={debug && !isTouch} makeDefault />
 
-      <Physics {...physicsControls}>
-        <Route path={ROUTES.home} nest component={UI} />
-        <Route path={ROUTES.lobby} component={Lobby} />
-        <Route path={ROUTES.game} component={Game} />
-        <Helpers />
-      </Physics>
+      {/* physics engine, fonts and models */}
+      <Suspense fallback={<Loader />}>
+        <Physics {...physicsControls}>
+          <Route path={ROUTES.home} nest component={UI} />
+          <Route path={ROUTES.lobby} component={Lobby} />
+          <Route path={ROUTES.game} component={Game} />
+          <Helpers />
+        </Physics>
+      </Suspense>
 
       {/* <SoundBoard /> */}
     </Canvas>
