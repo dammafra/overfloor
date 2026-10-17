@@ -10,13 +10,14 @@ export function ProfileCharacter({ open }: { open: boolean }) {
   const color = useProfile(selectProfileColor)
   const pattern = useProfile(s => s.pattern)
   const patternColor = useProfile(s => s.patternColor)
-  const patternsOpen = useProfile(s => s.patternsOpen)
+  const eyeColor = useProfile(s => s.eyeColor)
+  const panel = useProfile(s => s.panel)
 
   const spring = useSpring({
     // above the label when closed
     positionX: open ? 0 : 0.15,
-    // right of the patterns picker, on the left of the page
-    positionZ: open && patternsOpen ? 0.12 : 0,
+    // a bit right of the side panel
+    positionZ: open && panel ? 0.12 : 0,
     scale: open ? 0.15 : 0.28,
   })
 
@@ -49,6 +50,7 @@ export function ProfileCharacter({ open }: { open: boolean }) {
               color={color}
               pattern={pattern}
               patternColor={patternColor}
+              eyeColor={eyeColor}
             />
           </PresentationControls>
         </Float>

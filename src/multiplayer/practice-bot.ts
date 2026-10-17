@@ -6,7 +6,7 @@ import {
   type PlayerSchema,
   type TileSchema,
 } from '@schema'
-import { usernameColor } from '@utils'
+import { randomEyeColor, randomPattern, usernameColor } from '@utils'
 import { Bot, getState, Multiplayer, type PlayerState } from 'playroomkit'
 import { simulatedPosition } from './bodies'
 
@@ -46,7 +46,16 @@ export class PracticeBot extends Bot {
 
   constructor({ username, ...params }: { player: PlayerState; username: string }) {
     super(params)
-    this.setState(PLAYER.profile, { name: username, color: usernameColor(username) }, true)
+    this.setState(
+      PLAYER.profile,
+      {
+        name: username,
+        color: usernameColor(username),
+        ...randomPattern(),
+        eyeColor: randomEyeColor(),
+      },
+      true,
+    )
     this.setState(PLAYER.inLobby, true, true)
   }
 

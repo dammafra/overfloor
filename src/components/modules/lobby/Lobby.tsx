@@ -24,7 +24,7 @@ function LobbyRoom({ id, username, practice, countdown }: LobbyOptions) {
   const players = useRoomState(s => s.players)
 
   useEffect(() => {
-    const look = getProfileLook(username)
+    const look = getProfileLook()
 
     connect({ roomCode: id, username, ...look, practice, countdown }).then(() => {
       setConnected(true)

@@ -79,6 +79,7 @@ export function Players() {
           color={player.color}
           pattern={player.pattern}
           patternColor={player.patternColor}
+          eyeColor={player.eyeColor}
           showIndicator={mine}
           {...spring}
         />

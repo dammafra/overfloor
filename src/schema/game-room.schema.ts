@@ -30,6 +30,8 @@ export interface CharacterLookSchema {
   // none: a plain body
   pattern?: number
   patternColor?: string
+  // none: the black of the model
+  eyeColor?: string
 }
 
 // from the Playroom profile of the player

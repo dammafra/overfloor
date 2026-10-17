@@ -15,6 +15,7 @@ export const Player = animatable(
     color,
     pattern,
     patternColor,
+    eyeColor,
     showIndicator,
     showUsername,
     animate,
@@ -26,6 +27,7 @@ export const Player = animatable(
           color={color}
           pattern={pattern}
           patternColor={patternColor}
+          eyeColor={eyeColor}
           animate={animate}
         />
         {(showIndicator || showUsername) && (

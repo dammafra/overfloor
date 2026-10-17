@@ -5,7 +5,7 @@ import { myPlayer } from 'playroomkit'
 // final ranking, winner first, and the local player: its look and whether it won
 export function useLeaderboard() {
   const me = myPlayer()
-  const { username, color, pattern, patternColor } = me ? playerProfile(me) : {}
+  const { username, color, pattern, patternColor, eyeColor } = me ? playerProfile(me) : {}
   const ranking = useRoomState(s => s.leaderboard)
   const leaderboard = [...ranking].reverse()
 
@@ -14,6 +14,7 @@ export function useLeaderboard() {
     color,
     pattern,
     patternColor,
+    eyeColor,
     leaderboard,
     winner: leaderboard.at(0) === username,
   }

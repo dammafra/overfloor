@@ -9,7 +9,7 @@ import { MathUtils } from 'three'
 export function Leaderboard() {
   const { viewport } = useThree()
 
-  const { username, color, pattern, patternColor, winner } = useLeaderboard()
+  const { username, color, pattern, patternColor, eyeColor, winner } = useLeaderboard()
 
   const tileSpring = useSpring({
     from: { scale: 0, opacity: 0 },
@@ -52,6 +52,7 @@ export function Leaderboard() {
               color={color}
               pattern={pattern}
               patternColor={patternColor}
+              eyeColor={eyeColor}
             />
           </Float>
         </Billboard>

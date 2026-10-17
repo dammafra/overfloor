@@ -45,6 +45,7 @@ export type BlockCharacterProps = JSX.IntrinsicElements['group'] & {
   // none: a plain body
   pattern?: number
   patternColor?: ColorRepresentation
+  eyeColor?: ColorRepresentation
   animate?: boolean
   action?: ActionName
 }
@@ -134,6 +135,7 @@ export function BlockCharacter({
   color = 'white',
   pattern,
   patternColor = 'white',
+  eyeColor = 'black',
   animate,
   action = 'Armature|Walk',
   ...props
@@ -152,6 +154,14 @@ export function BlockCharacter({
   }, [materials, color, pattern, patternColor])
 
   useEffect(() => () => bodyMaterial.dispose(), [bodyMaterial])
+
+  const eyeMaterial = useMemo(() => {
+    const eyeMaterial = materials.eye_color.clone()
+    eyeMaterial.color.set(eyeColor)
+    return eyeMaterial
+  }, [materials, eyeColor])
+
+  useEffect(() => () => eyeMaterial.dispose(), [eyeMaterial])
 
   useEffect(() => {
     if (animate) actions[action]?.reset().fadeIn(0.5).play()
@@ -174,7 +184,7 @@ export function BlockCharacter({
               castShadow
               name="Player_2"
               geometry={nodes.Player_2.geometry}
-              material={materials.eye_color}
+              material={eyeMaterial}
               skeleton={nodes.Player_2.skeleton}
             />
           </group>

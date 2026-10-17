@@ -5,11 +5,15 @@ const USERNAME_KEY = 'overfloor-username'
 const COLOR_KEY = 'overfloor-color'
 const PATTERN_KEY = 'overfloor-pattern'
 const PATTERN_COLOR_KEY = 'overfloor-pattern-color'
+const EYE_COLOR_KEY = 'overfloor-eye-color'
 export const USERNAME_MAX_LENGTH = 12
 
 // in `public/patterns`, numbered from 1: black and white tileable masks, white in the pattern color
 export const PATTERNS_COUNT = 84
 const DEFAULT_PATTERN_COLOR = '#ffffff'
+// the ones of the model, until picked
+export const DEFAULT_COLOR = '#d9e7d1'
+const DEFAULT_EYE_COLOR = '#000000'
 // repetitions of the pattern across each face of the character's body, and across each preview of
 // the profile page: a multiple of 0.25, for a whole number all around the body so it closes
 // without a seam
@@ -34,7 +38,7 @@ export function getStoredUsername() {
   return localStorage.getItem(USERNAME_KEY) ?? ''
 }
 
-// none until picked in the profile: the color follows the username
+// none until picked in the profile: the color of the model
 export function getStoredColor() {
   const color = localStorage.getItem(COLOR_KEY)
   return isHexColor(color) ? color : undefined
@@ -51,18 +55,25 @@ export function getStoredPatternColor() {
   return isHexColor(color) ? color : DEFAULT_PATTERN_COLOR
 }
 
+export function getStoredEyeColor() {
+  const color = localStorage.getItem(EYE_COLOR_KEY)
+  return isHexColor(color) ? color : DEFAULT_EYE_COLOR
+}
+
 type StoredProfile = {
   username: string
   color?: string
   pattern?: number
   patternColor: string
+  eyeColor: string
 }
 
-export function saveProfile({ username, color, pattern, patternColor }: StoredProfile) {
+export function saveProfile({ username, color, pattern, patternColor, eyeColor }: StoredProfile) {
   localStorage.setItem(USERNAME_KEY, username)
   setOrRemove(COLOR_KEY, color)
   setOrRemove(PATTERN_KEY, pattern?.toString())
   localStorage.setItem(PATTERN_COLOR_KEY, patternColor)
+  localStorage.setItem(EYE_COLOR_KEY, eyeColor)
 }
 
 function setOrRemove(key: string, value?: string) {
@@ -70,12 +81,13 @@ function setOrRemove(key: string, value?: string) {
   else localStorage.removeItem(key)
 }
 
-// the stored look, the default color of the username if none picked
-export function getProfileLook(username: string): CharacterLookSchema {
+// the stored look, the color of the model if none picked
+export function getProfileLook(): CharacterLookSchema {
   return {
-    color: getStoredColor() ?? usernameColor(username),
+    color: getStoredColor() ?? DEFAULT_COLOR,
     pattern: getStoredPattern(),
     patternColor: getStoredPatternColor(),
+    eyeColor: getStoredEyeColor(),
   }
 }
 
@@ -101,6 +113,19 @@ export function usernameColor(str: string) {
   const l = 45 + ((hash >>> 8) % 15) // 45–59%
 
   return `#${new Color(`hsl(${Math.round(h)}, ${s}%, ${l}%)`).getHexString()}`
+}
+
+// any pattern, in a random hue much lighter or darker than the body (see `usernameColor`)
+export function randomPattern() {
+  const pattern = 1 + Math.floor(Math.random() * PATTERNS_COUNT)
+  const lightness = Math.random() < 0.5 ? 0.15 : 0.85
+  const patternColor = `#${new Color().setHSL(Math.random(), 0.7, lightness).getHexString()}`
+  return { pattern, patternColor }
+}
+
+// any hue, dark enough to read as eyes on most bodies
+export function randomEyeColor() {
+  return `#${new Color().setHSL(Math.random(), 0.8, 0.1 + Math.random() * 0.3).getHexString()}`
 }
 
 // white on the given background, black only when white barely reads on it

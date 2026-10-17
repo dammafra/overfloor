@@ -12,14 +12,14 @@ export const aspects = {
         // open modal tile, in front of the camera
         position: (aspect: number, height: number) => {
           const distance = aspects.ui.camera.distance(aspect)
-          const y = Math.max(aspect > 2 ? 4.7 : 3.5, distance - 1.5)
-          if (aspect <= 1) return [0, y, 0]
+          if (aspect <= 1) return [0, Math.max(3.5, distance - 1.5), 0]
 
-          // short landscape screens: closer to the camera to still frame the page
+          // landscape: as far from the camera as needed to frame the page, from the height of the
+          // screen only, so it changes smoothly while resizing
           const visibleHeight = (0.55 / 410) * height // ~410px of page half-extents
           const viewGap = visibleHeight / (2 * Math.tan(MathUtils.degToRad(CAMERA_FOV / 2)))
           const gap = Math.max(0.8, viewGap + 0.125) // 0.125: tile half-thickness
-          return [0, Math.max(y, distance - gap), 0]
+          return [0, distance - gap, 0]
         },
         indices: (size: number, aspect: number) => {
           const center = Math.floor((size * size) / 2)
