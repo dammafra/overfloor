@@ -9,6 +9,9 @@ export const COLOR_CONFIG = { duration: 100 }
 
 export const POP_CONFIG = { tension: 300, friction: 20 }
 
+// the menu tiles spreading in the lobby: slow at first, to see them leave their place
+export const SPREAD_CONFIG = { duration: 2500, easing: easings.easeInOutCubic }
+
 // falling tiles drop out of sight, gone before the next loop brings them back
 export const DROP_DEPTH = 8
 

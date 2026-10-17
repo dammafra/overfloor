@@ -1,5 +1,6 @@
 export * from './use-confetti'
 export * from './use-debug'
+export * from './use-entering-smooth-time'
 export * from './use-game-phase'
 export * from './use-hide-on-resize'
 export * from './use-is-touch'

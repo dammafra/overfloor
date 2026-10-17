@@ -1,7 +1,7 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useRoomState } from '@stores'
-import { getGridSize } from '@utils'
+import { getGridSize, setCameraSmoothTime } from '@utils'
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
@@ -22,6 +22,7 @@ export function CameraRig() {
       new Vector3(x + PADDING, 1, z + PADDING),
     )
 
+    setCameraSmoothTime(cameraControls)
     cameraControls.fitToBox(boundingBox, true)
     cameraControls.rotateAzimuthTo(0, true)
     cameraControls.rotatePolarTo(Math.PI * 0.25, true)

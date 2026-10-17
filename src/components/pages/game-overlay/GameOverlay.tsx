@@ -13,9 +13,9 @@ export function GameOverlay() {
     <div className="page pointer-events-none">
       {!ended && (
         <div className="absolute inset-x-6 top-6 flex items-center gap-4">
-          {started && <Time />}
-          {started && <PlayersCount />}
           <LeaveButton />
+          {started && <PlayersCount />}
+          {started && <Time />}
         </div>
       )}
       {ended && <Leaderboard />}

@@ -1,5 +1,6 @@
 export * from './animatable'
 export * from './aspects'
+export * from './camera'
 export * from './constants'
 export * from './dbg'
 export * from './grid'
