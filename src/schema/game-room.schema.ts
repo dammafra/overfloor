@@ -49,6 +49,9 @@ export interface PlayerBodySchema {
   position: Vector3Tuple
 }
 
+// bodies of the match players by id, published together by the host (see `bodies.ts`)
+export type BodiesSchema = Record<string, PlayerBodySchema>
+
 export interface TileSchema {
   id: string
   position: Vector3Tuple

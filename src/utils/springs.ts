@@ -1,4 +1,4 @@
-import type { SpringValue } from '@react-spring/web'
+import { easings, type SpringValue } from '@react-spring/web'
 
 // Spring presets shared by the 3D scene and the HTML overlays
 
@@ -8,6 +8,11 @@ export const BOUNCY_CONFIG = { mass: 1, tension: 120, friction: 15 }
 export const COLOR_CONFIG = { duration: 100 }
 
 export const POP_CONFIG = { tension: 300, friction: 20 }
+
+// falling tiles drop out of sight, gone before the next loop brings them back
+export const DROP_DEPTH = 8
+
+export const DROP_CONFIG = { duration: 450, easing: easings.easeInCubic }
 
 export const POP_TRANSITION = {
   from: { scale: 0, opacity: 0 },

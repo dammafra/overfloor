@@ -107,6 +107,8 @@ class Burst {
 
 export function useConfetti(options: ConfettiOptions = {}) {
   const burstsRef = useRef<Burst[]>([])
+  // starts the animation, which stops once the bursts are over
+  const startRef = useRef<() => void>(undefined)
   const config = { ...DEFAULT_CONFIG, ...options }
 
   useEffect(() => {
@@ -133,8 +135,8 @@ export function useConfetti(options: ConfettiOptions = {}) {
     resize()
 
     // same clock as requestAnimationFrame timestamps
-    let time = performance.now()
-    let animation: number
+    let time = 0
+    let animation = 0
 
     const animate = (t: number) => {
       const dt = (t - time) / 1000
@@ -147,11 +149,17 @@ export function useConfetti(options: ConfettiOptions = {}) {
       })
       burstsRef.current = burstsRef.current.filter(b => b.particles.length > 0)
 
+      animation = burstsRef.current.length ? requestAnimationFrame(animate) : 0
+    }
+
+    startRef.current = () => {
+      if (animation) return
+      time = performance.now()
       animation = requestAnimationFrame(animate)
     }
-    animation = requestAnimationFrame(animate)
 
     return () => {
+      startRef.current = undefined
       cancelAnimationFrame(animation)
       window.removeEventListener('resize', resize)
       document.body.removeChild(canvas)
@@ -161,5 +169,6 @@ export function useConfetti(options: ConfettiOptions = {}) {
   return () => {
     const center = { x: window.innerWidth, y: window.innerHeight }
     burstsRef.current.push(new Burst(center, config))
+    startRef.current?.()
   }
 }

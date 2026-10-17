@@ -13,12 +13,15 @@ export function LobbyOverlay() {
     const url = `${location.protocol}//${location.host}/room/${id}`
     const toShare = { text: url }
 
-    await navigator.clipboard.writeText(url)
-    setInfo(true)
+    // denied e.g. on an insecure origin: the share sheet still has the link
+    await navigator.clipboard
+      .writeText(url)
+      .then(() => setInfo(true))
+      .catch(() => {})
 
-    // Web Share API is missing on some desktop browsers (e.g. Firefox)
+    // Web Share API is missing on some desktop browsers (e.g. Firefox). Rejects when dismissed
     if (navigator.canShare?.(toShare)) {
-      await navigator.share(toShare)
+      await navigator.share(toShare).catch(() => {})
     }
   }
 

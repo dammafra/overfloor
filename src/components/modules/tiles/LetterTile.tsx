@@ -29,7 +29,7 @@ export const LetterTile = animatable(({ children, color, scale, ...props }: Tile
             size={0.9}
             bevelSize={0.025}
             bevelThickness={0.05}
-            bevelSegments={20}
+            bevelSegments={5}
           >
             {children}
             <a.meshStandardMaterial color={color} transparent opacity={0.9} roughness={0} />

@@ -9,10 +9,11 @@ import {
 } from '@schema'
 import { getGridCoordinates, getPlayersInitialPositions } from '@utils'
 import { getState, setState } from 'playroomkit'
-import { v4 as uuid } from 'uuid'
 
 const oneOf = <T>(array: T[]) => array[Math.floor(Math.random() * array.length)]
 const maybe = () => Math.random() < 0.5
+// tells the bodies of a respawned player apart, sent with every body update: short
+const spawnId = () => Math.random().toString(36).slice(2, 8)
 
 /**
  * Host-side game state. Mutated by the host only and pushed to the room state with `sync*` methods.
@@ -58,7 +59,7 @@ export class GameState {
     const positions = getPlayersInitialPositions(players.length, dimension)
     this.players = players.map((player, i) => ({
       ...player,
-      spawn: uuid(),
+      spawn: spawnId(),
       position: positions[i],
     }))
   }

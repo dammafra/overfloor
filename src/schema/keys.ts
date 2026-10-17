@@ -11,11 +11,13 @@ export const STATE = {
   players: 'players',
   leaderboard: 'leaderboard',
   loop: 'loop',
+  // positions of the match players, simulated by the host
+  bodies: 'bodies',
   // bumped by the host, every player answers it: the ones not answering are gone
   rollCall: 'rollCall',
 } as const
 
-// Per-player state, written by each player on its own state (except `body`, written by the host)
+// Per-player state, written by each player on its own state
 export const PLAYER = {
   // Playroom's profile: the username as `name`, and the look of the character (`CharacterLookSchema`)
   profile: 'profile',
@@ -25,7 +27,6 @@ export const PLAYER = {
   // Playroom's joystick keys, written by `Controller`
   joystick: 'ctr-joystick',
   angle: 'ctr-angle',
-  body: 'body',
   // last `STATE.rollCall` answered
   rollCall: 'rollCall',
 } as const

@@ -3,12 +3,12 @@ import {
   GRID_UNIT,
   PLAYER,
   STATE,
-  type PlayerBodySchema,
   type PlayerSchema,
   type TileSchema,
 } from '@schema'
 import { usernameColor } from '@utils'
 import { Bot, getState, Multiplayer, type PlayerState } from 'playroomkit'
+import { simulatedPosition } from './bodies'
 
 const OCTANT = Math.PI / 4
 const ARRIVE_DISTANCE = 0.4
@@ -54,14 +54,13 @@ export class PracticeBot extends Bot {
     return this.#target
   }
 
-  // published body of the current spawn, none while the bot is not in the match
+  // body of the current spawn, simulated on this client (the host), none while the bot is not in the match
   get position() {
     const players: PlayerSchema[] = getState(STATE.players) ?? []
     const player = players.find(p => p.id === this.id)
-    const body: PlayerBodySchema | undefined = this.getState(PLAYER.body)
     if (!player) return
 
-    return body?.spawn === player.spawn ? body.position : player.position
+    return simulatedPosition(this.id, player.spawn) ?? player.position
   }
 
   // `taken`: tiles targeted by the other bots, avoided to not crowd the same one

@@ -3,6 +3,7 @@ import {
   PLAYER,
   RPC_EVENTS,
   STATE,
+  type BodiesSchema,
   type CharacterLookSchema,
   type GameConfigSchema,
   type LobbySchema,
@@ -23,6 +24,7 @@ import {
 } from 'playroomkit'
 import { useSyncExternalStore } from 'react'
 import { navigate } from 'wouter/use-browser-location'
+import { receiveBodies, resetBodies } from './bodies'
 import { Host, PRACTICE_BOTS } from './host'
 import { playerProfile } from './player'
 
@@ -215,6 +217,7 @@ function teardown(current: Session) {
   current.host = undefined
   current.playerIds.clear()
   current.lobbyPlayers = NO_PLAYERS
+  resetBodies()
   notify()
 
   const client = Multiplayer()
@@ -243,15 +246,17 @@ function clearRoomHash() {
   history.replaceState(history.state, '', pathname + search + (hash ? `#${hash}` : ''))
 }
 
-// A single room state listener: Playroom's `useMultiplayerState` adds one emitter listener per hook
+// A single room state listener: Playroom's `useMultiplayerState` adds one emitter listener per hook.
+// The bodies change many times per second: kept out of React, read every physics step instead
 function syncRoomState(current: Session) {
   const keys = Object.keys(initialRoomState) as (keyof RoomState)[]
   const read = (key: keyof RoomState) => getState(key) ?? initialRoomState[key]
 
   useRoomState.setState(Object.fromEntries(keys.map(key => [key, read(key)])))
 
-  const unsubscribe = Multiplayer().on('state', (_, key) => {
-    if (key in initialRoomState) useRoomState.setState({ [key]: read(key as keyof RoomState) })
+  const unsubscribe = Multiplayer().on('state', (state, key) => {
+    if (key === STATE.bodies) receiveBodies(state[key] as BodiesSchema | undefined)
+    else if (key in initialRoomState) useRoomState.setState({ [key]: read(key as keyof RoomState) })
   })
   current.unsubscribes.push(unsubscribe)
 }

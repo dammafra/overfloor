@@ -3,7 +3,8 @@ import { useTransition } from '@react-spring/three'
 import { CuboidCollider, RigidBody } from '@react-three/rapier'
 import { GameLoopPhase, GRID_UNIT } from '@schema'
 import { useRoomState } from '@stores'
-import { BOUNCY_CONFIG, COLOR_CONFIG, COLORS } from '@utils'
+import { BOUNCY_CONFIG, COLOR_CONFIG, COLORS, DROP_CONFIG, DROP_DEPTH } from '@utils'
+import type { Vector3Tuple } from 'three'
 
 export function Grid() {
   const defaultColor = COLORS.tile
@@ -30,8 +31,13 @@ export function Grid() {
       color: defaultColor,
       position: tile.position,
     }),
-    enter: { scale: GRID_UNIT },
-    leave: { scale: 0 },
+    // back in place also when entering again while still dropping
+    enter: tile => ({ scale: GRID_UNIT, position: tile.position }),
+    leave: tile => ({
+      scale: 0,
+      position: tile.position.with(1, tile.position[1] - DROP_DEPTH) as Vector3Tuple,
+      config: DROP_CONFIG,
+    }),
     update: tile => ({
       color: tile.targeted ? phaseColors[phase] : defaultColor,
       config: COLOR_CONFIG,

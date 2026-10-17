@@ -14,8 +14,11 @@ const COUNTDOWN_START = 60
 const COUNTDOWN_END = 4
 const BOT_THINK_INTERVAL = 100 //ms
 const ROLL_CALL_INTERVAL = 500 //ms
-// roll calls missed in a row before a player is dropped (~2s)
-const ROLL_CALL_MISSES = 3
+// without a new answer for this long, a player is dropped. Not a missed roll call: a slow
+// connection answers each one later than the next is called, still alive
+const ROLL_CALL_TIMEOUT = 3000 //ms
+// answered this recently: responsive, e.g. to take over as host
+const RESPONSIVE_TIMEOUT = 2 * ROLL_CALL_INTERVAL
 
 export class Host {
   readonly #players: () => PlayerState[]
@@ -28,8 +31,8 @@ export class Host {
   #bots: PracticeBot[] = []
   #botInterval?: number
   #rollCall: number
-  // roll calls missed in a row by each player
-  #missed = new Map<string, number>()
+  // last roll call answered by each player, and when the answer changed
+  #answers = new Map<string, { rollCall: unknown; at: number }>()
 
   constructor(players: () => PlayerState[]) {
     this.#players = players
@@ -90,9 +93,10 @@ export class Host {
     this.#updateLobby(false)
   }
 
-  // answered the last roll call: still connected
+  // answered a roll call lately: still connected
   isResponsive(id: string) {
-    return this.#missed.get(id) === 0
+    const answer = this.#answers.get(id)
+    return !!answer && performance.now() - answer.at < RESPONSIVE_TIMEOUT
   }
 
   #addBots() {
@@ -122,18 +126,23 @@ export class Host {
    */
   #callRoll() {
     const me = myPlayer()?.id
-    const missed = new Map<string, number>()
+    const now = performance.now()
+    const answers = new Map<string, { rollCall: unknown; at: number }>()
 
     this.#players().forEach(player => {
       // the bots run on this client
       if (player.id === me || player.getState('__proxyBy')) return
 
-      const count = player.getState(PLAYER.rollCall) === this.#rollCall ? 0 : (this.#missed.get(player.id) ?? 0) + 1 //oxfmt-ignore
-      if (count > ROLL_CALL_MISSES) player.disconnect()
-      else missed.set(player.id, count)
+      const rollCall = player.getState(PLAYER.rollCall)
+      // first seen (e.g. just joined, or a new host): given the whole timeout
+      const last = this.#answers.get(player.id)
+      const answer = !last || last.rollCall !== rollCall ? { rollCall, at: now } : last
+
+      if (now - answer.at > ROLL_CALL_TIMEOUT) player.disconnect()
+      else answers.set(player.id, answer)
     })
 
-    this.#missed = missed
+    this.#answers = answers
     setState(STATE.rollCall, ++this.#rollCall, true)
   }
 
