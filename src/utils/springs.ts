@@ -1,4 +1,4 @@
-import { easings, type SpringValue } from '@react-spring/web'
+import { easings } from '@react-spring/web'
 
 // Spring presets shared by the 3D scene and the HTML overlays
 
@@ -23,6 +23,3 @@ export const POP_TRANSITION = {
   leave: { scale: 0, opacity: 0 },
   config: POP_CONFIG,
 }
-
-// animated style of the elements of a `POP_TRANSITION`
-export type PopStyle = { scale: SpringValue<number>; opacity: SpringValue<number> }

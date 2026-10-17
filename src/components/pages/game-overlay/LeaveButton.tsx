@@ -1,9 +1,10 @@
 import { a, useTransition } from '@react-spring/web'
 import { POP_TRANSITION } from '@utils'
+import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'wouter'
 
-export function LeaveButton() {
+export function LeaveButton({ className }: { className?: string }) {
   const [, navigate] = useLocation()
   const [confirm, setConfirm] = useState(false)
 
@@ -18,13 +19,13 @@ export function LeaveButton() {
 
   // sized as the icon button, the confirmation overflows to the right
   return (
-    <div className="relative z-10 size-12">
+    <div className={clsx('relative z-10 size-12', className)}>
       {transitions((spring, confirm) =>
         confirm ? (
           <a.button
             className="button danger absolute top-1/2 left-0 -translate-y-1/2 whitespace-nowrap"
             style={spring}
-            onClick={() => navigate('/', { replace: true })}
+            onClick={() => navigate('/room', { replace: true })}
           >
             leave the room?
           </a.button>

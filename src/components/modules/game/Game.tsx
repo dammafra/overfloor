@@ -28,11 +28,11 @@ export function Game() {
   }, [])
 
   useEffect(() => {
-    if (!hasSession()) navigate('/', { replace: true })
+    if (!hasSession()) navigate('/room', { replace: true })
   }, [navigate])
 
   useEffect(() => {
-    const handleVisibilityChange = () => navigate('/')
+    const handleVisibilityChange = () => navigate('/room')
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [navigate])

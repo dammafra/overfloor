@@ -48,8 +48,8 @@ export function Credits() {
           Pixabay
         </a>
       </p>
-      <Link href="/" className="button danger mt-4">
-        go back
+      <Link href="/" aria-label="back" className="button icon large danger mt-4">
+        <span className="icon-[mdi--chevron-left]" />
       </Link>
     </a.div>
   )

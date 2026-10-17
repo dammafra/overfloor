@@ -26,12 +26,17 @@ export const aspects = {
 
           const index0 = aspect > 1 ? center + 2 * size - 2 : center - 2 - 2 * size
           const index1 = aspect > 1 ? index0 - size : index0 + size
-          // top left of the start button, as seen by the menu camera
-          const index2 = index0 + 1
-          // bottom right of `index1`
-          const index3 = index1 - 1
 
-          return [index0, index1, index2, index3]
+          return [index0, index1]
+        },
+      },
+      // room actions and the profile in place of the buttons: a block of 2x2 tiles, a diamond as
+      // seen by the menu camera (top, right, bottom, left)
+      room: {
+        indices: (size: number, aspect: number) => {
+          const [start] = aspects.ui.tile.button.indices(size, aspect)
+          const bottom = aspect > 1 ? start - size : start
+          return [bottom + size + 1, bottom + size, bottom, bottom + 1]
         },
       },
       letter: {

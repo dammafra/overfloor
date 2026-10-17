@@ -1,5 +1,6 @@
 import type { CharacterLookSchema } from '@schema'
 import { Color } from 'three'
+import { adjectives, nouns, uniqueUsernameGenerator, type Config } from 'unique-username-generator'
 
 const USERNAME_KEY = 'overfloor-username'
 const COLOR_KEY = 'overfloor-color'
@@ -34,23 +35,61 @@ export function isHexColor(color: unknown): color is string {
   return typeof color === 'string' && HEX_COLOR.test(color)
 }
 
-export function getStoredUsername() {
-  return localStorage.getItem(USERNAME_KEY) ?? ''
+// adjective and noun of up to half the length each, so the username always fits
+const HALF_LENGTH = USERNAME_MAX_LENGTH / 2
+const RANDOM_USERNAME: Config = {
+  dictionaries: [adjectives, nouns].map(words => words.filter(word => word.length <= HALF_LENGTH)),
+  separator: '',
+  style: 'pascalCase',
 }
 
-// none until picked in the profile: the color of the model
+// e.g. "WirySwatch", without profanities
+function randomUsername() {
+  return uniqueUsernameGenerator(RANDOM_USERNAME)
+}
+
+// the stored one, a random one until set in the profile (stored too, the same from now on)
+export function getUsername() {
+  const stored = localStorage.getItem(USERNAME_KEY)
+  if (stored) return stored
+
+  const username = randomUsername()
+  localStorage.setItem(USERNAME_KEY, username)
+  return username
+}
+
+// stored for no pattern, told apart from none stored yet
+const NO_PATTERN = '0'
+
+// a random look until one is stored, as the practice bots (see `PracticeBot`): the color from the
+// username, and a pattern with its color. Stored too, the same from now on
+function storeRandomLook() {
+  if (localStorage.getItem(COLOR_KEY) === null) {
+    localStorage.setItem(COLOR_KEY, usernameColor(getUsername()))
+  }
+  if (localStorage.getItem(PATTERN_KEY) === null) {
+    const { pattern, patternColor } = randomPattern()
+    localStorage.setItem(PATTERN_KEY, pattern.toString())
+    localStorage.setItem(PATTERN_COLOR_KEY, patternColor)
+  }
+}
+
+// none if malformed: the color of the model
 export function getStoredColor() {
+  storeRandomLook()
   const color = localStorage.getItem(COLOR_KEY)
   return isHexColor(color) ? color : undefined
 }
 
-// none until picked in the profile: a plain body
+// none if picked so in the profile: a plain body
 export function getStoredPattern() {
+  storeRandomLook()
   const pattern = Number(localStorage.getItem(PATTERN_KEY))
   return isPattern(pattern) ? pattern : undefined
 }
 
 export function getStoredPatternColor() {
+  storeRandomLook()
   const color = localStorage.getItem(PATTERN_COLOR_KEY)
   return isHexColor(color) ? color : DEFAULT_PATTERN_COLOR
 }
@@ -71,7 +110,7 @@ type StoredProfile = {
 export function saveProfile({ username, color, pattern, patternColor, eyeColor }: StoredProfile) {
   localStorage.setItem(USERNAME_KEY, username)
   setOrRemove(COLOR_KEY, color)
-  setOrRemove(PATTERN_KEY, pattern?.toString())
+  localStorage.setItem(PATTERN_KEY, pattern?.toString() ?? NO_PATTERN)
   localStorage.setItem(PATTERN_COLOR_KEY, patternColor)
   localStorage.setItem(EYE_COLOR_KEY, eyeColor)
 }
@@ -81,7 +120,7 @@ function setOrRemove(key: string, value?: string) {
   else localStorage.removeItem(key)
 }
 
-// the stored look, the color of the model if none picked
+// the stored look (a random one until set), the color of the model if malformed
 export function getProfileLook(): CharacterLookSchema {
   return {
     color: getStoredColor() ?? DEFAULT_COLOR,

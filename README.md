@@ -24,6 +24,7 @@ Watch the floor tiles, be careful where you stand, outlast your opponents and be
 - [@react-spring](https://www.react-spring.dev/)
 - [zustand](https://zustand.docs.pmnd.rs/getting-started/introduction)
 - [use-sound](https://github.com/joshwcomeau/use-sound?tab=readme-ov-file)
+- [PlayroomKit](https://joinplayroom.com/)
 
 ## Setup
 

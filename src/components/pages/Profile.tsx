@@ -4,16 +4,16 @@ import { a, useTransition } from '@react-spring/web'
 import { selectProfileColor, useProfile, type ProfilePanel } from '@stores'
 import {
   contrastColor,
-  lobbyPath,
+  getUsername,
   PATTERN_REPEAT,
-  patternUrl,
   PATTERNS_COUNT,
+  patternUrl,
   POP_TRANSITION,
 } from '@utils'
 import clsx from 'clsx'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, useLocation, useParams } from 'wouter'
-import { Field } from './room-form/Field'
+import { Link, useLocation } from 'wouter'
+import { Field } from './join-form/Field'
 
 // diamonds of the profile buttons, as in the menu grid: 36px apart (28px small, on short screens)
 const SMALL = 'short:size-9 short:text-3xl'
@@ -36,8 +36,6 @@ const PATTERNS = [undefined, ...Array.from({ length: PATTERNS_COUNT }, (_, i) =>
 export function Profile() {
   const [, navigate] = useLocation()
   const isTouch = useIsTouch()
-  // set when redirected from the room form, e.g. by a shared link
-  const { room } = useParams()
 
   const {
     username,
@@ -63,11 +61,16 @@ export function Profile() {
     eyeColor: { color: eyeColor, onPick: pickEyeColor },
   }
 
-  // closed again when leaving the page
-  useEffect(() => () => setPanel(undefined), [setPanel])
+  // closed again when leaving the page, a random username if left empty (see `getUsername`)
+  useEffect(
+    () => () => {
+      setPanel(undefined)
+      if (!useProfile.getState().username) setUsername(getUsername())
+    },
+    [setPanel, setUsername],
+  )
 
-  // straight to the lobby of the shared room, if any
-  const start = () => username && navigate(room ? lobbyPath({ id: room, username }) : '/room')
+  const back = () => navigate('/room')
 
   const { opacity } = useFadeIn(500)
 
@@ -81,7 +84,7 @@ export function Profile() {
           autoFocus={!isTouch}
           value={username}
           onChange={e => setUsername(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && start()}
+          onKeyDown={e => e.key === 'Enter' && back()}
         />
 
         {/* room for the character, on the open profile tile (see `ProfileCharacter`) */}
@@ -200,16 +203,9 @@ export function Profile() {
         </div>
 
         <div className="flex justify-center gap-4">
-          <Link href="/" className="button danger">
-            go back
+          <Link href="/room" aria-label="back" className="button icon large danger">
+            <span className="icon-[mdi--chevron-left]" />
           </Link>
-          <button
-            type="button"
-            className={clsx('button accent', { disabled: !username })}
-            onClick={start}
-          >
-            start
-          </button>
         </div>
       </div>
     </a.div>

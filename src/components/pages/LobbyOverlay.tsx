@@ -50,7 +50,7 @@ export function LobbyOverlay() {
                 </a.p>
               ),
           )}
-          <Link href="/" className="button icon danger">
+          <Link href="/room" className="button icon danger">
             <span className="icon-[mdi--chevron-left]" />
           </Link>
           <p>leave / share</p>

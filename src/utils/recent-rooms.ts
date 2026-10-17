@@ -1,5 +1,5 @@
 const RECENT_ROOMS_KEY = 'overfloor-recent-rooms'
-export const MAX_RECENT_ROOMS = 3
+const MAX_RECENT_ROOMS = 6
 
 // codes of the rooms joined lately, latest first
 export function getRecentRooms(): string[] {

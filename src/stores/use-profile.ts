@@ -4,7 +4,7 @@ import {
   getStoredEyeColor,
   getStoredPattern,
   getStoredPatternColor,
-  getStoredUsername,
+  getUsername,
   sanitizeInput,
   saveProfile,
   USERNAME_MAX_LENGTH,
@@ -38,7 +38,7 @@ type ProfileStore = {
 // edited in the profile page and previewed by its 3D character, stored as it changes
 export const useProfile = create<ProfileStore>()(set => ({
   // a longer stored one is truncated
-  username: sanitizeUsername(getStoredUsername()),
+  username: sanitizeUsername(getUsername()),
   picked: getStoredColor(),
   pattern: getStoredPattern(),
   patternColor: getStoredPatternColor(),

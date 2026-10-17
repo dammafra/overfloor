@@ -202,7 +202,7 @@ function fail(current: Session, message: string) {
   teardown(current)
 
   useNotification.getState().notify({ message, type: 'error' })
-  navigate('/', { replace: true })
+  navigate('/room', { replace: true })
 }
 
 /**

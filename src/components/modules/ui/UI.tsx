@@ -24,12 +24,21 @@ type TileRole = Pick<MenuTileSprings, 'type' | 'index'>
 
 type MenuTileItem = { tile: number; role?: TileRole }
 
+// indices of the modal room buttons, as in `MenuRoomTile`
+const ROOM_BUTTON = { join: 1, profile: 3 }
+
 export function UI() {
   const [matchGame] = useRoute(ROUTES.game)
   const [matchLobby] = useRoute(ROUTES.lobby)
   const match = matchGame || matchLobby
+  // started: the room actions and the profile in place of the buttons. Kept in the lobby, entered
+  // from and left to the room menu: same keys, the tiles move on instead of popping out and in
+  const [matchRoom] = useRoute(ROUTES.room)
+  const [matchJoin] = useRoute(ROUTES.join)
+  const [matchProfile] = useRoute(ROUTES.profile)
+  const started = matchRoom || matchJoin || matchProfile || matchLobby
 
-  const { viewport } = useThree()
+  const { viewport, size: canvasSize } = useThree()
 
   const size = matchGame ? 0 : MENU_GRID_SIZE
   const firstRenderRef = useRef(true)
@@ -57,9 +66,34 @@ export function UI() {
   aspects.ui.tile.letter
     .indices(size, viewport.aspect)
     .forEach((tile, index) => roles.set(tile, { type: 'letter', index }))
-  aspects.ui.tile.button
-    .indices(size, viewport.aspect)
-    .forEach((tile, index) => roles.set(tile, { type: 'button', index }))
+  const buttonTiles = (started ? aspects.ui.tile.room : aspects.ui.tile.button).indices(
+    size,
+    viewport.aspect,
+  )
+  buttonTiles.forEach((tile, index) =>
+    roles.set(tile, { type: started ? 'room' : 'button', index }),
+  )
+
+  // the open modal (join or profile) is in front of the camera, not at the spring position of its
+  // tile: entering the lobby, its tile turns plain and moves on from there. The one open before
+  // the lobby, kept until the effect below
+  const openTile = matchJoin
+    ? buttonTiles[ROOM_BUTTON.join]
+    : matchProfile
+      ? buttonTiles[ROOM_BUTTON.profile]
+      : undefined
+  const openTileRef = useRef(openTile)
+  useEffect(() => {
+    openTileRef.current = openTile
+  }, [openTile])
+  // reset too: the transitions set it to false, `from` would not be the starting value otherwise
+  const fromOpenModal = (tile: number) =>
+    matchLobby && tile === openTileRef.current
+      ? {
+          from: { position: aspects.ui.tile.button.position(viewport.aspect, canvasSize.height) },
+          reset: 'position',
+        }
+      : {}
 
   const getTilePosition = (index: number) =>
     matchLobby ? positions.lobby.tile(index) : positions.ui.tile(index, size)
@@ -95,6 +129,7 @@ export function UI() {
       return { scale: 0, immediate: handedOver }
     },
     update: ({ tile }) => ({
+      ...fromOpenModal(tile),
       position: getTilePosition(tile),
       config: getPositionConfig(),
     }),

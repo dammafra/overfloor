@@ -1,6 +1,5 @@
 export * from './Credits'
 export * from './game-overlay'
-export * from './HowToPlay'
 export * from './LobbyOverlay'
 export * from './Profile'
-export * from './room-form'
+export * from './join-form'

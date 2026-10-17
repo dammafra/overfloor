@@ -12,7 +12,7 @@ import { Players } from './Players'
 
 export function Lobby() {
   const options = useLobbyOptions()
-  return options ? <LobbyRoom {...options} /> : <Redirect to="/" replace />
+  return options ? <LobbyRoom {...options} /> : <Redirect to="/room" replace />
 }
 
 function LobbyRoom({ id, username, practice, countdown }: LobbyOptions) {

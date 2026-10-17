@@ -1,14 +1,15 @@
+import { useEscape } from '@hooks'
 import { useSpring } from '@react-spring/three'
 import { useThree } from '@react-three/fiber'
 import { aspects, COLORS } from '@utils'
-import { useEffect } from 'react'
 import { MathUtils, type ColorRepresentation, type Vector3Tuple } from 'three'
-import { useLocation } from 'wouter'
 import { ButtonTile, type ButtonTileProps } from './ButtonTile'
 
 interface ModalTileProps extends ButtonTileProps {
   open?: boolean
   openColor?: ColorRepresentation
+  // page to go back to on Escape
+  closeTo?: string
 }
 
 export function ModalTile({
@@ -16,10 +17,10 @@ export function ModalTile({
   labelProps,
   color = COLORS.tile,
   openColor = COLORS.tile,
+  closeTo = '/',
   ...props
 }: ModalTileProps) {
   const { viewport, size } = useThree()
-  const [, navigate] = useLocation()
 
   const spring = useSpring({
     position: (open
@@ -30,15 +31,7 @@ export function ModalTile({
   })
 
   // only the open modal closes on Escape
-  useEffect(() => {
-    if (!open) return
-
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') navigate('/')
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [open, navigate])
+  useEscape(closeTo, open)
 
   return (
     <ButtonTile

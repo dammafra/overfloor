@@ -1,5 +1,15 @@
 export const FONT = '/fonts/audiowide.ttf'
 export const FONT_3D = '/fonts/audiowide.json'
+// Material Icons, by codepoint (see `ICONS`): troika does not reliably support the ligatures
+export const ICON_FONT = '/fonts/material-icons.ttf'
+
+// codepoints from https://github.com/google/material-design-icons/blob/master/font/MaterialIcons-Regular.codepoints
+export const ICONS = {
+  add: '\ue145',
+  fitnessCenter: '\ueb43',
+  login: '\uea77',
+  playArrow: '\ue037',
+} as const
 
 export const CAMERA_FOV = 45
 
@@ -17,9 +27,9 @@ export const COLORS = {
 export const ROUTES = {
   home: '/',
   room: '/room/:id?',
+  join: '/join',
   credits: '/credits',
-  howToPlay: '/tutorial',
-  profile: '/profile/:room?',
+  profile: '/profile',
   lobby: '/lobby/:options',
   game: '/game',
 } as const
